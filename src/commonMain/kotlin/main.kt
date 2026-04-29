@@ -2,10 +2,6 @@ import korlibs.korge.Korge
 import korlibs.korge.scene.sceneContainer
 import korlibs.image.color.Colors
 //import korlibs.math.geom.Size
-import korlibs.math.geom.*
-import korlibs.event.*
-import korlibs.korge.KorgeDisplayMode
-import korlibs.time.seconds
 
 //suspend fun main() = Korge(
 //    windowSize = Size(1024, 720), // Width and Height of the game window
@@ -25,7 +21,8 @@ suspend fun main() = Korge(
     title = "Fighting Kimhie"
 ) {
     val scenes = sceneContainer()
-    scenes.changeTo { GameScene() }
+    scenes.changeTo { MainMenuScene() }
+//    scenes.changeTo { GameScene() }
 }
 
 

@@ -1,46 +1,28 @@
+import korlibs.image.bitmap.BmpSlice
 import korlibs.korge.view.*
-import korlibs.image.color.Colors
-import korlibs.korge.input.onDown
-import korlibs.korge.input.onUp
-import korlibs.korge.input.onUpOutside
-
 
 class TouchButton(
     width: Double,
     height: Double,
-    private val onChange: (Boolean) -> Unit
+    slice: BmpSlice
 ) : Container() {
 
-    private val bg = solidRect(width, height, Colors["#444444"])
-    private val highlight = solidRect(width, height, Colors["#888888"]).apply {
-        alpha = 0.0
+    private val btn = image(slice).apply {
+        smoothing = false
+        this.width = width
+        this.height = height
     }
 
-    private var pressed = false
+    var isPressed: Boolean = false
+        set(value) {
+            if (field != value) {
+                field = value
+                btn.colorMul = if (value) korlibs.image.color.Colors["#888888"] else korlibs.image.color.Colors.WHITE
+            }
+        }
 
     init {
-        addChild(bg)
-        addChild(highlight)
-
+        addChild(btn)
         this.alpha = 0.85
-
-        // ✅ ONLY SAFE MULTI-TOUCH METHOD IN KORGE VIEW SYSTEM
-        onDown {
-            pressed = true
-            highlight.alpha = 0.5
-            onChange(true)
-        }
-
-        onUp {
-            pressed = false
-            highlight.alpha = 0.0
-            onChange(false)
-        }
-
-        onUpOutside {
-            pressed = false
-            highlight.alpha = 0.0
-            onChange(false)
-        }
     }
 }
