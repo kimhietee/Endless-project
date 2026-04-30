@@ -6,6 +6,8 @@ import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
 import korlibs.io.async.launchImmediately
+import korlibs.io.*
+import korlibs.io.async.*
 
 
 class MainMenuScene : Scene() {

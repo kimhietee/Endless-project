@@ -22,6 +22,7 @@ suspend fun main() = Korge(
 ) {
     val scenes = sceneContainer()
     scenes.changeTo { MainMenuScene() }
+//    scenes.changeTo { MenuScene() }
 //    scenes.changeTo { GameScene() }
 }
 

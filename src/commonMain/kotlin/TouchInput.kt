@@ -8,4 +8,5 @@ object TouchInput {
     var skill2 = false
     var skill3 = false
     var skill4 = false
+
 }
