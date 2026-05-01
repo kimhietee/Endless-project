@@ -28,6 +28,25 @@ class GameScene : Scene() {
         }
         addChild(bg)
 
+//        If your files are zero-padded like frame_00.png, frame_01.png, add:
+//        kotlin    zeroPad = 2   // pads to 2 digits: 0 → "00"
+
+
+//        // PNG SEQUENCE
+//        val basicAtkFrames = GameAssets.loadFrames(FrameConfig(
+//            folder     = "your_folder",
+//            prefix     = "slash_",
+//            startIndex = 0,
+//            count      = 6
+//        ))
+//
+//        // SPRITESHEET
+//        val skill1Frames = GameAssets.loadFrames(FrameConfig(
+//            folder = "your_folder",
+//            sheet  = SpriteSheetConfig(fileName = "fireball_sheet", columns = 8, rows = 1),
+//            count  = 8
+//        ))
+
         // -------------------------------------------------------
         // CHARACTER ASSETS (from cached GameAssets)
         // -------------------------------------------------------
@@ -37,7 +56,12 @@ class GameScene : Scene() {
         val attackFrames = GameAssets.attackFrames
         val skillFrames  = GameAssets.skillFrames
 
-        val basicAtkFrames = GameAssets.loadFrames(FrameConfig("fireWizard/slash_pngs",    "Attack_1_", startIndex = 0, count = 10))
+//        val basicAtkFrames = GameAssets.loadFrames(FrameConfig("fireWizard/slash_pngs",    "Attack_1_", startIndex = 0, count = 10))
+        val basicAtkFrames = GameAssets.loadFrames(FrameConfig(
+            folder = "fireWizard/skills/slash",
+            sheet  = SpriteSheetConfig(fileName = "playerSlash", columns = 5, rows = 1),
+            count  = 5
+        ))
         val skill1Frames   = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_1", "tile", startIndex = 0, count = 12, zeroPad = 3))
         val skill2Frames   = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_2", "",     startIndex = 0, count = 53, zeroPad = 2))
         val skill3Frames   = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_3", "png_",  startIndex = 0, count = 34, zeroPad = 2))
@@ -132,30 +156,55 @@ class GameScene : Scene() {
         GameAssets.load()
 
         spawner.schedule(
-            // Start with some basic skeletons
-            SpawnEvent(3.0, "skeleton", 850.0),
-            SpawnEvent(7.0, "skeleton", 900.0),
-            SpawnEvent(10.5, "skeleton", 800.0),
-            SpawnEvent(18.5, "skeleton", 800.0),
+            // Wave 1 (0:00 - 1:30)
+            SpawnEvent(1.0, "skeleton", 1000.0),
+            SpawnEvent(5.0, "skeleton", 1000.0),
+
+            SpawnEvent(10.0, "skeleton", 1000.0, 2, 50.0),
+            SpawnEvent(10.0, "skeleton_archer", 950.0),
+
+            SpawnEvent(15.0, "skeleton", 1000.0, 1, 20.0),
+            SpawnEvent(15.0, "skeleton_archer", 1000.0, 1, 20.0),
+
+            SpawnEvent(20.0, "skeleton_spearman", 900.0),
+            SpawnEvent(20.0, "skeleton", 1000.0, 1, 20.0),
+            SpawnEvent(20.0, "skeleton_archer", 1000.0, 2, 50.0),
+            SpawnEvent(25.0, "skeleton_spearman", 1000.0),
+            SpawnEvent(25.0, "skeleton_archer", 1100.0, 2, 20.0),
+
+            SpawnEvent(40.0, "skeleton_spearman", 900.0, 2, 50.0),
+            SpawnEvent(40.0, "skeleton", 1000.0, 2, 40.0),
+            SpawnEvent(40.0, "skeleton_archer", 1000.0, 2, 50.0),
+            SpawnEvent(45.0, "skeleton_archer", 1100.0, 2, 60.0),
+            SpawnEvent(50.0, "skeleton_spearman", 1000.0, 1, 20.0),
+            SpawnEvent(50.0, "skeleton", 1000.0, 1, 20.0),
+
+            SpawnEvent(60.0, "skeleton_boss", 640.0),
+
+            // Wave 2 (1:30 - 2:30)
+
 
             // Add spearmen
-            SpawnEvent(15.0, "skeleton_spearman", 900.0),
-            SpawnEvent(18.0, "skeleton_spearman", 800.0),
-
-            // Add archers from far away
-            SpawnEvent(10.0, "skeleton_archer", 950.0),
-            SpawnEvent(15.0, "skeleton_archer", 750.0),
-
-            // Add wolves
-            SpawnEvent(35.0, "wolf1", 900.0),
-            SpawnEvent(38.0, "wolf2", 850.0),
-            SpawnEvent(40.0, "wolf3", 800.0),
-
-            // Mixed waves
-            SpawnEvent(50.0, "skeleton", 900.0),
-            SpawnEvent(50.5, "wolf1", 850.0),
-            SpawnEvent(51.0, "skeleton_archer", 950.0),
-            SpawnEvent(52.0, "skeleton_spearman", 800.0)
+//            SpawnEvent(15.0, "skeleton_spearman", 900.0),
+//            SpawnEvent(18.0, "skeleton_spearman", 800.0),
+//
+//            // Add archers from far away
+//            SpawnEvent(10.0, "skeleton_archer", 950.0),
+//            SpawnEvent(15.0, "skeleton_archer", 750.0),
+//
+//            // Add skeleton boss
+//            SpawnEvent(25.0, "skeleton_boss", 640.0),
+//
+//            // Add wolves
+//            SpawnEvent(35.0, "wolf1", 900.0),
+//            SpawnEvent(38.0, "wolf2", 850.0),
+//            SpawnEvent(40.0, "wolf3", 800.0),
+//
+//            // Mixed waves
+//            SpawnEvent(50.0, "skeleton", 900.0),
+//            SpawnEvent(50.5, "wolf1", 850.0),
+//            SpawnEvent(51.0, "skeleton_archer", 950.0),
+//            SpawnEvent(52.0, "skeleton_spearman", 800.0)
         )
         
         // -------------------------------------------------------

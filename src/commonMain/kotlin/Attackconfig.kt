@@ -22,5 +22,7 @@ data class AttackConfig(
     val hitboxScaleX:    Double  = 0.5,
     val hitboxScaleY:    Double  = 0.5,
     val repeatAnimation: Int     = 1,
-    val displayScale:    Double  = 1.0   // ← NEW: 0.8 = 20% smaller, 1.5 = 50% larger
+    val displayScale:    Double  = 1.0,   // ← NEW: 0.8 = 20% smaller, 1.5 = 50% larger
+    val offsetX:         Double  = 0.0,
+    val offsetY:         Double  = 0.0
 )

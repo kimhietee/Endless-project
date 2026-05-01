@@ -28,8 +28,8 @@ object EnemyConfigs {
             // --- Animation Frames ---
             idleConfig = FrameConfig(
                 folder = "skeleton_enemy",
-                sheet = SpriteSheetConfig("skeleton_run", columns = 8, rows = 1),
-                count = 1  // Use first frame for idle
+                sheet = SpriteSheetConfig("skeleton_idle", columns = 7, rows = 1),
+                count = 7
             ),
             runConfig = FrameConfig(
                 folder = "skeleton_enemy",
@@ -56,16 +56,19 @@ object EnemyConfigs {
                 speed = 0.0,
                 hitboxScaleX = 0.6,
                 hitboxScaleY = 0.6,
-                repeatAnimation = 1
+                repeatAnimation = 1,
+                displayScale = 1.3,
+                offsetX = 40.0,
+                offsetY = 37.0
             ),
             
             // --- Size ---
-            width = 140.0,
+            width = 160.0,
             height = 160.0,
             
             // --- Stats ---
             maxHealth = 20.0,
-            moveSpeed = 120.0,
+            moveSpeed = 110.0,
             
             // --- Behavior ---
             behavior = EnemyBehavior.MELEE,
@@ -90,12 +93,12 @@ object EnemyConfigs {
             // --- Animation Frames ---
             idleConfig = FrameConfig(
                 folder = "skeleton_enemy",
-                sheet = SpriteSheetConfig("skeleton_spear_run", columns = 10, rows = 1),
-                count = 1
+                sheet = SpriteSheetConfig("skeleton_spear_idle", columns = 7, rows = 1),
+                count = 7
             ),
             runConfig = FrameConfig(
                 folder = "skeleton_enemy",
-                sheet = SpriteSheetConfig("skeleton_spear_run", columns = 10, rows = 1),
+                sheet = SpriteSheetConfig("skeleton_spear_run", columns = 6, rows = 1),
                 count = 10
             ),
             attackConfig = FrameConfig(
@@ -112,17 +115,20 @@ object EnemyConfigs {
             // --- Attack Display Config ---
             attackDisplayConfig = AttackConfig(
                 frames = attackFrames,
-                frameDuration = 0.08,
+                frameDuration = 0.12,
                 damage = 4.0,
                 moving = true,      // Stationary melee hitbox
                 speed = 0.0,
                 hitboxScaleX = 0.7,  // Larger hitbox for spear
                 hitboxScaleY = 0.7,
-                repeatAnimation = 1
+                repeatAnimation = 1,
+                displayScale = 1.6,
+                offsetX = 60.0,
+                offsetY = 37.0
             ),
             
             // --- Size ---
-            width = 140.0,
+            width = 160.0,
             height = 160.0,
             
             // --- Stats ---
@@ -131,7 +137,7 @@ object EnemyConfigs {
             
             // --- Behavior ---
             behavior = EnemyBehavior.MELEE,
-            attackRange = 120.0,    // Longer range due to spear
+            attackRange = 90.0,    // Longer range due to spear
             attackCooldown = 1.8,   // Slower attack
             deathLingerTime = 2.0,
             
@@ -156,8 +162,8 @@ object EnemyConfigs {
             // --- Animation Frames ---
             idleConfig = FrameConfig(
                 folder = "skeleton_enemy",
-                sheet = SpriteSheetConfig("skeleton_archer_run", columns = 10, rows = 1),
-                count = 1
+                sheet = SpriteSheetConfig("skeleton_archer_idle", columns = 7, rows = 1),
+                count = 7
             ),
             runConfig = FrameConfig(
                 folder = "skeleton_enemy",
@@ -184,12 +190,15 @@ object EnemyConfigs {
                 speed = 400.0,       // Projectile speed (will be signed based on direction)
                 hitboxScaleX = 0.5,
                 hitboxScaleY = 0.5,
-                repeatAnimation = 20  // Keep arrow visible long enough before it exits screen
+                repeatAnimation = 20,
+                displayScale = 1.5,
+                offsetX = -10.0,
+                offsetY = 20.0
             ),
             
             // --- Size ---
-            width = 130.0,
-            height = 150.0,
+            width = 150.0,
+            height = 160.0,
             
             // --- Stats ---
             maxHealth = 17.0,        // Lower health for ranged
@@ -201,6 +210,64 @@ object EnemyConfigs {
             attackCooldown = 2.0,    // Slower fire rate
             deathLingerTime = 2.0,
             
+            // --- Animation ---
+            frameDuration = 0.12
+        )
+    }
+
+    suspend fun skeletonBoss(attackFrames: List<BmpSlice>): EnemyConfig {
+        return EnemyConfig(
+            // --- Animation Frames ---
+            idleConfig = FrameConfig(
+                folder = "skeleton_enemy/skeleton_boss",
+                sheet = SpriteSheetConfig("skeleton_boss_attack", columns = 6, rows = 1),
+                count = 6
+            ),
+            runConfig = FrameConfig(
+                folder = "skeleton_enemy/skeleton_boss",
+                sheet = SpriteSheetConfig("skeleton_boss_attack", columns = 6, rows = 1),
+                count = 8
+            ),
+            attackConfig = FrameConfig(
+                folder = "skeleton_enemy/skeleton_boss",
+                sheet = SpriteSheetConfig("skeleton_boss_attack", columns = 6, rows = 1),
+                count = 15
+            ),
+            deathConfig = FrameConfig(
+                folder = "skeleton_enemy/skeleton_boss",
+                sheet = SpriteSheetConfig("skeleton_boss_attack", columns = 6, rows = 1),
+                count = 5
+            ),
+
+            // --- Attack Display Config ---
+            attackDisplayConfig = AttackConfig(
+                frames = attackFrames,
+                frameDuration = 0.14,
+                damage = 2.0,
+                moving = true,       // Projectile - moves across screen
+                speed = 500.0,       // Projectile speed (will be signed based on direction)
+                hitboxScaleX = 0.5,
+                hitboxScaleY = 0.5,
+                repeatAnimation = 5,
+                displayScale = 2.4,
+                offsetX = 20.0,
+                offsetY = 37.0
+            ),
+
+            // --- Size ---
+            width = 250.0,
+            height = 240.0,
+
+            // --- Stats ---
+            maxHealth = 100.0,
+            moveSpeed = 80.0,       // Slower to compensate for range
+
+            // --- Behavior ---
+            behavior = EnemyBehavior.RANGED,
+            attackRange = 1000.0,
+            attackCooldown = 0.6,
+            deathLingerTime = 1.0,
+
             // --- Animation ---
             frameDuration = 0.12
         )
@@ -221,8 +288,8 @@ object EnemyConfigs {
             // --- Animation Frames ---
             idleConfig = FrameConfig(
                 folder = "wolf_enemy",
-                sheet = SpriteSheetConfig("wolf1_run", columns = 10, rows = 1),
-                count = 1
+                sheet = SpriteSheetConfig("wolf1_idle", columns = 10, rows = 1),
+                count = 10
             ),
             runConfig = FrameConfig(
                 folder = "wolf_enemy",
@@ -249,16 +316,19 @@ object EnemyConfigs {
                 speed = 0.0,
                 hitboxScaleX = 0.5,
                 hitboxScaleY = 0.5,
-                repeatAnimation = 1
+                repeatAnimation = 1,
+                displayScale = 0.3,
+                offsetX = 70.0,
+                offsetY = 10.0
             ),
             
             // --- Size ---
-            width = 120.0,
+            width = 140.0,
             height = 140.0,
             
             // --- Stats ---
             maxHealth = 40.0,
-            moveSpeed = 300.0,       // Faster than skeletons
+            moveSpeed = 180.0,       // Faster than skeletons
             
             // --- Behavior ---
             behavior = EnemyBehavior.MELEE,
@@ -282,8 +352,8 @@ object EnemyConfigs {
             // --- Animation Frames ---
             idleConfig = FrameConfig(
                 folder = "wolf_enemy",
-                sheet = SpriteSheetConfig("wolf2_run", columns = 11, rows = 1),
-                count = 1
+                sheet = SpriteSheetConfig("wolf2_idle", columns = 11, rows = 1),
+                count = 11
             ),
             runConfig = FrameConfig(
                 folder = "wolf_enemy",
@@ -310,12 +380,15 @@ object EnemyConfigs {
                 speed = 0.0,
                 hitboxScaleX = 0.5,
                 hitboxScaleY = 0.5,
-                repeatAnimation = 1
+                repeatAnimation = 1,
+                displayScale = 0.3,
+                offsetX = 70.0,
+                offsetY = 10.0
             ),
             
             // --- Size ---
-            width = 125.0,
-            height = 145.0,
+            width = 140.0,
+            height = 140.0,
             
             // --- Stats ---
             maxHealth = 50.0,
@@ -343,8 +416,8 @@ object EnemyConfigs {
             // --- Animation Frames ---
             idleConfig = FrameConfig(
                 folder = "wolf_enemy",
-                sheet = SpriteSheetConfig("wolf3_run", columns = 9, rows = 1),
-                count = 1
+                sheet = SpriteSheetConfig("wolf3_idle", columns = 9, rows = 1),
+                count = 9
             ),
             runConfig = FrameConfig(
                 folder = "wolf_enemy",
@@ -371,21 +444,24 @@ object EnemyConfigs {
                 speed = 0.0,
                 hitboxScaleX = 0.5,
                 hitboxScaleY = 0.5,
-                repeatAnimation = 1
+                repeatAnimation = 1,
+                displayScale = 0.3,
+                offsetX = 70.0,
+                offsetY = 10.0
             ),
             
             // --- Size ---
-            width = 130.0,
+            width = 150.0,
             height = 150.0,
             
             // --- Stats ---
             maxHealth = 80.0,
-            moveSpeed = 350.0,       // Fastest
+            moveSpeed = 300.0,       // Fastest
             
             // --- Behavior ---
             behavior = EnemyBehavior.MELEE,
             attackRange = 70.0,
-            attackCooldown = 0.9,    // Most aggressive
+            attackCooldown = 1.0,    // Most aggressive
             deathLingerTime = 2.0,
             
             // --- Animation ---

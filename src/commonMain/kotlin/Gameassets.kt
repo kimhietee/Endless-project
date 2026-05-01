@@ -50,7 +50,7 @@ object GameAssets {
         loadFrames(FrameConfig("fireWizard/slash_pngs", "Attack_1_", startIndex = 0, count = 10))
         loadFrames(FrameConfig("fireWizard/fireball_pngs", "image_0-", startIndex = 0, count = 8))
         loadFrames(FrameConfig("fireWizard/jump_pngs",  "Jump_",     startIndex = 0, count = 6))
-        loadFrames(FrameConfig("skeleton_enemy", sheet = SpriteSheetConfig("skeleton_run", columns = 10, rows = 1), count = 10))
+//        loadFrames(FrameConfig("skeleton_enemy", sheet = SpriteSheetConfig("skeleton_run", columns = 10, rows = 1), count = 10))
 
         // Load button assets
         leftSlice   = resourcesVfs["ui/buttons/btn_left.png"].readBitmapSlice()

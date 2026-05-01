@@ -39,7 +39,7 @@ class Character(
     // SIZE
     // -------------------------------------------------------
     val characterWidth  = 140.0
-    val characterHeight = characterWidth * 1.14
+    val characterHeight = 140.0
     private val body    = image(idleAnims[0])
 
     // -------------------------------------------------------
@@ -90,10 +90,11 @@ class Character(
 
     var basicAttackDamage = 5.0
     var skillDamage_1 = 15.0
-    var skillDamage_2 = 10.0
+    var skillDamage_2 = 30.0
     var skillDamage_3 = 30.0
     var skillDamage_4 = 50.0
 
+    // NOTE: ANCHORED AT (0.5, 1.0)
     private fun buildBasicAtkConfig() = AttackConfig(
         frames          = basicAtkFrames,
         frameDuration   = 0.08,
@@ -103,7 +104,9 @@ class Character(
         hitboxScaleX    = 0.6,
         hitboxScaleY    = 0.6,
         repeatAnimation = 1,
-        displayScale    = 1.3   // ← 30% bigger
+        displayScale    = 2.0,
+        offsetX = -20.0,
+        offsetY = 70.0
 
     )
     private fun buildSkill1Config() = AttackConfig(
@@ -114,17 +117,23 @@ class Character(
         speed           = if (facingRight) 400.0 else -400.0,
         hitboxScaleX    = 0.7,
         hitboxScaleY    = 0.7,
-        repeatAnimation = 1
+        repeatAnimation = 1,
+        displayScale    = 2.0,
+        offsetX = -20.0,
+        offsetY = 25.0
     )
     private fun buildSkill2Config() = AttackConfig(
         frames          = skill2Frames,
-        frameDuration   = 0.08,
+        frameDuration   = 0.07,
         damage          = (skillDamage_2 / skill2Frames.size), // total damage spread across frames
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 0.8,
         hitboxScaleY    = 0.8,
-        repeatAnimation = 5
+        repeatAnimation = 3,
+        displayScale    = 0.3,
+        offsetX = -20.0,
+        offsetY = 40.0
     )
     private fun buildSkill3Config() = AttackConfig(
         frames          = skill3Frames,
@@ -134,7 +143,10 @@ class Character(
         speed           = 0.0,
         hitboxScaleX    = 0.7,
         hitboxScaleY    = 0.7,
-        repeatAnimation = 1
+        repeatAnimation = 1,
+        displayScale    = 0.3,
+        offsetX = -20.0,
+        offsetY = 40.0
     )
     private fun buildSkill4Config() = AttackConfig(
         frames          = skill4Frames,
@@ -144,7 +156,10 @@ class Character(
         speed           = 0.0,
         hitboxScaleX    = 1.0,
         hitboxScaleY    = 1.0,
-        repeatAnimation = 3
+        repeatAnimation = 3,
+        displayScale    = 1.2,
+        offsetX = -20.0,
+        offsetY = 40.0
     )
 
     // -------------------------------------------------------

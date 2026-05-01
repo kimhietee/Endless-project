@@ -87,7 +87,10 @@ class Enemy(
     // -------------------------------------------------------
     private var state: EnemyState = EnemyState.IDLE
         set(value) {
-            if (value != field) { currentFrame = 0; frameTime = 0.0; field = value }
+            if (value != field) {
+                currentFrame = 0
+                field = value
+            }
         }
 
     private var facingRight   = false
@@ -185,26 +188,48 @@ class Enemy(
 
     private fun updateAnimation(dt: Double) {
         val frames = currentFrameList()
+        if (frames.isEmpty()) return
+        if (frames.size == 1) {
+            body.bitmap = frames[0]
+            return
+        }
+
+        if (currentFrame >= frames.size) currentFrame = 0
+
         frameTime += dt
-        if (frameTime >= config.frameDuration) {
-            frameTime = 0.0
-            if (state == EnemyState.DEAD) {
-                if (!deathAnimDone) {
-                    currentFrame++
-                    if (currentFrame >= frames.size - 1) {
-                        currentFrame  = frames.size - 1
-                        deathAnimDone = true   // NOW start linger timer
+
+        while (frameTime >= config.frameDuration) {
+            frameTime -= config.frameDuration
+
+            when (state) {
+                EnemyState.DEAD -> {
+                    if (!deathAnimDone) {
+                        currentFrame++
+                        if (currentFrame >= frames.size - 1) {
+                            currentFrame = frames.size - 1
+                            deathAnimDone = true
+                        }
                     }
                 }
-                // deathAnimDone = true → freeze on last frame, do nothing
-            } else {
-                val loops = state == EnemyState.IDLE || state == EnemyState.RUNNING
-                currentFrame++
-                if (currentFrame >= frames.size)
-                    currentFrame = if (loops) 0 else frames.size - 1
+
+                EnemyState.ATTACKING -> {
+                    currentFrame++
+                    if (currentFrame >= frames.size) {
+                        state = EnemyState.IDLE
+                        currentFrame = 0
+                        break
+                    }
+                }
+
+                EnemyState.IDLE, EnemyState.RUNNING -> {
+                    currentFrame = (currentFrame + 1) % frames.size
+                }
             }
         }
-        body.bitmap = currentFrameList()[currentFrame]
+
+        val list = currentFrameList()
+        body.bitmap = list[currentFrame.coerceIn(0, list.lastIndex)]
+//        println("idle=${idleFrames.size}, run=${runFrames.size}, attack=${attackFrames.size}")
     }
 
     // -------------------------------------------------------
@@ -220,9 +245,13 @@ class Enemy(
     // ATTACK SPAWNING — fully direction-aware
     // -------------------------------------------------------
     private fun spawnAttack(targets: List<Damageable>, container: Container) {
-        val offsetX = if (facingRight) config.width * 0.5 else -config.width * 0.5
-        val spawnX  = this.x + offsetX
-        val spawnY  = this.y - config.height * 0.5
+        // set offset
+        val dir = if (facingRight) 1 else -1
+
+        // Spawn at the center of the enemy sprite (body anchor is 0.5, 1.0 so y is at feet)
+        val centerY = this.y - config.height / 2.0
+        val spawnX = this.x + (config.attackDisplayConfig.offsetX * dir)
+        val spawnY = centerY + config.attackDisplayConfig.offsetY
 
         val directedConfig = if (config.attackDisplayConfig.moving) {
             val absSpeed = kotlin.math.abs(config.attackDisplayConfig.speed)
@@ -230,6 +259,8 @@ class Enemy(
         } else {
             config.attackDisplayConfig
         }
+
+
 
         AttackDisplay.spawn(
             config      = directedConfig,
@@ -245,37 +276,38 @@ class Enemy(
     // AI
     // -------------------------------------------------------
     private fun updateAI(
-        dt:        Double,
-        playerX:   Double,
-        targets:   List<Damageable>,
+        dt: Double,
+        playerX: Double,
+        targets: List<Damageable>,
         container: Container
     ) {
         if (!isAlive()) return
 
-        attackTimer -= dt
-        val dx       = playerX - this.x
+        val dx = playerX - this.x
         val distance = kotlin.math.abs(dx)
 
         facingRight = dx > 0
         this.scaleX = if (facingRight) 1.0 else -1.0
 
-        if (state == EnemyState.ATTACKING) {
-            if (currentFrame >= attackFrames.size - 1) state = EnemyState.IDLE
-            return
+        // Do not reduce cooldown while attack animation is still playing
+        if (state != EnemyState.ATTACKING && attackTimer > 0.0) {
+            attackTimer -= dt
         }
+
+        if (state == EnemyState.ATTACKING) return
 
         when (config.behavior) {
             EnemyBehavior.MELEE, EnemyBehavior.RANGED -> {
                 if (distance <= config.attackRange) {
                     if (attackTimer <= 0.0) {
-                        state       = EnemyState.ATTACKING
+                        state = EnemyState.ATTACKING
                         attackTimer = config.attackCooldown
                         spawnAttack(targets, container)
                     } else {
-                        state = EnemyState.IDLE
+                        if (state != EnemyState.IDLE) state = EnemyState.IDLE
                     }
                 } else {
-                    state = EnemyState.RUNNING
+                    if (state != EnemyState.RUNNING) state = EnemyState.RUNNING
                     this.x += (if (dx > 0) 1.0 else -1.0) * config.moveSpeed * dt
                 }
             }

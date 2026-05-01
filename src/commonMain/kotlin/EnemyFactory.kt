@@ -27,6 +27,7 @@ class EnemyFactory {
                 "skeleton"           -> EnemyConfigs.skeleton(attackFrames)
                 "skeleton_spearman"  -> EnemyConfigs.skeletonSpearman(attackFrames)
                 "skeleton_archer"    -> EnemyConfigs.skeletonArcher(attackFrames)
+                "skeleton_boss"    -> EnemyConfigs.skeletonBoss(attackFrames)
                 "wolf1"              -> EnemyConfigs.wolf1(attackFrames)
                 "wolf2"              -> EnemyConfigs.wolf2(attackFrames)
                 "wolf3"              -> EnemyConfigs.wolf3(attackFrames)
@@ -72,6 +73,17 @@ class EnemyFactory {
                     )
                 )
             }
+            "skeleton_boss" -> {
+                // Archer uses arrow
+                GameAssets.loadFrames(
+                    FrameConfig(
+                        folder = "skeleton_enemy/skeleton_boss",
+                        sheet = SpriteSheetConfig("sword_projectile", columns = 8, rows = 1),
+                        count = 8
+                    )
+                )
+            }
+
             "wolf1", "wolf2", "wolf3" -> {
                 // All wolves use the same wolf slash animation
                 GameAssets.loadFrames(
@@ -94,6 +106,7 @@ class EnemyFactory {
             "skeleton",
             "skeleton_spearman",
             "skeleton_archer",
+            "skeleton_boss",
             "wolf1",
             "wolf2",
             "wolf3"
