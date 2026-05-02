@@ -243,10 +243,12 @@ class AutoWaveGenerator(
             }
 
             // ── Select enemy ──────────────────────────────────────────────
-            val candidate = selectEnemy(cursor, difficulty) ?: run {
-                cursor += 5.0   // no eligible enemy yet; wait a bit
-                continue
-            }
+            val candidate = selectEnemy(cursor, difficulty)
+
+                if (candidate == null) {
+                    cursor += 5.0
+                    continue
+                }
 
             // ── Group size ────────────────────────────────────────────────
             val groupBonus = (groupScaleRate * elapsed).toInt()
