@@ -54,6 +54,7 @@ enum class EnemyBehavior {
  * @param attackCooldown       seconds between attacks
  * @param deathLingerTime      seconds to wait after death animation before removal
  * @param frameDuration        seconds per animation frame
+ * @param xpGain               XP awarded to the player when this enemy is killed  ← NEW
  */
 data class EnemyConfig(
     // --- sprite loaders ---
@@ -80,5 +81,9 @@ data class EnemyConfig(
     val deathLingerTime: Double        = 2.0,
 
     // --- animation ---
-    val frameDuration: Double = 0.12
+    val frameDuration: Double = 0.12,
+
+    // --- reward ---
+    /** XP given to the player when this enemy dies. */
+    val xpGain: Double = 5.0
 )

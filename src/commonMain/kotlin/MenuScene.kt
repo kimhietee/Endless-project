@@ -35,7 +35,7 @@ class MenuScene : Scene() {
         // -------------------------------------------------------
         // TITLE
         // -------------------------------------------------------
-        text("GAME MENU", textSize = 70.0, color = Colors.WHITE) {
+        text("GAME MENU", textSize = 70.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = 150.0
         }
@@ -54,7 +54,7 @@ class MenuScene : Scene() {
             onOut  { alpha = 1.0 }
             onClick { launchImmediately { scene.sceneContainer.changeTo { LoadingScene() } } }
         }
-        text("START", textSize = 28.0, color = Colors.WHITE) {
+        text("START", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = 350.0 + (btnH - fontSize) / 2
         }
@@ -69,7 +69,7 @@ class MenuScene : Scene() {
             onOut  { alpha = 1.0 }
             onClick { println("Settings not implemented") }
         }
-        text("SETTINGS", textSize = 28.0, color = Colors.WHITE) {
+        text("SETTINGS", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = 470.0 + (btnH - fontSize) / 2
         }
@@ -84,7 +84,7 @@ class MenuScene : Scene() {
             onOut  { alpha = 1.0 }
             onClick { launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } } }
         }
-        text("BACK", textSize = 28.0, color = Colors.WHITE) {
+        text("BACK", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = 590.0 + (btnH - fontSize) / 2
         }

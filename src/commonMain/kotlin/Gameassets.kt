@@ -1,6 +1,8 @@
 import korlibs.image.bitmap.BmpSlice
 import korlibs.image.format.readBitmapSlice
 import korlibs.io.file.std.resourcesVfs
+import korlibs.image.font.Font
+import korlibs.image.font.readFont
 
 object GameAssets {
 
@@ -12,6 +14,28 @@ object GameAssets {
     lateinit var bg2Slice:      BmpSlice
     lateinit var bg3Slice:      BmpSlice
     lateinit var bg4Slice:      BmpSlice
+
+    lateinit var upgradeSlice:      BmpSlice
+
+    // -------------------------------------------------------
+    // HUD BAR IMAGES
+    // -------------------------------------------------------
+    lateinit var hpBarGreenSlice: BmpSlice
+    lateinit var hpBarYellowSlice: BmpSlice
+    lateinit var hpBarRedSlice: BmpSlice
+    lateinit var manaBarSlice: BmpSlice
+    
+    // -------------------------------------------------------
+    // HUD ICON IMAGES
+    // -------------------------------------------------------
+    lateinit var healthIconSlice: BmpSlice
+    lateinit var manaIconSlice: BmpSlice
+
+    // -------------------------------------------------------
+    // CUSTOM FONT
+    // -------------------------------------------------------
+    lateinit var customFont: Font
+
     lateinit var idleFrames:   List<BmpSlice>
     lateinit var runFrames:    List<BmpSlice>
     lateinit var jumpFrames:   List<BmpSlice>
@@ -27,6 +51,9 @@ object GameAssets {
     lateinit var skill2Slice: BmpSlice
     lateinit var skill3Slice: BmpSlice
     lateinit var skill4Slice: BmpSlice
+    lateinit var healingRamenSlice: BmpSlice
+    lateinit var healingBentoSlice: BmpSlice
+    lateinit var maxHealthSlice: BmpSlice
     lateinit var pauseSlice:  BmpSlice
     lateinit var playSlice:   BmpSlice
 
@@ -37,6 +64,20 @@ object GameAssets {
         bg2Slice      = resourcesVfs["bg/background2.png"].readBitmapSlice()
         bg3Slice      = resourcesVfs["bg/background3.png"].readBitmapSlice()
         bg4Slice      = resourcesVfs["bg/background4.png"].readBitmapSlice()
+        upgradeSlice = resourcesVfs["ui/buttons/btn_upgrade.png"].readBitmapSlice()
+
+        // Load HUD bar images
+        hpBarGreenSlice = resourcesVfs["ui/bar/green_health_bar.jpg"].readBitmapSlice()
+        hpBarYellowSlice = resourcesVfs["ui/bar/yellow_health_bar.jpg"].readBitmapSlice()
+        hpBarRedSlice = resourcesVfs["ui/bar/red_health_bar.jpg"].readBitmapSlice()
+        manaBarSlice = resourcesVfs["ui/bar/mana_bar.jpg"].readBitmapSlice()
+
+        // Load HUD icon images
+        healthIconSlice = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
+        manaIconSlice = resourcesVfs["ui/icons/potion.png"].readBitmapSlice()
+
+        // Load custom font
+        customFont = resourcesVfs["ui/font/slkscr.ttf"].readFont()
 
         idleFrames   = loadFrames(FrameConfig("fireWizard/idle_pngs", "image_0-", startIndex = 0, count = 7))
         runFrames    = loadFrames(FrameConfig("fireWizard/run_pngs",   "Run_",     startIndex = 0, count = 8))
@@ -61,6 +102,9 @@ object GameAssets {
         skill2Slice = resourcesVfs["skill_icons/fire_wizard/2.png"].readBitmapSlice()
         skill3Slice = resourcesVfs["skill_icons/fire_wizard/3.png"].readBitmapSlice()
         skill4Slice = resourcesVfs["skill_icons/fire_wizard/4.png"].readBitmapSlice()
+        healingRamenSlice = resourcesVfs["ui/icons/ramen.png"].readBitmapSlice()
+        healingBentoSlice = resourcesVfs["ui/icons/bento.png"].readBitmapSlice()
+        maxHealthSlice = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
         pauseSlice  = resourcesVfs["ui/buttons/btn_menu.png"].readBitmapSlice()
         playSlice   = resourcesVfs["ui/buttons/btn_play.png"].readBitmapSlice()
 

@@ -31,11 +31,25 @@ class Enemy(
     var health = config.maxHealth
         private set
 
+    /** XP awarded to the player when this enemy is killed. */
+    val xpGain: Double get() = config.xpGain
+
+    /**
+     * Callback fired exactly ONCE when the enemy's health first reaches zero.
+     * Set this in GameScene after spawning the enemy to award XP.
+     */
+    var onDeath: (() -> Unit)? = null
+    private var deathCallbackFired = false
+
     override fun takeDamage(amount: Double) {
         if (!isAlive()) return
         health = (health - amount).coerceAtLeast(0.0)
         damageTakenTimer = HP_BAR_SHOW_DURATION
-        if (!isAlive()) state = EnemyState.DEAD
+        if (!isAlive() && !deathCallbackFired) {
+            deathCallbackFired = true
+            state = EnemyState.DEAD
+            onDeath?.invoke()
+        }
     }
     override fun isAlive() = health > 0.0
     override fun hitboxRect(): Rectangle {
@@ -97,8 +111,8 @@ class Enemy(
     private var frameTime     = 0.0
     private var currentFrame  = 0
     private var attackTimer   = 0.0
-    private var deathAnimDone = false   // true once last death frame is reached
-    private var deathTimer    = 0.0    // only counts after deathAnimDone = true
+    private var deathAnimDone = false
+    private var deathTimer    = 0.0
     var shouldRemove          = false
 
     // -------------------------------------------------------
@@ -195,12 +209,10 @@ class Enemy(
         }
 
         if (currentFrame >= frames.size) currentFrame = 0
-
         frameTime += dt
 
         while (frameTime >= config.frameDuration) {
             frameTime -= config.frameDuration
-
             when (state) {
                 EnemyState.DEAD -> {
                     if (!deathAnimDone) {
@@ -211,7 +223,6 @@ class Enemy(
                         }
                     }
                 }
-
                 EnemyState.ATTACKING -> {
                     currentFrame++
                     if (currentFrame >= frames.size) {
@@ -220,7 +231,6 @@ class Enemy(
                         break
                     }
                 }
-
                 EnemyState.IDLE, EnemyState.RUNNING -> {
                     currentFrame = (currentFrame + 1) % frames.size
                 }
@@ -229,7 +239,6 @@ class Enemy(
 
         val list = currentFrameList()
         body.bitmap = list[currentFrame.coerceIn(0, list.lastIndex)]
-//        println("idle=${idleFrames.size}, run=${runFrames.size}, attack=${attackFrames.size}")
     }
 
     // -------------------------------------------------------
@@ -242,7 +251,7 @@ class Enemy(
     }
 
     // -------------------------------------------------------
-    // ATTACK SPAWNING — fully direction-aware
+    // ATTACK SPAWNING
     // -------------------------------------------------------
     private fun spawnAttack(targets: List<Damageable>, container: Container) {
         val dir = if (facingRight) 1 else -1
@@ -258,9 +267,6 @@ class Enemy(
             config.attackDisplayConfig
         }
 
-        // Wrap targets in a lambda so AttackDisplay evaluates it every frame.
-        // For enemy attacks the target list (the player) never changes,
-        // but this keeps the API consistent with the fixed AttackDisplay.
         AttackDisplay.spawn(
             config      = directedConfig,
             startX      = spawnX,
@@ -282,17 +288,13 @@ class Enemy(
     ) {
         if (!isAlive()) return
 
-        val dx = playerX - this.x
+        val dx       = playerX - this.x
         val distance = kotlin.math.abs(dx)
 
         facingRight = dx > 0
         this.scaleX = if (facingRight) 1.0 else -1.0
 
-        // Do not reduce cooldown while attack animation is still playing
-        if (state != EnemyState.ATTACKING && attackTimer > 0.0) {
-            attackTimer -= dt
-        }
-
+        if (state != EnemyState.ATTACKING && attackTimer > 0.0) attackTimer -= dt
         if (state == EnemyState.ATTACKING) return
 
         when (config.behavior) {

@@ -23,7 +23,7 @@ class LoadingScene : Scene() {
         addChild(bg)
 
         // Loading text
-        text("Loading...", textSize = 60.0, color = Colors.WHITE) {
+        text("Loading...", textSize = 60.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = Constants.SCREEN_HEIGHT / 2.0 - 100.0
         }

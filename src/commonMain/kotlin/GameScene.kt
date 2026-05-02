@@ -8,6 +8,7 @@ import korlibs.io.file.std.resourcesVfs
 import korlibs.time.seconds
 import korlibs.math.geom.Point
 import korlibs.io.async.launchImmediately
+import korlibs.event.Key
 
 class GameScene : Scene() {
 
@@ -83,135 +84,128 @@ class GameScene : Scene() {
             skill3Frames   = skill3Frames,
             skill4Frames   = skill4Frames
         )
+
+        val progress = PlayerProgress()
         addChild(player)
         player.xy(100.0, Constants.GROUND)
 
         val enemyContainer = container()
         val spawner = EnemySpawner(enemyContainer)
 
-        // -------------------------------------------------------
-        // ENEMY CONFIGS
-        // NOTE: for ranged attackDisplayConfig, speed is ALWAYS positive here.
-        // Enemy.spawnAttack() flips it based on facingRight at spawn time.
-        // -------------------------------------------------------
-//        val enemySlashAtkFrames = GameAssets.loadFrames(
-//            FrameConfig("fireWizard/slash_pngs", "Attack_1_", startIndex = 0, count = 10)
-//        )
-//        val enemyArrowAtkFrames = GameAssets.loadFrames(
-//            FrameConfig("fireWizard/fireball_pngs", "image_0-", startIndex = 0, count = 8)
-//        )
-//
-//        val meleeEnemyConfig = EnemyConfig(
-//            idleConfig   = FrameConfig("enemy", sheet = SpriteSheetConfig("skeleton_run", columns = 10, rows = 1), count = 10),
-//            runConfig    = FrameConfig("enemy", sheet = SpriteSheetConfig("skeleton_run", columns = 10, rows = 1), count = 10),
-//            attackConfig = FrameConfig("fireWizard/slash_pngs", "Attack_1_", startIndex = 0, count = 10),
-//            deathConfig  = FrameConfig("fireWizard/jump_pngs",  "Jump_",     startIndex = 0, count = 6),
-//            attackDisplayConfig = AttackConfig(
-//                frames          = enemySlashAtkFrames,
-//                frameDuration   = 0.08,
-//                damage          = 2.0,
-//                moving          = true,
-//                speed           = 0.0,
-//                hitboxScaleX    = 0.7,
-//                hitboxScaleY    = 0.7,
-//                repeatAnimation = 1
-//            ),
-//            behavior    = EnemyBehavior.MELEE,
-//            maxHealth = 20.0,
-//            moveSpeed   = 110.0,
-//            attackRange = 30.0,
-//            attackCooldown = 1.5
-//        )
-//
-//        val rangedEnemyConfig = EnemyConfig(
-//            idleConfig   = FrameConfig("enemy", sheet = SpriteSheetConfig("skeleton_walk", columns = 10, rows = 1), count = 10),
-//            runConfig    = FrameConfig("enemy", sheet = SpriteSheetConfig("skeleton_walk", columns = 10, rows = 1), count = 10),
-//            attackConfig = FrameConfig("fireWizard/fireball_pngs", "image_0-", startIndex = 0, count = 8),
-//            deathConfig  = FrameConfig("fireWizard/jump_pngs",     "Jump_",    startIndex = 0, count = 6),
-//            attackDisplayConfig = AttackConfig(
-//                frames          = enemyArrowAtkFrames,
-//                frameDuration   = 0.10,
-//                damage          = 8.0,
-//                moving          = true,
-//                speed           = 300.0,
-//                hitboxScaleX    = 0.6,
-//                hitboxScaleY    = 0.6,
-//                repeatAnimation = 1
-//            ),
-//            behavior    = EnemyBehavior.RANGED,
-//            maxHealth = 20.0,
-//            moveSpeed   = 95.0,
-//            attackRange = 500.0,
-//            attackCooldown = 2.0
-//
-//        )
-//
-//        val enemies = mutableListOf<Enemy>()
-//        val enemy1  = Enemy.create(meleeEnemyConfig).also  { it.xy(900.0,  Constants.GROUND); addChild(it); enemies.add(it) }
-//        val enemy2  = Enemy.create(rangedEnemyConfig).also { it.xy(1100.0, Constants.GROUND); addChild(it); enemies.add(it) }
-
-        val hud = HUD(player)
+        val hud = HUD(player, progress)
         addChild(hud)
+
 
         GameAssets.load()
 
-        spawner.schedule(
-            // Wave 1 (0:00 - 1:30)
-            SpawnEvent(1.0, "skeleton", 1000.0),
-            SpawnEvent(5.0, "skeleton", 1000.0),
+        WaveSchedule.apply(spawner)
 
-            SpawnEvent(10.0, "skeleton", 1000.0, 1, 10.0),
-            SpawnEvent(10.0, "skeleton_archer", 950.0),
-
-            SpawnEvent(15.0, "skeleton", 1000.0, 1, 20.0),
-            SpawnEvent(15.0, "skeleton_archer", 1000.0, 1, 20.0),
-            SpawnEvent(17.0, "skeleton", 1000.0, 1, 20.0),
+//         spawner.schedule(
+//             // Wave 1 (0:00 - 1:30)
+//             SpawnEvent(1.0, "skeleton", 1000.0),
+//             SpawnEvent(5.0, "skeleton", 1000.0, 2, 30.0),
 
 
-            SpawnEvent(20.0, "skeleton_spearman", 900.0),
-            SpawnEvent(20.0, "skeleton", 1000.0, 1, 20.0),
-            SpawnEvent(20.0, "skeleton_archer", 1000.0, 2, 50.0),
+//             SpawnEvent(10.0, "skeleton", 1000.0, 1, 10.0),
+//             SpawnEvent(10.0, "skeleton_archer", 950.0),
 
-            SpawnEvent(27.0, "skeleton_spearman", 1000.0),
-            SpawnEvent(27.0, "skeleton_archer", 1100.0, 1, 20.0),
-
-            SpawnEvent(40.0, "skeleton_spearman", 900.0, 1, 50.0),
-            SpawnEvent(40.0, "skeleton", 1000.0, 2, 40.0),
-            SpawnEvent(40.0, "skeleton_archer", 1000.0, 2, 50.0),
-
-            SpawnEvent(45.0, "skeleton", 1000.0, 1, 40.0),
-
-            SpawnEvent(45.0, "skeleton_archer", 1100.0, 1, 60.0),
-            SpawnEvent(50.0, "skeleton_spearman", 1000.0, 1, 20.0),
-            SpawnEvent(50.0, "skeleton", 1000.0, 1, 20.0),
-
-            SpawnEvent(60.0, "skeleton_boss", 640.0),
-
-            // Wave 2 (1:30 - 2:30)
+//             SpawnEvent(15.0, "skeleton", 1000.0, 1, 20.0),
+//             SpawnEvent(15.0, "skeleton_archer", 1000.0, 1, 20.0),
+//             SpawnEvent(17.0, "skeleton", 1000.0, 1, 20.0),
 
 
-            // Add spearmen
-//            SpawnEvent(15.0, "skeleton_spearman", 900.0),
-//            SpawnEvent(18.0, "skeleton_spearman", 800.0),
-//
-//            // Add archers from far away
-//            SpawnEvent(10.0, "skeleton_archer", 950.0),
-//            SpawnEvent(15.0, "skeleton_archer", 750.0),
-//
-//            // Add skeleton boss
-//            SpawnEvent(25.0, "skeleton_boss", 640.0),
-//
-//            // Add wolves
-//            SpawnEvent(35.0, "wolf1", 900.0),
-//            SpawnEvent(38.0, "wolf2", 850.0),
-//            SpawnEvent(40.0, "wolf3", 800.0),
-//
-//            // Mixed waves
-//            SpawnEvent(50.0, "skeleton", 900.0),
-//            SpawnEvent(50.5, "wolf1", 850.0),
-//            SpawnEvent(51.0, "skeleton_archer", 950.0),
-//            SpawnEvent(52.0, "skeleton_spearman", 800.0)
-        )
+//             SpawnEvent(20.0, "skeleton_spearman", 900.0),
+//             SpawnEvent(20.0, "skeleton", 1000.0, 1, 20.0),
+//             SpawnEvent(25.0, "skeleton_archer", 1000.0, 2, 50.0),
+
+//             SpawnEvent(27.0, "skeleton_spearman", 1000.0),
+//             SpawnEvent(30.0, "skeleton_archer", 1100.0, 1, 20.0),
+
+//             SpawnEvent(43.0, "skeleton_spearman", 900.0, 1, 50.0),
+//             SpawnEvent(43.0, "skeleton", 1000.0, 2, 40.0),
+//             SpawnEvent(43.0, "skeleton_archer", 1000.0, 2, 50.0),
+
+//             SpawnEvent(45.0, "skeleton", 1000.0, 1, 40.0),
+
+//             SpawnEvent(45.0, "skeleton_archer", 1100.0, 1, 60.0),
+//             SpawnEvent(50.0, "skeleton_spearman", 1000.0, 1, 20.0),
+//             SpawnEvent(50.0, "skeleton", 1000.0, 1, 20.0),
+
+//             SpawnEvent(60.0, "skeleton_boss", 640.0),
+
+
+
+//             // Wave 2 (1:30 - 2:30)
+//             SpawnEvent(90.0 + 1.0, "skeleton", 1000.0),
+
+//             SpawnEvent(90.0 + 4.0, "skeleton_spearman", 900.0),
+//             SpawnEvent(90.0 + 4.0, "skeleton", 1000.0, 2, 20.0),
+//             SpawnEvent(90.0 + 4.0, "skeleton_archer", 1000.0, 2, 50.0),
+
+//             SpawnEvent(90.0 + 12.0, "wolf1", 900.0),
+//             SpawnEvent(90.0 + 15.0, "skeleton_archer", 1000.0, 2, 50.0),
+
+//             SpawnEvent(90.0 + 25.0, "skeleton_spearman", 1100.0, 1, 40.0),
+//             SpawnEvent(90.0 + 25.0, "skeleton", 1000.0, 2, 20.0),
+//             SpawnEvent(90.0 + 25.0, "skeleton_archer", 1000.0, 1, 50.0),
+
+//             SpawnEvent(90.0 + 35.0, "skeleton", 100.0, 1, 50.0),
+//             SpawnEvent(90.0 + 35.0, "skeleton_archer", 100.0, 1, 40.0),
+//             SpawnEvent(90.0 + 35.0, "skeleton", 1100.0, 1, 50.0),
+//             SpawnEvent(90.0 + 35.0, "skeleton_archer", 1100.0, 1, 40.0),
+
+//             SpawnEvent(90.0 + 40.0, "wolf1", 50.0),
+//             SpawnEvent(90.0 + 40.0, "skeleton_archer", 50.0, 1, 20.0),
+//             SpawnEvent(90.0 + 40.0, "skeleton_spearman", 50.0, 1, 10.0),
+//             SpawnEvent(90.0 + 42.0, "skeleton", 50.0, 1, 50.0),
+
+//             SpawnEvent(90.0 + 45.0, "skeleton_archer", 1000.0, 1, 20.0),
+//             SpawnEvent(90.0 + 45.0, "skeleton_spearman", 1000.0, 1, 10.0),
+//             SpawnEvent(90.0 + 47.0, "skeleton", 1100.0, 2, 50.0),
+
+//             SpawnEvent(90.0 + 60.0, "skeleton_boss", 640.0 * 1.3),
+//             SpawnEvent(90.0 + 68.0, "skeleton", 100.0, 2, 100.0),
+//             SpawnEvent(90.0 + 68.0, "skeleton_archer", 100.0, 2, 30.0),
+//             SpawnEvent(90.0 + 68.0, "skeleton_spearman", 100.0, 1, 30.0),
+
+//             SpawnEvent(90.0 + 80.0, "skeleton", 1000.0, 2, 30.0),
+//             SpawnEvent(90.0 + 80.0, "skeleton_archer", 1000.0, 2, 30.0),
+
+//             // Wave 3 (1:30 - 2:30)
+//             SpawnEvent(150.0 + 80.0, "skeleton", 1000.0, 2, 30.0),
+
+//             // SpawnEvent(150.0 + 10.0, "wolf3", 1200.0),
+
+
+
+
+
+
+
+//             // Add spearmen
+// //            SpawnEvent(15.0, "skeleton_spearman", 900.0),
+// //            SpawnEvent(18.0, "skeleton_spearman", 800.0),
+// //
+// //            // Add archers from far away
+// //            SpawnEvent(10.0, "skeleton_archer", 950.0),
+// //            SpawnEvent(15.0, "skeleton_archer", 750.0),
+// //
+// //            // Add skeleton boss
+// //            SpawnEvent(25.0, "skeleton_boss", 640.0),
+// //
+// //            // Add wolves
+// //            SpawnEvent(35.0, "wolf1", 900.0),
+// //            SpawnEvent(38.0, "wolf2", 850.0),
+// //            SpawnEvent(40.0, "wolf3", 800.0),
+// //
+// //            // Mixed waves
+// //            SpawnEvent(50.0, "skeleton", 900.0),
+// //            SpawnEvent(50.5, "wolf1", 850.0),
+// //            SpawnEvent(51.0, "skeleton_archer", 950.0),
+// //            SpawnEvent(52.0, "skeleton_spearman", 800.0)
+//         )
+
+        
 
         // -------------------------------------------------------
         // BUTTON ASSETS
@@ -224,7 +218,11 @@ class GameScene : Scene() {
         val skill2Slice = GameAssets.skill2Slice
         val skill3Slice = GameAssets.skill3Slice
         val skill4Slice = GameAssets.skill4Slice
+        val healingRamenSlice = GameAssets.healingRamenSlice
+        val healingBentoSlice = GameAssets.healingBentoSlice
+        val maxHealthSlice = GameAssets.maxHealthSlice
         val pauseSlice  = GameAssets.pauseSlice
+        val upgradeSlice = GameAssets.upgradeSlice
 
         // -------------------------------------------------------
         // BUTTON LAYOUT
@@ -233,23 +231,60 @@ class GameScene : Scene() {
         val gap     =   8.0
         val rowY    = Constants.GROUND + (Constants.SCREEN_HEIGHT - Constants.GROUND - btnSize) / 2.0
 
+        // Right-side positions
+        val jumpX      = Constants.SCREEN_WIDTH - 20.0 - btnSize
+        val attackX    = jumpX - gap - btnSize
+        val healingX   = attackX - gap - btnSize
+        val maxHealthX = healingX - gap - btnSize
+
         val leftBtn   = TouchButton(btnSize, btnSize, leftSlice  ).xy(20.0,                            rowY)
         val rightBtn  = TouchButton(btnSize, btnSize, rightSlice ).xy(20.0 + btnSize + gap,            rowY)
         val skillsX   = 20.0 + (btnSize + gap) * 2
-        val skillBtn1 = SkillButton(btnSize, btnSize, skill1Slice, player.skill1Config).xy(skillsX + (btnSize + gap) * 0, rowY) as SkillButton
-        val skillBtn2 = SkillButton(btnSize, btnSize, skill2Slice, player.skill2Config).xy(skillsX + (btnSize + gap) * 1, rowY) as SkillButton
-        val skillBtn3 = SkillButton(btnSize, btnSize, skill3Slice, player.skill3Config).xy(skillsX + (btnSize + gap) * 2, rowY) as SkillButton
-        val skillBtn4 = SkillButton(btnSize, btnSize, skill4Slice, player.skill4Config).xy(skillsX + (btnSize + gap) * 3, rowY) as SkillButton
-        val jumpX     = Constants.SCREEN_WIDTH - 20.0 - btnSize
-        val attackX   = jumpX - gap - btnSize
+        val skillBtn1 = SkillButton(btnSize, btnSize, skill1Slice, upgradeSlice, player.skill1Config).xy(skillsX + (btnSize + gap) * 0, rowY)
+        val skillBtn2 = SkillButton(btnSize, btnSize, skill2Slice, upgradeSlice, player.skill2Config).xy(skillsX + (btnSize + gap) * 1, rowY)
+        val skillBtn3 = SkillButton(btnSize, btnSize, skill3Slice, upgradeSlice, player.skill3Config).xy(skillsX + (btnSize + gap) * 2, rowY)
+        val skillBtn4 = SkillButton(btnSize, btnSize, skill4Slice, upgradeSlice, player.skill4Config).xy(skillsX + (btnSize + gap) * 3, rowY)
+
+        val attackBtn = SkillButton(btnSize, btnSize, attackSlice, upgradeSlice, player.basicAttackSkill).xy(attackX, rowY)
+        val skillBtnHealing = SkillButton(btnSize, btnSize, healingRamenSlice, upgradeSlice, player.healingSkillConfig).xy(healingX, rowY)
+        val skillBtnMaxHealth = SkillButton(btnSize, btnSize, maxHealthSlice, upgradeSlice, player.maxHealthSkillConfig).xy(maxHealthX, rowY)
         val jumpBtn   = TouchButton(btnSize, btnSize, jumpSlice  ).xy(jumpX,   rowY)
-        val attackBtn = TouchButton(btnSize, btnSize, attackSlice).xy(attackX, rowY)
 
-        val pauseBtnSize = 60.0
-        val pauseBtn     = TouchButton(pauseBtnSize, pauseBtnSize, pauseSlice).xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnSize, 20.0)
+        val pauseBtnWidth = 120.0
+        val pauseBtnHeight = 50.0
+        val pauseBtn     = TouchButton(pauseBtnWidth, pauseBtnHeight, pauseSlice).xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth, 20.0)
 
-        listOf(leftBtn, rightBtn, skillBtn1, skillBtn2, skillBtn3, skillBtn4, attackBtn, jumpBtn, pauseBtn)
+        listOf(leftBtn, rightBtn, skillBtn1, skillBtn2, skillBtn3, skillBtn4, attackBtn, skillBtnHealing, skillBtnMaxHealth, jumpBtn, pauseBtn)
             .forEach { addChild(it) }
+
+        /** First point on a slot sets [SkillConfig.paidUnlock]; further points call [SkillConfig.upgrade]. */
+        fun trySpendSkillPoint(skillCfg: SkillConfig, btn: SkillButton) {
+            if (progress.level < skillCfg.unlockLevel) return
+
+            // If it needs a point to unlock, do that first
+            if (skillCfg.requiresPointUnlock && !skillCfg.paidUnlock) {
+                if (progress.spendUpgradePoint()) {
+                    skillCfg.paidUnlock = true
+                    btn.updateLabels()
+                }
+                return
+            }
+
+            // Otherwise, it's a normal upgrade (basic attack or already-unlocked slots)
+            if (skillCfg.canUpgrade && progress.spendUpgradePoint()) {
+                skillCfg.upgrade()
+                btn.updateLabels()
+            }
+        }
+
+
+        attackBtn.onUpgradeClick = { trySpendSkillPoint(player.basicAttackSkill, attackBtn) }
+        skillBtn1.onUpgradeClick = { trySpendSkillPoint(player.skill1Config, skillBtn1) }
+        skillBtn2.onUpgradeClick = { trySpendSkillPoint(player.skill2Config, skillBtn2) }
+        skillBtn3.onUpgradeClick = { trySpendSkillPoint(player.skill3Config, skillBtn3) }
+        skillBtn4.onUpgradeClick = { trySpendSkillPoint(player.skill4Config, skillBtn4) }
+        skillBtnHealing.onUpgradeClick = { trySpendSkillPoint(player.healingSkillConfig, skillBtnHealing) }
+        skillBtnMaxHealth.onUpgradeClick = { trySpendSkillPoint(player.maxHealthSkillConfig, skillBtnMaxHealth) }
 
         // -------------------------------------------------------
         // PAUSE MENU SETUP
@@ -260,7 +295,7 @@ class GameScene : Scene() {
                 solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK) {
                     alpha = 0.7
                 }
-                text("PAUSED", textSize = 80.0, color = Colors.WHITE) {
+                text("PAUSED", textSize = 80.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     x = Constants.SCREEN_WIDTH / 2.0 - 150.0
                     y = 150.0
                 }
@@ -283,7 +318,7 @@ class GameScene : Scene() {
                         pauseMenuContainer = null
                     }
                 }
-                text("Resume", textSize = 28.0, color = Colors.WHITE) {
+                text("Resume", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     x = menuCx - 80.0
                     y = menuStartY + (menuBtnH - fontSize) / 2
                 }
@@ -300,7 +335,7 @@ class GameScene : Scene() {
                         launchImmediately { sceneContainer.changeTo { GameScene() } }
                     }
                 }
-                text("Restart", textSize = 28.0, color = Colors.WHITE) {
+                text("Restart", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     x = menuCx - 80.0
                     y = menuStartY + menuGap + (menuBtnH - fontSize) / 2
                 }
@@ -317,7 +352,7 @@ class GameScene : Scene() {
                         launchImmediately { sceneContainer.changeTo { MenuScene() } }
                     }
                 }
-                text("Quit", textSize = 28.0, color = Colors.WHITE) {
+                text("Quit", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     x = menuCx - 60.0
                     y = menuStartY + menuGap * 2 + (menuBtnH - fontSize) / 2
                 }
@@ -333,7 +368,7 @@ class GameScene : Scene() {
                 solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK) {
                     alpha = 0.8
                 }
-                text("YOU DIED", textSize = 100.0, color = Colors["#cc2222"]) {
+                text("YOU DIED", textSize = 100.0, color = Colors["#cc2222"], font = GameAssets.customFont) {
                     x = Constants.SCREEN_WIDTH / 2.0 - 200.0
                     y = 200.0
                 }
@@ -355,7 +390,7 @@ class GameScene : Scene() {
                         launchImmediately { sceneContainer.changeTo { GameScene() } }
                     }
                 }
-                text("Restart", textSize = 28.0, color = Colors.WHITE) {
+                text("Restart", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     x = deathCx - 80.0
                     y = deathStartY + (deathBtnH - fontSize) / 2
                 }
@@ -371,7 +406,7 @@ class GameScene : Scene() {
                         launchImmediately { sceneContainer.changeTo { MenuScene() } }
                     }
                 }
-                text("Quit", textSize = 28.0, color = Colors.WHITE) {
+                text("Quit", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     x = deathCx - 60.0
                     y = deathStartY + deathGap + (deathBtnH - fontSize) / 2
                 }
@@ -381,7 +416,7 @@ class GameScene : Scene() {
         // -------------------------------------------------------
         // TIMER UI
         // -------------------------------------------------------
-        val timerText = text("Time: 0:00", textSize = 24.0, color = Colors.WHITE) {
+        val timerText = text("Time: 0:00", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
             x = Constants.SCREEN_WIDTH - 200.0
             y = 20.0
         }
@@ -392,11 +427,28 @@ class GameScene : Scene() {
             return String.format("Time: %d:%02d", mins, secs)
         }
 
+        // Debug: Esc → main menu (edge-triggered so it does not repeat while held)
+        var prevEscapeDown = false
+
         // -------------------------------------------------------
         // MAIN UPDATE LOOP
         // -------------------------------------------------------
         addUpdater { dt ->
             val dtSec = dt.seconds
+
+            val escapeDown = views.input.keys[Key.ESCAPE]
+            if (escapeDown && !prevEscapeDown) {
+                isPaused = false
+                pauseMenuContainer?.removeFromParent()
+                pauseMenuContainer = null
+                deathScreenContainer?.removeFromParent()
+                deathScreenContainer = null
+                AttackDisplay.clearAll()
+                launchImmediately { sceneContainer.changeTo { MenuScene() } }
+                prevEscapeDown = escapeDown
+                return@addUpdater
+            }
+            prevEscapeDown = escapeDown
 
             // Update timer (only if game is not paused and player is alive)
             if (!isPaused && player.isAlive()) {
@@ -450,10 +502,20 @@ class GameScene : Scene() {
                 if (rightBtn.hitTest(point)  != null) TouchInput.right  = true
                 if (jumpBtn.hitTest(point)   != null) TouchInput.jump   = true
                 if (attackBtn.hitTest(point) != null) TouchInput.attack = true
-                if (skillBtn1.hitTest(point) != null) TouchInput.skill1 = true
-                if (skillBtn2.hitTest(point) != null) TouchInput.skill2 = true
-                if (skillBtn3.hitTest(point) != null) TouchInput.skill3 = true
-                if (skillBtn4.hitTest(point) != null) TouchInput.skill4 = true
+                // "+" upgrade hit area must win over the skill icon (same as SkillButton docs).
+                if (!skillBtn1.isUpgradeBtnHit(point) && skillBtn1.hitTest(point) != null) TouchInput.skill1 = true
+                if (!skillBtn2.isUpgradeBtnHit(point) && skillBtn2.hitTest(point) != null) TouchInput.skill2 = true
+                if (!skillBtn3.isUpgradeBtnHit(point) && skillBtn3.hitTest(point) != null) TouchInput.skill3 = true
+                if (!skillBtn4.isUpgradeBtnHit(point) && skillBtn4.hitTest(point) != null) TouchInput.skill4 = true
+                // Healing skill cast (active skill) — check upgrade button first
+                if (!skillBtnHealing.isUpgradeBtnHit(point) && skillBtnHealing.hitTest(point) != null) {
+                    player.castHealingSkill(progress.level)
+                }
+                // Max health passive: clicking does nothing (passive only)
+                // No special handling needed; just let the upgrade button work
+                if (!skillBtnMaxHealth.isUpgradeBtnHit(point) && skillBtnMaxHealth.hitTest(point) != null) {
+                    // Passive skill does nothing on click — no effect
+                }
             }
 
             leftBtn.isPressed   = TouchInput.left;   rightBtn.isPressed  = TouchInput.right
@@ -461,7 +523,7 @@ class GameScene : Scene() {
             skillBtn1.isPressed = TouchInput.skill1; skillBtn2.isPressed = TouchInput.skill2
             skillBtn3.isPressed = TouchInput.skill3; skillBtn4.isPressed = TouchInput.skill4
 
-            player.update(dtSec, views, { spawner.getEnemies().filterIsInstance<Damageable>() }, this@sceneMain)
+            player.update(dtSec, views, { spawner.getEnemies().filterIsInstance<Damageable>() }, this@sceneMain, progress)
 
 //            val toRemove = mutableListOf<Enemy>()
 //            for (enemy in enemies) {
@@ -487,6 +549,7 @@ class GameScene : Scene() {
                     for (event in toSpawn) {
                         for (i in 0 until event.count.coerceAtLeast(1)) {
                             val enemy = EnemyFactory.create(event.enemyType)
+                            enemy.onDeath = { progress.addXp(enemy.xpGain) }
                             enemy.x = event.x + i * event.offsetX
                             enemy.y = Constants.GROUND
                             spawner.addEnemy(enemy)
@@ -501,10 +564,22 @@ class GameScene : Scene() {
             hud.update()
 
             // Update skill button overlays (cooldown + mana)
-            skillBtn1.update(player.mana)
-            skillBtn2.update(player.mana)
-            skillBtn3.update(player.mana)
-            skillBtn4.update(player.mana)
+            attackBtn.update(player.mana, progress.level, progress.upgradePoints)
+            skillBtn1.update(player.mana, progress.level, progress.upgradePoints)
+            skillBtn2.update(player.mana, progress.level, progress.upgradePoints)
+            skillBtn3.update(player.mana, progress.level, progress.upgradePoints)
+            skillBtn4.update(player.mana, progress.level, progress.upgradePoints)
+            skillBtnHealing.update(player.mana, progress.level, progress.upgradePoints)
+            skillBtnMaxHealth.update(player.mana, progress.level, progress.upgradePoints)
+
+            // --- HEALING SKILL ICON SWAP AT LEVEL 6 ---
+            // At level 6+, swap from ramen to bento icon
+            val healingLevel = player.healingSkillConfig.upgradeCount + 1
+            if (healingLevel >= 6) {
+                skillBtnHealing.updateIcon(healingBentoSlice)
+            } else {
+                skillBtnHealing.updateIcon(healingRamenSlice)
+            }
 
 
         }

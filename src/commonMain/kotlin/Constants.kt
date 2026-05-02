@@ -9,5 +9,5 @@ object Constants {
     // true  = show colored outline hitboxes for bodies + attacks
     // false = no debug rendering
     // -------------------------------------------------------
-    const val SHOW_HITBOX = false
+    const val SHOW_HITBOX = true
 }

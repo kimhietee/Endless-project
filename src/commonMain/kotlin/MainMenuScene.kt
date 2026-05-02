@@ -37,7 +37,7 @@ class MainMenuScene : Scene() {
         // -------------------------------------------------------
         // TITLE
         // -------------------------------------------------------
-        text("Fighting Kimhie", textSize = 90.0, color = Colors.WHITE).apply {
+        text("Fighting Kimhie", textSize = 90.0, color = Colors.WHITE, font = GameAssets.customFont).apply {
             centerXOn(this@sceneMain)
             y = 180.0
         }
