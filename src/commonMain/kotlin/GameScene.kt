@@ -206,7 +206,7 @@ class GameScene : Scene() {
 //            SpawnEvent(51.0, "skeleton_archer", 950.0),
 //            SpawnEvent(52.0, "skeleton_spearman", 800.0)
         )
-        
+
         // -------------------------------------------------------
         // BUTTON ASSETS
         // -------------------------------------------------------
@@ -230,10 +230,10 @@ class GameScene : Scene() {
         val leftBtn   = TouchButton(btnSize, btnSize, leftSlice  ).xy(20.0,                            rowY)
         val rightBtn  = TouchButton(btnSize, btnSize, rightSlice ).xy(20.0 + btnSize + gap,            rowY)
         val skillsX   = 20.0 + (btnSize + gap) * 2
-        val skillBtn1 = TouchButton(btnSize, btnSize, skill1Slice).xy(skillsX + (btnSize + gap) * 0,   rowY)
-        val skillBtn2 = TouchButton(btnSize, btnSize, skill2Slice).xy(skillsX + (btnSize + gap) * 1,   rowY)
-        val skillBtn3 = TouchButton(btnSize, btnSize, skill3Slice).xy(skillsX + (btnSize + gap) * 2,   rowY)
-        val skillBtn4 = TouchButton(btnSize, btnSize, skill4Slice).xy(skillsX + (btnSize + gap) * 3,   rowY)
+        val skillBtn1 = SkillButton(btnSize, btnSize, skill1Slice, player.skill1Config).xy(skillsX + (btnSize + gap) * 0, rowY) as SkillButton
+        val skillBtn2 = SkillButton(btnSize, btnSize, skill2Slice, player.skill2Config).xy(skillsX + (btnSize + gap) * 1, rowY) as SkillButton
+        val skillBtn3 = SkillButton(btnSize, btnSize, skill3Slice, player.skill3Config).xy(skillsX + (btnSize + gap) * 2, rowY) as SkillButton
+        val skillBtn4 = SkillButton(btnSize, btnSize, skill4Slice, player.skill4Config).xy(skillsX + (btnSize + gap) * 3, rowY) as SkillButton
         val jumpX     = Constants.SCREEN_WIDTH - 20.0 - btnSize
         val attackX   = jumpX - gap - btnSize
         val jumpBtn   = TouchButton(btnSize, btnSize, jumpSlice  ).xy(jumpX,   rowY)
@@ -455,7 +455,7 @@ class GameScene : Scene() {
             skillBtn1.isPressed = TouchInput.skill1; skillBtn2.isPressed = TouchInput.skill2
             skillBtn3.isPressed = TouchInput.skill3; skillBtn4.isPressed = TouchInput.skill4
 
-            player.update(dtSec, views, spawner.getEnemies().filterIsInstance<Damageable>(), this@sceneMain)
+            player.update(dtSec, views, { spawner.getEnemies().filterIsInstance<Damageable>() }, this@sceneMain)
 
 //            val toRemove = mutableListOf<Enemy>()
 //            for (enemy in enemies) {
@@ -494,7 +494,13 @@ class GameScene : Scene() {
             AttackDisplay.updateAll(dtSec)
             hud.update()
 
-            
+            // Update skill button overlays (cooldown + mana)
+            skillBtn1.update(player.mana)
+            skillBtn2.update(player.mana)
+            skillBtn3.update(player.mana)
+            skillBtn4.update(player.mana)
+
+
         }
     }
 }

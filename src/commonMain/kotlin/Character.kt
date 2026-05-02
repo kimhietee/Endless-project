@@ -13,13 +13,7 @@ data class AnimationConfig(
     val loop:   Boolean
 )
 
-object ManaCost {
-    const val ATTACK  = 0
-    const val SKILL_1 = 20
-    const val SKILL_2 = 40
-    const val SKILL_3 = 60
-    const val SKILL_4 = 100
-}
+
 
 class Character(
     val isPlayer: Boolean,
@@ -85,60 +79,62 @@ class Character(
     } else null
 
     // -------------------------------------------------------
-    // ATTACK CONFIGS
+    // PER-SKILL CONFIGS (data-driven, upgrade-friendly)
     // -------------------------------------------------------
+    val basicAttackSkill = SkillConfig(name = "Basic Attack",  cooldownMax = 0.0,  manaCost = 0,   damage = 5.0)
+    val skill1Config     = SkillConfig(name = "Skill 1",       cooldownMax = 3.0,  manaCost = 20,  damage = 10.0)
+    val skill2Config     = SkillConfig(name = "Skill 2",       cooldownMax = 5.0,  manaCost = 40,  damage = 10.0)
+    val skill3Config     = SkillConfig(name = "Skill 3",       cooldownMax = 8.0,  manaCost = 60,  damage = 30.0)
+    val skill4Config     = SkillConfig(name = "Skill 4",       cooldownMax = 12.0, manaCost = 100, damage = 50.0)
 
-    var basicAttackDamage = 5.0
-    var skillDamage_1 = 15.0
-    var skillDamage_2 = 30.0
-    var skillDamage_3 = 30.0
-    var skillDamage_4 = 50.0
+    /** All skills for easy iteration (cooldown ticking, reset, UI). */
+    val allSkills = listOf(basicAttackSkill, skill1Config, skill2Config, skill3Config, skill4Config)
 
     // NOTE: ANCHORED AT (0.5, 1.0)
     private fun buildBasicAtkConfig() = AttackConfig(
         frames          = basicAtkFrames,
         frameDuration   = 0.08,
-        damage          = basicAttackDamage,
+        damage          = basicAttackSkill.damage,
         moving          = true,       // melee = stationary hitbox in front
         speed           = 0.0,
         hitboxScaleX    = 0.6,
         hitboxScaleY    = 0.6,
-        repeatAnimation = 1,
+        repeatAnimation = 2,
         displayScale    = 2.0,
         offsetX = -20.0,
-        offsetY = 70.0
-
+        offsetY = 30.0
     )
     private fun buildSkill1Config() = AttackConfig(
         frames          = skill1Frames,
-        frameDuration   = 0.12,
-        damage          = skillDamage_1,
+        frameDuration   = 0.07,
+        damage          = skill1Config.damage,
         moving          = true,
         speed           = if (facingRight) 400.0 else -400.0,
         hitboxScaleX    = 0.7,
         hitboxScaleY    = 0.7,
         repeatAnimation = 1,
-        displayScale    = 2.0,
-        offsetX = -20.0,
+        displayScale    = 3.0,
+        offsetX = -130.0,
         offsetY = 25.0
     )
     private fun buildSkill2Config() = AttackConfig(
         frames          = skill2Frames,
         frameDuration   = 0.07,
-        damage          = (skillDamage_2 / skill2Frames.size), // total damage spread across frames
+        damage          = skill2Config.damage, // total damage spread across frames
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 0.8,
         hitboxScaleY    = 0.8,
-        repeatAnimation = 3,
-        displayScale    = 0.3,
+        repeatAnimation = 5,
+        displayScale    = 0.4,
         offsetX = -20.0,
-        offsetY = 40.0
+        offsetY = 5.0
     )
+
     private fun buildSkill3Config() = AttackConfig(
         frames          = skill3Frames,
         frameDuration   = 0.09,
-        damage          = (skillDamage_3 / skill3Frames.size),
+        damage          = (skill3Config.damage / skill3Frames.size),
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 0.7,
@@ -146,20 +142,20 @@ class Character(
         repeatAnimation = 1,
         displayScale    = 0.3,
         offsetX = -20.0,
-        offsetY = 40.0
+        offsetY = 15.0
     )
     private fun buildSkill4Config() = AttackConfig(
         frames          = skill4Frames,
         frameDuration   = 0.08,
-        damage          = (skillDamage_4 / skill4Frames.size),
+        damage          = (skill4Config.damage / skill4Frames.size),
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 1.0,
         hitboxScaleY    = 1.0,
         repeatAnimation = 3,
         displayScale    = 1.2,
-        offsetX = -20.0,
-        offsetY = 40.0
+        offsetX = 50.0,
+        offsetY = -110.0
     )
 
     // -------------------------------------------------------
@@ -171,6 +167,7 @@ class Character(
         }
     var facingRight       = true
         private set
+
     private val runningSpeed  = 200.0
     private var frameTime     = 0.0
     private var currentFrame  = 0
@@ -210,6 +207,7 @@ class Character(
                 currentFrame = if (config.loop) 0 else config.frames.size - 1
         }
         body.bitmap = config.frames[currentFrame]
+//        println("$skillDamage_2 ${skill2Frames.size}")
     }
 
     // -------------------------------------------------------
@@ -264,6 +262,8 @@ class Character(
         facingRight = true
         this.scaleX = 1.0
         body.bitmap = idleAnims[0]
+        // Reset all skill cooldowns
+        for (skill in allSkills) skill.resetCooldown()
     }
 
     // -------------------------------------------------------
@@ -280,17 +280,17 @@ class Character(
     // Skills: moving projectiles in facing direction
     // -------------------------------------------------------
     private fun spawnAttack(
-        atkConfig: AttackConfig,
-        enemies:   List<Damageable>,
-        container: Container
+        atkConfig:  AttackConfig,
+        getEnemies: () -> List<Damageable>,   // lambda — evaluated fresh every frame
+        container:  Container
     ) {
-        // For melee (non-moving): spawn hitbox directly in front, at body center height
-        // For projectiles (moving): same spawn point, speed already encodes direction
-        val offsetX    = if (facingRight) characterWidth * 0.6 else -characterWidth * 0.6
-        val spawnX     = this.x + offsetX
-        val spawnY     = this.y - characterHeight * 0.5
-        val goingRight = atkConfig.speed >= 0.0
-        AttackDisplay.spawn(atkConfig, spawnX, spawnY, enemies, container, movingRight = goingRight)
+        val horizontalOffset = if (facingRight) characterWidth * 0.6 else -characterWidth * 0.6
+        val mirroredOffsetX  = if (facingRight) atkConfig.offsetX else -atkConfig.offsetX
+
+        val spawnX = this.x + horizontalOffset + mirroredOffsetX
+        val spawnY = this.y - characterHeight * 0.5 + atkConfig.offsetY
+
+        AttackDisplay.spawn(atkConfig, spawnX, spawnY, getEnemies, container, movingRight = facingRight)
     }
 
     // -------------------------------------------------------
@@ -324,34 +324,40 @@ class Character(
     // UPDATE
     // -------------------------------------------------------
     fun update(
-        dt:        Double,
-        views:     Views,
-        enemies:   List<Damageable>,
-        container: Container
+        dt:         Double,
+        views:      Views,
+        getEnemies: () -> List<Damageable>,   // lambda — always returns current live enemies
+        container:  Container
     ) {
         val input = readInput(views.input.keys)
         regenHealth(dt)
         regenMana(dt)
 
+        // Tick all skill cooldowns
+        for (skill in allSkills) skill.tickCooldown(dt)
+
         if (!actionPlaying) {
             when {
-                input.attack && isOnGround() -> {
+                input.attack && isOnGround() && basicAttackSkill.isUsable(mana) -> {
+                    spendMana(basicAttackSkill.manaCost)
+                    basicAttackSkill.startCooldown()
                     actionPlaying = true
                     state = CharacterState.ATTACKING
-                    spawnAttack(buildBasicAtkConfig(), enemies, container)
+                    spawnAttack(buildBasicAtkConfig(), getEnemies, container)
                 }
                 isOnGround() && (input.skill1 || input.skill2 || input.skill3 || input.skill4) -> {
-                    val (cost, cfg) = when {
-                        input.skill1 -> ManaCost.SKILL_1 to buildSkill1Config()
-                        input.skill2 -> ManaCost.SKILL_2 to buildSkill2Config()
-                        input.skill3 -> ManaCost.SKILL_3 to buildSkill3Config()
-                        else         -> ManaCost.SKILL_4 to buildSkill4Config()
+                    val (skill, cfg) = when {
+                        input.skill1 -> skill1Config to buildSkill1Config()
+                        input.skill2 -> skill2Config to buildSkill2Config()
+                        input.skill3 -> skill3Config to buildSkill3Config()
+                        else         -> skill4Config to buildSkill4Config()
                     }
-                    if (hasMana(cost)) {
-                        spendMana(cost)
+                    if (skill.isUsable(mana)) {
+                        spendMana(skill.manaCost)
+                        skill.startCooldown()
                         actionPlaying = true
                         state = CharacterState.SKILL
-                        spawnAttack(cfg, enemies, container)
+                        spawnAttack(cfg, getEnemies, container)
                     }
                 }
                 input.jump -> jump()

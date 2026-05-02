@@ -13,13 +13,16 @@ import korlibs.math.geom.Rectangle
  *                   removed when it leaves the screen or animation finishes.
  * moving  = false → stationary; damagePerFrame = totalDamage / totalFrames;
  *                   applied every frame the hitbox overlaps a target.
+ *
+ * FIX: targets is now a lambda () -> List<Damageable> instead of a frozen
+ * List<Damageable>. It is called fresh every frame so enemies that spawn
+ * AFTER the skill is cast are included automatically.
  */
 class AttackDisplay(
-    private val config:  AttackConfig,
-    startX:              Double,
-    startY:              Double,
-    private val targets: List<Damageable>,
-    /** true = moving right, false = moving left. Controls sprite flip. */
+    private val config:     AttackConfig,
+    startX:                 Double,
+    startY:                 Double,
+    private val getTargets: () -> List<Damageable>,   // ← lambda, evaluated every frame
     private val movingRight: Boolean = true
 ) : Container() {
 
@@ -30,11 +33,11 @@ class AttackDisplay(
             config:      AttackConfig,
             startX:      Double,
             startY:      Double,
-            targets:     List<Damageable>,
+            getTargets:  () -> List<Damageable>,      // ← lambda
             container:   Container,
             movingRight: Boolean = true
         ): AttackDisplay {
-            val ad = AttackDisplay(config, startX, startY, targets, movingRight)
+            val ad = AttackDisplay(config, startX, startY, getTargets, movingRight)
             group.add(ad)
             container.addChild(ad)
             return ad
@@ -65,7 +68,6 @@ class AttackDisplay(
     // -------------------------------------------------------
     private val body: Image = image(config.frames[0]) {
         anchor(0.5, 0.5)
-        // flip sprite to face direction of travel
         scaleX = if (movingRight) 1.0 else -1.0
     }
 
@@ -83,6 +85,7 @@ class AttackDisplay(
     // -------------------------------------------------------
     private val totalFrames    = config.frames.size * config.repeatAnimation
     private val damagePerFrame = config.damage / totalFrames.toDouble()
+    // For moving attacks: track which targets have already been hit (hit-once logic)
     private val hitTargets: MutableSet<Damageable> = mutableSetOf()
 
     // -------------------------------------------------------
@@ -93,12 +96,10 @@ class AttackDisplay(
     private val hitboxH get() = body.height * config.hitboxScaleY
 
     // -------------------------------------------------------
-    // DEBUG OUTLINE  (red, outline only, attack hitbox)
-    // Only created when Constants.SHOW_HITBOX = true
+    // DEBUG OUTLINE
     // -------------------------------------------------------
     private val debugOutline: Container? = if (Constants.SHOW_HITBOX) {
         container {
-            // 4 thin rects forming an outline — 2px border
             val t = 2.0
             solidRect(1.0, t,   Colors["#ff0000"]).name("top")
             solidRect(1.0, t,   Colors["#ff0000"]).name("bot")
@@ -141,27 +142,33 @@ class AttackDisplay(
 
         // debug outline
         debugOutline?.let { c ->
-            val w = hitboxW
-            val h = hitboxH
+            val w  = hitboxW
+            val h  = hitboxH
             val ox = this.x - w / 2
             val oy = this.y - h / 2
-            val t = 2.0
+            val t  = 2.0
             (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
             (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }
             (c.children.firstOrNull { it.name == "lft" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox, oy) }
             (c.children.firstOrNull { it.name == "rgt" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox + w - t, oy) }
         }
 
-        // collision & damage
-        for (target in targets) {
+        // -------------------------------------------------------
+        // COLLISION & DAMAGE
+        // getTargets() is called fresh every frame — includes all
+        // enemies alive right now, even ones spawned after skill cast.
+        // -------------------------------------------------------
+        for (target in getTargets()) {
             if (!target.isAlive()) continue
             if (!hitbox.intersects(target.hitboxRect())) continue
             if (config.moving) {
+                // Projectile: each target hit at most once
                 if (target !in hitTargets) {
                     target.takeDamage(config.damage)
                     hitTargets.add(target)
                 }
             } else {
+                // Stationary / lingering: damage every frame while overlapping
                 target.takeDamage(damagePerFrame)
             }
         }

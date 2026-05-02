@@ -245,10 +245,8 @@ class Enemy(
     // ATTACK SPAWNING — fully direction-aware
     // -------------------------------------------------------
     private fun spawnAttack(targets: List<Damageable>, container: Container) {
-        // set offset
         val dir = if (facingRight) 1 else -1
 
-        // Spawn at the center of the enemy sprite (body anchor is 0.5, 1.0 so y is at feet)
         val centerY = this.y - config.height / 2.0
         val spawnX = this.x + (config.attackDisplayConfig.offsetX * dir)
         val spawnY = centerY + config.attackDisplayConfig.offsetY
@@ -260,13 +258,14 @@ class Enemy(
             config.attackDisplayConfig
         }
 
-
-
+        // Wrap targets in a lambda so AttackDisplay evaluates it every frame.
+        // For enemy attacks the target list (the player) never changes,
+        // but this keeps the API consistent with the fixed AttackDisplay.
         AttackDisplay.spawn(
             config      = directedConfig,
             startX      = spawnX,
             startY      = spawnY,
-            targets     = targets,
+            getTargets  = { targets },
             container   = container,
             movingRight = facingRight
         )
