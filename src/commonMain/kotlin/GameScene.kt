@@ -160,22 +160,28 @@ class GameScene : Scene() {
             SpawnEvent(1.0, "skeleton", 1000.0),
             SpawnEvent(5.0, "skeleton", 1000.0),
 
-            SpawnEvent(10.0, "skeleton", 1000.0, 2, 50.0),
+            SpawnEvent(10.0, "skeleton", 1000.0, 1, 10.0),
             SpawnEvent(10.0, "skeleton_archer", 950.0),
 
             SpawnEvent(15.0, "skeleton", 1000.0, 1, 20.0),
             SpawnEvent(15.0, "skeleton_archer", 1000.0, 1, 20.0),
+            SpawnEvent(17.0, "skeleton", 1000.0, 1, 20.0),
+
 
             SpawnEvent(20.0, "skeleton_spearman", 900.0),
             SpawnEvent(20.0, "skeleton", 1000.0, 1, 20.0),
             SpawnEvent(20.0, "skeleton_archer", 1000.0, 2, 50.0),
-            SpawnEvent(25.0, "skeleton_spearman", 1000.0),
-            SpawnEvent(25.0, "skeleton_archer", 1100.0, 2, 20.0),
 
-            SpawnEvent(40.0, "skeleton_spearman", 900.0, 2, 50.0),
+            SpawnEvent(27.0, "skeleton_spearman", 1000.0),
+            SpawnEvent(27.0, "skeleton_archer", 1100.0, 1, 20.0),
+
+            SpawnEvent(40.0, "skeleton_spearman", 900.0, 1, 50.0),
             SpawnEvent(40.0, "skeleton", 1000.0, 2, 40.0),
             SpawnEvent(40.0, "skeleton_archer", 1000.0, 2, 50.0),
-            SpawnEvent(45.0, "skeleton_archer", 1100.0, 2, 60.0),
+
+            SpawnEvent(45.0, "skeleton", 1000.0, 1, 40.0),
+
+            SpawnEvent(45.0, "skeleton_archer", 1100.0, 1, 60.0),
             SpawnEvent(50.0, "skeleton_spearman", 1000.0, 1, 20.0),
             SpawnEvent(50.0, "skeleton", 1000.0, 1, 20.0),
 

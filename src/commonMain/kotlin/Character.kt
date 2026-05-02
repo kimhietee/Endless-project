@@ -82,10 +82,10 @@ class Character(
     // PER-SKILL CONFIGS (data-driven, upgrade-friendly)
     // -------------------------------------------------------
     val basicAttackSkill = SkillConfig(name = "Basic Attack",  cooldownMax = 0.0,  manaCost = 0,   damage = 5.0)
-    val skill1Config     = SkillConfig(name = "Skill 1",       cooldownMax = 3.0,  manaCost = 20,  damage = 10.0)
-    val skill2Config     = SkillConfig(name = "Skill 2",       cooldownMax = 5.0,  manaCost = 40,  damage = 10.0)
-    val skill3Config     = SkillConfig(name = "Skill 3",       cooldownMax = 8.0,  manaCost = 60,  damage = 30.0)
-    val skill4Config     = SkillConfig(name = "Skill 4",       cooldownMax = 12.0, manaCost = 100, damage = 50.0)
+    val skill1Config     = SkillConfig(name = "Skill 1",       cooldownMax = 4.0,  manaCost = 20,  damage = 10.0)
+    val skill2Config     = SkillConfig(name = "Skill 2",       cooldownMax = 10.0,  manaCost = 40,  damage = 30.0)
+    val skill3Config     = SkillConfig(name = "Skill 3",       cooldownMax = 12.0,  manaCost = 50,  damage = 30.0)
+    val skill4Config     = SkillConfig(name = "Skill 4",       cooldownMax = 20.0, manaCost = 100, damage = 50.0)
 
     /** All skills for easy iteration (cooldown ticking, reset, UI). */
     val allSkills = listOf(basicAttackSkill, skill1Config, skill2Config, skill3Config, skill4Config)
