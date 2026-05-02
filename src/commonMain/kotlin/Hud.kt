@@ -212,21 +212,21 @@ class HUD(
                 hpFillGreen.visible = true
                 hpFillYellow.visible = false
                 hpFillRed.visible = false
-                hpFillGreen.scaledWidth = fillWidth
+                hpFillGreen.setSize(fillWidth, BAR_HEIGHT)
             }
             ratio > 0.25 -> {
                 // Yellow bar - medium health
                 hpFillGreen.visible = false
                 hpFillYellow.visible = true
                 hpFillRed.visible = false
-                hpFillYellow.scaledWidth = fillWidth
+                hpFillYellow.setSize(fillWidth, BAR_HEIGHT)
             }
             else -> {
                 // Red bar - low health
                 hpFillGreen.visible = false
                 hpFillYellow.visible = false
                 hpFillRed.visible = true
-                hpFillRed.scaledWidth = fillWidth
+                hpFillRed.setSize(fillWidth, BAR_HEIGHT)
             }
         }
 
@@ -238,7 +238,7 @@ class HUD(
         val fillWidth = BAR_WIDTH * ratio
         
         // Blue mana bar - width reduces as mana decreases
-        manaFillContainer.scaledWidth = fillWidth
+        manaFillContainer.setSize(fillWidth, BAR_HEIGHT)
         
         manaCounterText.text = "${player.mana.toInt()}/${player.maxMana.toInt()}"
     }
