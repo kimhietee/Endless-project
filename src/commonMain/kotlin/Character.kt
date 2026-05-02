@@ -246,7 +246,10 @@ class Character(
     private fun buildSkill3Config() = AttackConfig(
         frames          = skill3Frames,
         frameDuration   = 0.09,
-        damage          = skill3Config.damage / skill3Frames.size,
+        // Pass full damage value — AttackDisplay (stationary mode) already splits
+        // this across all frames internally via damagePerFrame = damage / totalFrames.
+        // Dividing here caused a double-division: 30 / 34 frames / 34 again = ~0.026 per frame.
+        damage          = skill3Config.damage,
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 0.7,
@@ -259,7 +262,8 @@ class Character(
     private fun buildSkill4Config() = AttackConfig(
         frames          = skill4Frames,
         frameDuration   = 0.08,
-        damage          = skill4Config.damage / skill4Frames.size,
+        // Same fix as Skill 3: pass full damage, AttackDisplay splits per-frame.
+        damage          = skill4Config.damage,
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 1.0,
@@ -355,8 +359,11 @@ class Character(
             val r  = hitboxRect()
             val w  = r.width.toDouble()
             val h  = r.height.toDouble()
-            val ox = r.x.toDouble()
-            val oy = r.y.toDouble()
+            // hitboxRect() returns WORLD coordinates. The debugOutline container is
+            // a child of Character (which is itself at world position this.x/this.y),
+            // so we must convert to LOCAL space by subtracting the parent's world pos.
+            val ox = r.x.toDouble() - this.x
+            val oy = r.y.toDouble() - this.y
             val t  = 2.0
             (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
             (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }

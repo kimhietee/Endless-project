@@ -180,8 +180,10 @@ class Enemy(
             val r  = hitboxRect()
             val w  = r.width.toDouble()
             val h  = r.height.toDouble()
-            val ox = r.x.toDouble()
-            val oy = r.y.toDouble()
+            // hitboxRect() returns WORLD coordinates. Convert to LOCAL space by
+            // subtracting the enemy container's own world position.
+            val ox = r.x.toDouble() - this.x
+            val oy = r.y.toDouble() - this.y
             val t  = 2.0
             (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
             (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }

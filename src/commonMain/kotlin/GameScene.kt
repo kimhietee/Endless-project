@@ -98,7 +98,7 @@ class GameScene : Scene() {
 
         GameAssets.load()
 
-        WaveSchedule.apply(spawner)
+        WaveSystem.apply(spawner)
 
 //         spawner.schedule(
 //             // Wave 1 (0:00 - 1:30)

@@ -61,6 +61,11 @@ class EnemySpawner(
         spawnSchedule.addAll(events)
     }
 
+    /** Convenience overload for scheduling a pre-built List<SpawnEvent>. */
+    fun scheduleList(events: List<SpawnEvent>) {
+        spawnSchedule.addAll(events)
+    }
+
     fun clear() {
         for (enemy in enemies) { enemy.removeFromParent() }
         spawnSchedule.clear()

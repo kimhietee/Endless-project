@@ -144,8 +144,11 @@ class AttackDisplay(
         debugOutline?.let { c ->
             val w  = hitboxW
             val h  = hitboxH
-            val ox = this.x - w / 2
-            val oy = this.y - h / 2
+            // The hitbox is centered on this container's position (this.x, this.y).
+            // The debugOutline is a child of this container, so local origin = this.x/this.y.
+            // Local offset to the hitbox top-left: (-w/2, -h/2).
+            val ox = -w / 2
+            val oy = -h / 2
             val t  = 2.0
             (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
             (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }
