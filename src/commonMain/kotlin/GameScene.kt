@@ -414,11 +414,12 @@ class GameScene : Scene() {
         }
 
         // -------------------------------------------------------
-        // TIMER UI
+        // TIMER UI — positioned directly below the pause button
+        // pauseBtn: x = SCREEN_WIDTH - 20 - pauseBtnWidth, y = 20, h = pauseBtnHeight
         // -------------------------------------------------------
-        val timerText = text("Time: 0:00", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            x = Constants.SCREEN_WIDTH - 200.0
-            y = 20.0
+        val timerText = text("Time: 0:00", textSize = 20.0, color = Colors.WHITE, font = GameAssets.customFont) {
+            x = Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth  // left-aligned with pause button
+            y = 20.0 + pauseBtnHeight + 6.0                    // directly below pause button
         }
 
         fun formatTime(seconds: Double): String {
