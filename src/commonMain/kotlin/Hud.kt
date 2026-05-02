@@ -1,43 +1,34 @@
 import korlibs.image.color.Colors
 import korlibs.image.color.RGBA
 import korlibs.korge.view.*
-import korlibs.math.geom.Size
 
 /**
- * Heads-Up Display — now with image-based bars and icon labels.
+ * Heads-Up Display — image-based bars and icon labels.
  *
  * Shows:
  *  • HP bar      — image-based (green/yellow/red), top-left with heart icon
  *  • Mana bar    — image-based (blue only), below HP with potion icon
  *  • XP display  — level square (black + rising yellow) + horizontal XP bar + text
  *
- * HEALTH BAR DYNAMICS
- * ───────────────────
- * Health bar changes color based on HP ratio:
- *   > 50%  → Green bar
- *   25-50% → Yellow bar
- *   < 25%  → Red bar
- * 
- * The bar width reduces dynamically as health decreases.
+ * BAR FILL TECHNIQUE
+ * ──────────────────
+ * Each bar image's .width is set directly every frame to match the current ratio.
+ * This stretches/squishes the image horizontally, which works correctly for bar
+ * textures that tile or scale. No clipContainer is used — it is not needed and
+ * its setSize/scaledWidth API caused compile errors in this KorGE version.
  *
- * MANA BAR DYNAMICS
- * ─────────────────
- * Mana bar uses blue image only.
- * The bar width reduces dynamically as mana decreases.
+ * HEALTH BAR COLOR TIERS
+ * ──────────────────────
+ *   > 50%  → green image
+ *   25–50% → yellow image
+ *   ≤ 25%  → red image
+ * Only the active image is visible; the others are hidden.
  *
  * XP SQUARE VISUAL
  * ────────────────
- * The level square uses three layers:
- *   1. yellowFill  — solidRect whose height grows from 0 → SQ_TOTAL based on XP progress.
- *                    Anchored at the BOTTOM of the square; rises upward as XP increases.
- *   2. innerBlack  — slightly smaller black rect positioned SQ_BORDER px inside, always on top.
- *                    The yellow becomes visible around the edges as it rises.
- *   3. levelText   — player level number (or "MAX") centered on innerBlack.
- *
- * This produces the reference image effect:
- *   empty XP → yellow barely visible (only a sliver at the bottom)
- *   50% XP   → yellow visible on the lower half of all four edges
- *   full XP  → yellow border fully surrounds the inner black square
+ *   1. xpYellowFill — solidRect that rises from bottom as XP increases.
+ *   2. xpInnerBlack — black rect on top, creating a border effect.
+ *   3. xpLevelText  — level number centred on the black square.
  */
 class HUD(
     private val player:   Character,
@@ -56,115 +47,89 @@ class HUD(
     private val MANA_Y = HP_Y   + BAR_HEIGHT + 6.0
     private val XP_Y   = MANA_Y + BAR_HEIGHT + 8.0
 
-    // XP square dimensions
     private val SQ_BORDER = 4.0
     private val SQ_INNER  = 52.0
     private val SQ_TOTAL  = SQ_INNER + SQ_BORDER * 2   // 60
 
-    // XP bar (to the right of the square)
     private val XP_BAR_WIDTH  = BAR_WIDTH
     private val XP_BAR_HEIGHT = 16.0
     private val XP_BAR_X      = LEFT_X + SQ_TOTAL + 8.0
     private val XP_BAR_Y      = XP_Y   + (SQ_TOTAL - XP_BAR_HEIGHT) / 2.0
 
     // -------------------------------------------------------
-    // HP BAR VIEWS (Image-based with masking for fill)
+    // HP BAR
     // -------------------------------------------------------
-    private val hpIconContainer = container()
     private val hpIcon = image(GameAssets.healthIconSlice).apply {
         smoothing = false
         val s = ICON_SIZE / maxOf(bitmap.width.toDouble(), bitmap.height.toDouble())
-        scaleX = s
-        scaleY = s
-    }
-    
-    // Three layered bars: green (good health), yellow (medium), red (low)
-    private val hpBarGreen = image(GameAssets.hpBarGreenSlice).apply {
-        smoothing = false
-        width = BAR_WIDTH
-        height = BAR_HEIGHT
-    }
-    private val hpBarYellow = image(GameAssets.hpBarYellowSlice).apply {
-        smoothing = false
-        width = BAR_WIDTH
-        height = BAR_HEIGHT
-    }
-    private val hpBarRed = image(GameAssets.hpBarRedSlice).apply {
-        smoothing = false
-        width = BAR_WIDTH
-        height = BAR_HEIGHT
+        scaleX = s; scaleY = s
     }
 
-    // Masking containers to show fill percentage
-    private val hpFillGreen = clipContainer(Size(BAR_WIDTH, BAR_HEIGHT)) { addChild(hpBarGreen) }
-    private val hpFillYellow = clipContainer(Size(BAR_WIDTH, BAR_HEIGHT)) { addChild(hpBarYellow) }
-    private val hpFillRed = clipContainer(Size(BAR_WIDTH, BAR_HEIGHT)) { addChild(hpBarRed) }
-    
+    // Dark background behind the bar so the empty area is visible
+    private val hpBarBg = solidRect(BAR_WIDTH, BAR_HEIGHT, RGBA(30, 10, 10, 200))
+
+    // Three color variants — only one shown at a time; .width is updated each frame
+    private val hpBarGreen  = image(GameAssets.hpBarGreenSlice).apply {
+        smoothing = false; width = BAR_WIDTH; height = BAR_HEIGHT
+    }
+    private val hpBarYellow = image(GameAssets.hpBarYellowSlice).apply {
+        smoothing = false; width = BAR_WIDTH; height = BAR_HEIGHT
+    }
+    private val hpBarRed    = image(GameAssets.hpBarRedSlice).apply {
+        smoothing = false; width = BAR_WIDTH; height = BAR_HEIGHT
+    }
+
     private val hpCounterText = text("200/200", textSize = 18.0, color = Colors.WHITE, font = GameAssets.customFont)
 
     // -------------------------------------------------------
-    // MANA BAR VIEWS (Image-based with masking for fill)
+    // MANA BAR
     // -------------------------------------------------------
-    private val manaIconContainer = container()
     private val manaIcon = image(GameAssets.manaIconSlice).apply {
         smoothing = false
         val s = ICON_SIZE / maxOf(bitmap.width.toDouble(), bitmap.height.toDouble())
-        scaleX = s
-        scaleY = s
+        scaleX = s; scaleY = s
     }
-    
+
+    private val manaBarBg    = solidRect(BAR_WIDTH, BAR_HEIGHT, RGBA(10, 10, 30, 200))
     private val manaBarImage = image(GameAssets.manaBarSlice).apply {
-        smoothing = false
-        width = BAR_WIDTH
-        height = BAR_HEIGHT
+        smoothing = false; width = BAR_WIDTH; height = BAR_HEIGHT
     }
-    
-    private val manaFillContainer = clipContainer(Size(BAR_WIDTH, BAR_HEIGHT)) { addChild(manaBarImage) }
     private val manaCounterText = text("100/100", textSize = 18.0, color = Colors.WHITE, font = GameAssets.customFont)
 
     // -------------------------------------------------------
-    // XP SQUARE VIEWS
+    // XP SQUARE
     // -------------------------------------------------------
-    /** Grows from bottom; visible as a border around innerBlack. */
     private val xpYellowFill = solidRect(SQ_TOTAL, 0.0, RGBA(220, 170, 0, 255))
-
-    /** The inner black square; always drawn on top of yellowFill. */
     private val xpInnerBlack = solidRect(SQ_INNER, SQ_INNER, Colors.BLACK)
-
-    /** Shows the player level (or "MAX"). */
     private val xpLevelText  = text("1", textSize = 22.0, color = RGBA(215, 215, 215, 255), font = GameAssets.customFont)
 
     // -------------------------------------------------------
-    // XP BAR VIEWS
+    // XP BAR
     // -------------------------------------------------------
     private val xpBarBg   = solidRect(XP_BAR_WIDTH, XP_BAR_HEIGHT, RGBA(20, 20, 20, 220))
     private val xpBarFill = solidRect(0.0,           XP_BAR_HEIGHT, RGBA(220, 170, 0, 255))
     private val xpBarText = text("0/30", textSize = 11.0, color = Colors.WHITE, font = GameAssets.customFont)
 
     // -------------------------------------------------------
-    // INIT — position all views
+    // INIT
     // -------------------------------------------------------
     init {
-        // HP bar with icon to the left
-        hpIconContainer.xy(LEFT_X - ICON_SIZE - 4.0, HP_Y + (BAR_HEIGHT - ICON_SIZE) / 2.0)
-        hpIconContainer.addChild(hpIcon)
-        
-        // HP bar layers (only one visible at a time based on health)
-        hpFillGreen.xy(LEFT_X, HP_Y)
-        hpFillYellow.xy(LEFT_X, HP_Y)
-        hpFillRed.xy(LEFT_X, HP_Y)
-
+        // HP
+        hpIcon.xy(LEFT_X - ICON_SIZE - 4.0, HP_Y + (BAR_HEIGHT - ICON_SIZE) / 2.0)
+        hpBarBg.xy(LEFT_X, HP_Y)
+        hpBarGreen.xy(LEFT_X, HP_Y)
+        hpBarYellow.xy(LEFT_X, HP_Y)
+        hpBarRed.xy(LEFT_X, HP_Y)
         hpCounterText.xy(LEFT_X + BAR_WIDTH + 6.0, HP_Y + 8.0)
 
-        // Mana bar with icon to the left
-        manaIconContainer.xy(LEFT_X - ICON_SIZE - 4.0, MANA_Y + (BAR_HEIGHT - ICON_SIZE) / 2.0)
-        manaIconContainer.addChild(manaIcon)
-        
-        manaFillContainer.xy(LEFT_X, MANA_Y)
+        // Mana
+        manaIcon.xy(LEFT_X - ICON_SIZE - 4.0, MANA_Y + (BAR_HEIGHT - ICON_SIZE) / 2.0)
+        manaBarBg.xy(LEFT_X, MANA_Y)
+        manaBarImage.xy(LEFT_X, MANA_Y)
         manaCounterText.xy(LEFT_X + BAR_WIDTH + 6.0, MANA_Y + 8.0)
 
         // XP square
-        xpYellowFill.xy(LEFT_X, XP_Y + SQ_TOTAL)   // starts at bottom (height = 0)
+        xpYellowFill.xy(LEFT_X, XP_Y + SQ_TOTAL)   // height=0 initially; rises upward
         xpInnerBlack.xy(LEFT_X + SQ_BORDER, XP_Y + SQ_BORDER)
 
         // XP bar
@@ -172,15 +137,19 @@ class HUD(
         xpBarFill.xy(XP_BAR_X, XP_BAR_Y)
         xpBarText.xy(XP_BAR_X + XP_BAR_WIDTH + 6.0, XP_BAR_Y + 1.0)
 
-        // Painter's order: back → front
-        addChild(hpIconContainer)
-        addChild(hpFillGreen)
-        addChild(hpFillYellow)
-        addChild(hpFillRed)
+        // Painter's order (back → front)
+        addChild(hpIcon)
+        addChild(hpBarBg)
+        addChild(hpBarGreen)
+        addChild(hpBarYellow)
+        addChild(hpBarRed)
         addChild(hpCounterText)
-        addChild(manaIconContainer)
-        addChild(manaFillContainer)
+
+        addChild(manaIcon)
+        addChild(manaBarBg)
+        addChild(manaBarImage)
         addChild(manaCounterText)
+
         addChild(xpBarBg)
         addChild(xpBarFill)
         addChild(xpBarText)
@@ -188,12 +157,11 @@ class HUD(
         addChild(xpInnerBlack)
         addChild(xpLevelText)
 
-        // Do an initial update so text is positioned correctly from frame 1
         update()
     }
 
     // -------------------------------------------------------
-    // PER-FRAME UPDATE — call once per frame from GameScene
+    // PER-FRAME UPDATE
     // -------------------------------------------------------
     fun update() {
         updateHp()
@@ -202,31 +170,24 @@ class HUD(
     }
 
     private fun updateHp() {
-        val ratio = (player.health / player.maxHealth).coerceIn(0.0, 1.0)
-        val fillWidth = BAR_WIDTH * ratio
-        
-        // Show the appropriate bar image based on health ratio and adjust width dynamically
+        val ratio     = (player.health / player.maxHealth).coerceIn(0.0, 1.0)
+        val fillWidth = (BAR_WIDTH * ratio).coerceAtLeast(0.0)
+
         when {
             ratio > 0.5 -> {
-                // Green bar - high health
-                hpFillGreen.visible = true
-                hpFillYellow.visible = false
-                hpFillRed.visible = false
-                hpFillGreen.setSize(fillWidth, BAR_HEIGHT)
+                hpBarGreen.visible  = true;  hpBarGreen.width  = fillWidth
+                hpBarYellow.visible = false
+                hpBarRed.visible    = false
             }
             ratio > 0.25 -> {
-                // Yellow bar - medium health
-                hpFillGreen.visible = false
-                hpFillYellow.visible = true
-                hpFillRed.visible = false
-                hpFillYellow.setSize(fillWidth, BAR_HEIGHT)
+                hpBarGreen.visible  = false
+                hpBarYellow.visible = true;  hpBarYellow.width = fillWidth
+                hpBarRed.visible    = false
             }
             else -> {
-                // Red bar - low health
-                hpFillGreen.visible = false
-                hpFillYellow.visible = false
-                hpFillRed.visible = true
-                hpFillRed.setSize(fillWidth, BAR_HEIGHT)
+                hpBarGreen.visible  = false
+                hpBarYellow.visible = false
+                hpBarRed.visible    = true;  hpBarRed.width    = fillWidth
             }
         }
 
@@ -234,32 +195,27 @@ class HUD(
     }
 
     private fun updateMana() {
-        val ratio = (player.mana / player.maxMana).coerceIn(0.0, 1.0)
-        val fillWidth = BAR_WIDTH * ratio
-        
-        // Blue mana bar - width reduces as mana decreases
-        manaFillContainer.setSize(fillWidth, BAR_HEIGHT)
-        
+        val ratio     = (player.mana / player.maxMana).coerceIn(0.0, 1.0)
+        val fillWidth = (BAR_WIDTH * ratio).coerceAtLeast(0.0)
+
+        manaBarImage.width = fillWidth
+
         manaCounterText.text = "${player.mana.toInt()}/${player.maxMana.toInt()}"
     }
 
     private fun updateXp() {
-        val xpRatio = progress.xpProgress()    // 0.0 – 1.0
+        val xpRatio = progress.xpProgress()   // 0.0 – 1.0
 
-        // --- Rising yellow fill (behind innerBlack) ---
         val fillH = SQ_TOTAL * xpRatio
         xpYellowFill.height = fillH
-        // y anchored at the bottom of the square area; rises upward
         xpYellowFill.y = XP_Y + SQ_TOTAL - fillH
 
-        // --- Level text (centered on innerBlack) ---
         xpLevelText.text = if (progress.isMaxLevel()) "MAX" else progress.level.toString()
         xpLevelText.xy(
             LEFT_X + SQ_BORDER + (SQ_INNER - xpLevelText.textBounds.width)  / 2.0,
             XP_Y   + SQ_BORDER + (SQ_INNER - xpLevelText.textBounds.height) / 2.0
         )
 
-        // --- XP bar ---
         xpBarFill.width = XP_BAR_WIDTH * xpRatio
         xpBarText.text  = when {
             progress.isMaxLevel() -> "MAX"
