@@ -93,16 +93,16 @@ class Character(
 
     // -------------------------------------------------------
     // DEBUG BODY OUTLINE  (blue = player body)
+    // Always created; visibility is toggled each frame via GameSettings.showHitbox.
     // -------------------------------------------------------
-    private val debugOutline: Container? = if (Constants.SHOW_HITBOX) {
-        container {
-            val t = 2.0
-            solidRect(1.0, t, Colors["#0044ff"]).name("top")
-            solidRect(1.0, t, Colors["#0044ff"]).name("bot")
-            solidRect(t, 1.0, Colors["#0044ff"]).name("lft")
-            solidRect(t, 1.0, Colors["#0044ff"]).name("rgt")
-        }
-    } else null
+    private val debugOutline: Container = container {
+        val t = 2.0
+        solidRect(1.0, t, Colors["#0044ff"]).name("top")
+        solidRect(1.0, t, Colors["#0044ff"]).name("bot")
+        solidRect(t, 1.0, Colors["#0044ff"]).name("lft")
+        solidRect(t, 1.0, Colors["#0044ff"]).name("rgt")
+        visible = false  // hidden until GameSettings.showHitbox is true
+    }
 
     // -------------------------------------------------------
     // PER-SKILL CONFIGS — unlock levels follow the task spec:
@@ -210,8 +210,8 @@ class Character(
         damage          = basicAttackSkill.damage,
         moving          = true,
         speed           = 0.0,
-        hitboxScaleX    = 0.6,
-        hitboxScaleY    = 0.6,
+        hitboxScaleX    = 1.1,
+        hitboxScaleY    = 0.9,
         repeatAnimation = 2,
         displayScale    = 2.0,
         offsetX         = -20.0,
@@ -223,8 +223,8 @@ class Character(
         damage          = skill1Config.damage,
         moving          = true,
         speed           = if (facingRight) 400.0 else -400.0,
-        hitboxScaleX    = 0.7,
-        hitboxScaleY    = 0.7,
+        hitboxScaleX    = 0.8,
+        hitboxScaleY    = 0.8,
         repeatAnimation = 1,
         displayScale    = 3.0,
         offsetX         = -130.0,
@@ -236,8 +236,8 @@ class Character(
         damage          = skill2Config.damage,
         moving          = false,
         speed           = 0.0,
-        hitboxScaleX    = 0.8,
-        hitboxScaleY    = 0.8,
+        hitboxScaleX    = 0.4,
+        hitboxScaleY    = 0.5,
         repeatAnimation = 5,
         displayScale    = 0.4,
         offsetX         = -20.0,
@@ -562,6 +562,8 @@ class Character(
 
         updateAnimation(dt)
         updatePlayerHpBar(dt)
-        if (Constants.SHOW_HITBOX) updateDebugOutline()
+        // Toggle hitbox outline visibility based on runtime setting
+        debugOutline.visible = GameSettings.showHitbox
+        if (GameSettings.showHitbox) updateDebugOutline()
     }
 }

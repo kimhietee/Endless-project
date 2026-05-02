@@ -139,7 +139,7 @@ object EnemyConfigs {
                 frameDuration = 0.10,
                 damage = 2.0,
                 moving = true,
-                speed = 400.0,
+                speed = 600.0,
                 hitboxScaleX = 0.5,
                 hitboxScaleY = 0.5,
                 repeatAnimation = 20,
@@ -254,7 +254,7 @@ object EnemyConfigs {
             attackDisplayConfig = AttackConfig(
                 frames = attackFrames,
                 frameDuration = 0.14,
-                damage = 8.0,
+                damage = 2.0,
                 moving = true,
                 speed = 500.0,
                 hitboxScaleX = 0.5,
@@ -270,10 +270,10 @@ object EnemyConfigs {
             moveSpeed = 80.0,
             behavior = EnemyBehavior.RANGED,
             attackRange = 1000.0,
-            attackCooldown = 1.4,
+            attackCooldown = 0.5,
             deathLingerTime = 1.0,
             frameDuration = 0.12,
-            xpGain = 50.0
+            xpGain = 100.0
         )
     }
 
@@ -387,7 +387,7 @@ object EnemyConfigs {
             width = 140.0,
             height = 140.0,
             maxHealth = 50.0,
-            moveSpeed = 160.0,
+            moveSpeed = 140.0,
             behavior = EnemyBehavior.MELEE,
             attackRange = 70.0,
             attackCooldown = 1.5,
@@ -434,7 +434,7 @@ object EnemyConfigs {
             attackDisplayConfig = AttackConfig(
                 frames = attackFrames,
                 frameDuration = 0.08,
-                damage = 8.0,
+                damage = 7.0,
                 moving = true,
                 speed = 0.0,
                 hitboxScaleX = 0.5,
@@ -447,7 +447,7 @@ object EnemyConfigs {
             width = 150.0,
             height = 150.0,
             maxHealth = 80.0,
-            moveSpeed = 300.0,
+            moveSpeed = 250.0,
             behavior = EnemyBehavior.MELEE,
             attackRange = 70.0,
             attackCooldown = 1.2,

@@ -145,14 +145,14 @@ class Enemy(
             it.xy(barX, barY); it.visible = false
         }
 
-        if (Constants.SHOW_HITBOX) {
-            debugOutline = container {
-                val t = 2.0
-                solidRect(1.0, t, Colors["#00ff44"]).name("top")
-                solidRect(1.0, t, Colors["#00ff44"]).name("bot")
-                solidRect(t, 1.0, Colors["#00ff44"]).name("lft")
-                solidRect(t, 1.0, Colors["#00ff44"]).name("rgt")
-            }
+        // Always create; visibility toggled each frame via GameSettings.showHitbox
+        debugOutline = container {
+            val t = 2.0
+            solidRect(1.0, t, Colors["#00ff44"]).name("top")
+            solidRect(1.0, t, Colors["#00ff44"]).name("bot")
+            solidRect(t, 1.0, Colors["#00ff44"]).name("lft")
+            solidRect(t, 1.0, Colors["#00ff44"]).name("rgt")
+            visible = false
         }
     }
 
@@ -347,6 +347,7 @@ class Enemy(
         updatePhysics(dt)
         updateAnimation(dt)
         updateHpBar()
-        if (Constants.SHOW_HITBOX) updateDebugOutline()
+        debugOutline?.let { it.visible = GameSettings.showHitbox }
+        if (GameSettings.showHitbox) updateDebugOutline()
     }
 }

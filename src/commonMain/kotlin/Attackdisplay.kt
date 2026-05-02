@@ -98,15 +98,15 @@ class AttackDisplay(
     // -------------------------------------------------------
     // DEBUG OUTLINE
     // -------------------------------------------------------
-    private val debugOutline: Container? = if (Constants.SHOW_HITBOX) {
-        container {
-            val t = 2.0
-            solidRect(1.0, t,   Colors["#ff0000"]).name("top")
-            solidRect(1.0, t,   Colors["#ff0000"]).name("bot")
-            solidRect(t,   1.0, Colors["#ff0000"]).name("lft")
-            solidRect(t,   1.0, Colors["#ff0000"]).name("rgt")
-        }
-    } else null
+    // Always created; visibility toggled each frame via GameSettings.showHitbox.
+    private val debugOutline: Container = container {
+        val t = 2.0
+        solidRect(1.0, t,   Colors["#ff0000"]).name("top")
+        solidRect(1.0, t,   Colors["#ff0000"]).name("bot")
+        solidRect(t,   1.0, Colors["#ff0000"]).name("lft")
+        solidRect(t,   1.0, Colors["#ff0000"]).name("rgt")
+        visible = false
+    }
 
     // -------------------------------------------------------
     // INIT
@@ -140,8 +140,9 @@ class AttackDisplay(
             hitboxH.toFloat()
         )
 
-        // debug outline
-        debugOutline?.let { c ->
+        // debug outline — show/hide based on runtime setting
+        debugOutline.visible = GameSettings.showHitbox
+        debugOutline.let { c ->
             val w  = hitboxW
             val h  = hitboxH
             // The hitbox is centered on this container's position (this.x, this.y).

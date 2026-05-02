@@ -60,14 +60,14 @@ class MenuScene : Scene() {
         }
 
         // -------------------------------------------------------
-        // SETTINGS BUTTON (no-op)
+        // SETTINGS BUTTON → SettingsScene
         // -------------------------------------------------------
         solidRect(btnW, btnH, Colors.DARKBLUE) {
             x = cx - btnW / 2
             y = 470.0
             onOver { alpha = 0.7 }
             onOut  { alpha = 1.0 }
-            onClick { println("Settings not implemented") }
+            onClick { launchImmediately { scene.sceneContainer.changeTo { SettingsScene() } } }
         }
         text("SETTINGS", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)

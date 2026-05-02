@@ -80,6 +80,32 @@ class EnemySpawner(
         nextSpawnIndex = 0
     }
 
+    /**
+     * Developer Mode: advance the spawner's internal clock by [seconds].
+     *
+     * This causes all SpawnEvents whose scheduled time falls within
+     * [elapsedTime, elapsedTime + seconds] to be enqueued immediately on the
+     * next [update] call — exactly as if that much real time had passed.
+     * It does NOT actually spawn enemies itself; GameScene drains pendingSpawns
+     * as usual so the normal creation path is unchanged.
+     *
+     * gameTime in GameScene is also advanced by the same amount by the caller
+     * so the UI timer stays consistent.
+     */
+    fun advanceTime(seconds: Double) {
+        elapsedTime += seconds
+        // Eagerly enqueue any events that are now due
+        while (nextSpawnIndex < spawnSchedule.size) {
+            val event = spawnSchedule[nextSpawnIndex]
+            if (elapsedTime >= event.time) {
+                pendingSpawns.add(event)
+                nextSpawnIndex++
+            } else {
+                break
+            }
+        }
+    }
+
     // Non-suspend, called directly from addUpdater
     fun update(
         dt: Double,

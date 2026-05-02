@@ -5,9 +5,16 @@ object Constants {
     const val GRAVITY       = 2000.0
 
     // -------------------------------------------------------
-    // DEBUG — change only here, affects everything globally
-    // true  = show colored outline hitboxes for bodies + attacks
-    // false = no debug rendering
+    // DEBUG — LEGACY constant kept so existing code compiles
+    // unchanged.  At runtime, always read GameSettings.showHitbox
+    // instead — it is the live, toggle-able source of truth.
+    //
+    //   OLD:  if (Constants.SHOW_HITBOX)  ← compile-time constant
+    //   NEW:  if (GameSettings.showHitbox) ← runtime toggle
+    //
+    // DO NOT change debug rendering by editing this value.
+    // Use the Settings screen toggle instead.
     // -------------------------------------------------------
-    const val SHOW_HITBOX = true
+    @Deprecated("Use GameSettings.showHitbox for runtime toggle")
+    const val SHOW_HITBOX = false   // static default; overridden at runtime
 }

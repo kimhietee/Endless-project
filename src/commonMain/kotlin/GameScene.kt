@@ -257,11 +257,67 @@ class GameScene : Scene() {
         listOf(leftBtn, rightBtn, skillBtn1, skillBtn2, skillBtn3, skillBtn4, attackBtn, skillBtnHealing, skillBtnMaxHealth, jumpBtn, pauseBtn)
             .forEach { addChild(it) }
 
-        /** First point on a slot sets [SkillConfig.paidUnlock]; further points call [SkillConfig.upgrade]. */
+        // -------------------------------------------------------
+        // DEVELOPER MODE BUTTONS
+        // Positioned to the left of the pause button.
+        // Visibility is controlled each frame inside addUpdater.
+        // -------------------------------------------------------
+        val devBtnW = 120.0
+        val devBtnH = 50.0
+        val devBtnY = 20.0
+
+        // "Level Up" button — gives the player one free XP-level immediately
+        val levelUpBtn = container {
+            solidRect(devBtnW, devBtnH, korlibs.image.color.RGBA(30, 100, 30, 220)) {}
+            text("Level Up", textSize = 16.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                xy(8.0, (devBtnH - fontSize) / 2.0)
+            }
+            visible = false
+            xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth - 8.0 - devBtnW, devBtnY)
+        }
+        addChild(levelUpBtn)
+
+        // "Next Wave" button — advances spawner time so upcoming enemies appear sooner
+        val nextWaveBtn = container {
+            solidRect(devBtnW, devBtnH, korlibs.image.color.RGBA(100, 50, 10, 220)) {}
+            text("Next Wave", textSize = 16.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                xy(6.0, (devBtnH - fontSize) / 2.0)
+            }
+            visible = false
+            xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth - 8.0 - devBtnW * 2 - 8.0, devBtnY)
+        }
+        addChild(nextWaveBtn)
+
+        // Time-skip amount for "Next Wave" — jump the spawner forward by this many seconds
+        val NEXT_WAVE_TIME_SKIP = 20.0
+
+        /**
+         * Attempt to spend a skill point on [skillCfg].
+         *
+         * Developer Mode behaviour:
+         *  - Upgrades are free (no point deducted from [progress]).
+         *  - There is no upgrade-point display — skill slots upgrade immediately
+         *    as long as canUpgrade is true.
+         *
+         * Normal behaviour:
+         *  - First point on a slot with requiresPointUnlock sets paidUnlock.
+         *  - Further points call upgrade().
+         */
         fun trySpendSkillPoint(skillCfg: SkillConfig, btn: SkillButton) {
             if (progress.level < skillCfg.unlockLevel) return
 
-            // If it needs a point to unlock, do that first
+            if (GameSettings.developerMode) {
+                // Dev mode: free upgrades, no point check
+                if (skillCfg.requiresPointUnlock && !skillCfg.paidUnlock) {
+                    skillCfg.paidUnlock = true
+                } else if (skillCfg.canUpgrade) {
+                    skillCfg.upgrade()
+                }
+                btn.updateLabels()
+                return
+            }
+
+            // Normal mode: spend a point
             if (skillCfg.requiresPointUnlock && !skillCfg.paidUnlock) {
                 if (progress.spendUpgradePoint()) {
                     skillCfg.paidUnlock = true
@@ -269,8 +325,6 @@ class GameScene : Scene() {
                 }
                 return
             }
-
-            // Otherwise, it's a normal upgrade (basic attack or already-unlocked slots)
             if (skillCfg.canUpgrade && progress.spendUpgradePoint()) {
                 skillCfg.upgrade()
                 btn.updateLabels()
@@ -472,6 +526,30 @@ class GameScene : Scene() {
                     pauseMenuContainer = createPauseMenu()
                     this@sceneMain.addChild(pauseMenuContainer!!)
                     break
+                }
+            }
+
+            // ── Developer Mode button visibility ─────────────────────────
+            val devOn = GameSettings.developerMode
+            levelUpBtn.visible  = devOn
+            nextWaveBtn.visible = devOn
+
+            // ── Developer Mode button clicks ──────────────────────────────
+            if (devOn && !isPaused && player.isAlive()) {
+                for (point in inputPoints) {
+                    if (levelUpBtn.hitTest(point) != null) {
+                        // Force a level-up by adding enough XP to cross the threshold
+                        val needed = (progress.xpForNextLevel() - progress.currentXp + 1.0)
+                            .coerceAtLeast(1.0)
+                        if (!progress.isMaxLevel()) progress.addXp(needed)
+                        break
+                    }
+                    if (nextWaveBtn.hitTest(point) != null) {
+                        // Advance the spawner's internal clock so upcoming spawn events trigger
+                        spawner.advanceTime(NEXT_WAVE_TIME_SKIP)
+                        gameTime += NEXT_WAVE_TIME_SKIP
+                        break
+                    }
                 }
             }
 
