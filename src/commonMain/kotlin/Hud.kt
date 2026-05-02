@@ -8,8 +8,22 @@ import korlibs.math.geom.Size
  *
  * Shows:
  *  • HP bar      — image-based (green/yellow/red), top-left with heart icon
- *  • Mana bar    — image-based (blue), below HP with potion icon
+ *  • Mana bar    — image-based (blue only), below HP with potion icon
  *  • XP display  — level square (black + rising yellow) + horizontal XP bar + text
+ *
+ * HEALTH BAR DYNAMICS
+ * ───────────────────
+ * Health bar changes color based on HP ratio:
+ *   > 50%  → Green bar
+ *   25-50% → Yellow bar
+ *   < 25%  → Red bar
+ * 
+ * The bar width reduces dynamically as health decreases.
+ *
+ * MANA BAR DYNAMICS
+ * ─────────────────
+ * Mana bar uses blue image only.
+ * The bar width reduces dynamically as mana decreases.
  *
  * XP SQUARE VISUAL
  * ────────────────
@@ -189,17 +203,31 @@ class HUD(
 
     private fun updateHp() {
         val ratio = (player.health / player.maxHealth).coerceIn(0.0, 1.0)
+        val fillWidth = BAR_WIDTH * ratio
         
-        // Show the appropriate bar image based on health ratio
-        hpFillGreen.visible = ratio > 0.5
-        hpFillYellow.visible = ratio > 0.25 && ratio <= 0.5
-        hpFillRed.visible = ratio <= 0.25
-
-        // Crop/mask the visible bar to show the fill percentage
+        // Show the appropriate bar image based on health ratio and adjust width dynamically
         when {
-            ratio > 0.5 -> hpFillGreen.scaledWidth = BAR_WIDTH * ratio
-            ratio > 0.25 -> hpFillYellow.scaledWidth = BAR_WIDTH * ratio
-            else -> hpFillRed.scaledWidth = BAR_WIDTH * ratio
+            ratio > 0.5 -> {
+                // Green bar - high health
+                hpFillGreen.visible = true
+                hpFillYellow.visible = false
+                hpFillRed.visible = false
+                hpFillGreen.scaledWidth = fillWidth
+            }
+            ratio > 0.25 -> {
+                // Yellow bar - medium health
+                hpFillGreen.visible = false
+                hpFillYellow.visible = true
+                hpFillRed.visible = false
+                hpFillYellow.scaledWidth = fillWidth
+            }
+            else -> {
+                // Red bar - low health
+                hpFillGreen.visible = false
+                hpFillYellow.visible = false
+                hpFillRed.visible = true
+                hpFillRed.scaledWidth = fillWidth
+            }
         }
 
         hpCounterText.text = "${player.health.toInt()}/${player.maxHealth.toInt()}"
@@ -207,8 +235,11 @@ class HUD(
 
     private fun updateMana() {
         val ratio = (player.mana / player.maxMana).coerceIn(0.0, 1.0)
-        // Crop/mask the mana bar to show the fill percentage
-        manaFillContainer.scaledWidth = BAR_WIDTH * ratio
+        val fillWidth = BAR_WIDTH * ratio
+        
+        // Blue mana bar - width reduces as mana decreases
+        manaFillContainer.scaledWidth = fillWidth
+        
         manaCounterText.text = "${player.mana.toInt()}/${player.maxMana.toInt()}"
     }
 
