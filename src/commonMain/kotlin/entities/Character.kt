@@ -1,3 +1,5 @@
+package entities
+
 import korlibs.image.bitmap.BmpSlice
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
@@ -6,6 +8,8 @@ import korlibs.korge.input.InputKeys
 import korlibs.image.color.Colors
 import korlibs.math.geom.Rectangle
 import korlibs.korge.view.SolidRect
+import utils.*
+import managers.*
 
 enum class CharacterState { IDLE, RUNNING, JUMPING, ATTACKING, SKILL }
 
@@ -63,6 +67,7 @@ class Character(
     // -------------------------------------------------------
     override fun takeDamage(amount: Double) {
         if (!isAlive()) return
+        if (isPlayer && GameSettings.developerMode && GameSettings.godMode) return
         health = (health - amount).coerceAtLeast(0.0)
         if (isPlayer) hpBarDamageFlash = 5.0
     }
@@ -123,7 +128,7 @@ class Character(
         cooldownMax                 = 4.0,
         manaCost                    = 20,
         damage                      = 10.0,
-        unlockLevel                 = 2,
+        unlockLevel                 = 4,
         damagePerUpgrade            = 3.0,
         cooldownReductionPerUpgrade = 0.3,
         maxUpgrades                 = 5
@@ -133,7 +138,7 @@ class Character(
         cooldownMax                 = 10.0,
         manaCost                    = 40,
         damage                      = 15.0,
-        unlockLevel                 = 4,
+        unlockLevel                 = 8,
         damagePerUpgrade            = 3.0,
         cooldownReductionPerUpgrade = 0.5,
         maxUpgrades                 = 5
@@ -143,8 +148,8 @@ class Character(
         cooldownMax                 = 12.0,
         manaCost                    = 50,
         damage                      = 30.0,
-        unlockLevel                 = 6,
-        damagePerUpgrade            = 3.0,
+        unlockLevel                 = 12,
+        damagePerUpgrade            = 4.0,
         cooldownReductionPerUpgrade = 0.5,
         maxUpgrades                 = 5
     )
@@ -153,7 +158,7 @@ class Character(
         cooldownMax                 = 20.0,
         manaCost                    = 100,
         damage                      = 50.0,
-        unlockLevel                 = 10,
+        unlockLevel                 = 18,
         damagePerUpgrade            = 5.0,
         cooldownReductionPerUpgrade = 1.0,
         maxUpgrades                 = 5
@@ -245,15 +250,15 @@ class Character(
     )
     private fun buildSkill3Config() = AttackConfig(
         frames          = skill3Frames,
-        frameDuration   = 0.09,
+        frameDuration   = 0.06,
         // Pass full damage value — AttackDisplay (stationary mode) already splits
         // this across all frames internally via damagePerFrame = damage / totalFrames.
         // Dividing here caused a double-division: 30 / 34 frames / 34 again = ~0.026 per frame.
         damage          = skill3Config.damage,
         moving          = false,
         speed           = 0.0,
-        hitboxScaleX    = 0.7,
-        hitboxScaleY    = 0.7,
+        hitboxScaleX    = 0.5,
+        hitboxScaleY    = 0.5,
         repeatAnimation = 1,
         displayScale    = 0.3,
         offsetX         = -20.0,
@@ -268,7 +273,7 @@ class Character(
         speed           = 0.0,
         hitboxScaleX    = 1.0,
         hitboxScaleY    = 1.0,
-        repeatAnimation = 3,
+        repeatAnimation = 1,
         displayScale    = 1.2,
         offsetX         = 50.0,
         offsetY         = -110.0
@@ -480,7 +485,7 @@ class Character(
             skill1    = keys[Key.Z]     || TouchInput.skill1,
             skill2    = keys[Key.X]     || TouchInput.skill2,
             skill3    = keys[Key.C]     || TouchInput.skill3,
-            skill4    = keys[Key.V]     || TouchInput.skill4
+            skill4    = keys[Key.V]     || TouchInput.skill4,
         )
     }
 

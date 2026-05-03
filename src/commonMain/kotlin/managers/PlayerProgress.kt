@@ -1,3 +1,5 @@
+package managers
+
 /**
  * Tracks player XP, current level, and available upgrade points.
  *
@@ -21,25 +23,33 @@ class PlayerProgress {
      * Levels not listed fall back to defaultXpRequirement.
      */
     val xpTable: Map<Int, Double> = mapOf(
-        1 to 50.0,
-        2 to 60.0,
-        3 to 70.0,
-        4 to 80.0,
-        5 to 100.0,
-        6 to 120.0,
-        7 to 140.0,
-        8 to 160.0,
-        9 to 180.0,
+        1 to 20.0,
+        2 to 30.0,
+        3 to 40.0,
+        4 to 50.0,
+        5 to 60.0,
+        6 to 70.0,
+        7 to 80.0,
+        8 to 90.0,
+        9 to 100.0,
 
-        10 to 200.0,
-        11 to 200.0,
-        12 to 200.0,
-        13 to 200.0
+        10 to 110.0,
+        11 to 120.0,
+        12 to 130.0,
+        13 to 140.0,
+        14 to 150.0,
+        15 to 160.0,
+        16 to 170.0,
+        17 to 180.0,
+        18 to 190.0,
+        19 to 200.0,
+
+
     )
 
-    val maxLevel = xpTable.size
+    val maxLevel =  1 + xpTable.size + 10
 
-    val defaultXpRequirement = 30.0
+    val defaultXpRequirement = 200.0
 
     // -------------------------------------------------------
     // STATE  (read externally, written only here)
@@ -47,6 +57,14 @@ class PlayerProgress {
     var level         = 1; private set
     var currentXp     = 0.0; private set
     var upgradePoints = 0; private set
+    var totalKills    = 0; private set
+    var score         = 0.0; private set
+
+    /** Increment the kill counter. */
+    fun addKill() {
+        totalKills++
+        score += 50.0 // Base score per kill
+    }
 
     // -------------------------------------------------------
     // QUERIES
@@ -79,10 +97,12 @@ class PlayerProgress {
     fun addXp(amount: Double) {
         if (isMaxLevel()) return
         currentXp += amount
+        score += amount // XP contributes to score
         while (!isMaxLevel() && currentXp >= xpForNextLevel()) {
             currentXp -= xpForNextLevel()
             level++
             upgradePoints++
+            score += 500.0 // Level up bonus
         }
         // At max level, freeze XP display at full
         if (isMaxLevel()) currentXp = 0.0
@@ -103,5 +123,7 @@ class PlayerProgress {
         level         = 1
         currentXp     = 0.0
         upgradePoints = 0
+        totalKills    = 0
+        score         = 0.0
     }
 }

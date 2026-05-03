@@ -1,3 +1,5 @@
+package utils
+
 /**
  * Data-driven per-skill configuration.
  *

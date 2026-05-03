@@ -1,7 +1,11 @@
+package entities
+
 import korlibs.image.bitmap.BmpSlice
 import korlibs.image.color.Colors
 import korlibs.korge.view.*
 import korlibs.math.geom.Rectangle
+import utils.*
+import managers.GameAssets
 
 enum class EnemyState { IDLE, RUNNING, ATTACKING, DEAD }
 

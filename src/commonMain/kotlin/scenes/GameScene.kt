@@ -1,3 +1,5 @@
+package scenes
+
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.input.*
@@ -9,6 +11,10 @@ import korlibs.time.seconds
 import korlibs.math.geom.Point
 import korlibs.io.async.launchImmediately
 import korlibs.event.Key
+import entities.*
+import ui.*
+import managers.*
+import utils.*
 
 class GameScene : Scene() {
 
@@ -265,12 +271,20 @@ class GameScene : Scene() {
         val devBtnW = 120.0
         val devBtnH = 50.0
         val devBtnY = 20.0
+        // Time-skip amount for "Next Wave" — jump the spawner forward by this many seconds
+        val NEXT_WAVE_TIME_SKIP = 90.0
 
         // "Level Up" button — gives the player one free XP-level immediately
         val levelUpBtn = container {
             solidRect(devBtnW, devBtnH, korlibs.image.color.RGBA(30, 100, 30, 220)) {}
             text("Level Up", textSize = 16.0, color = Colors.WHITE, font = GameAssets.customFont) {
                 xy(8.0, (devBtnH - fontSize) / 2.0)
+            }
+            onClick {
+                if (GameSettings.developerMode && !isPaused && player.isAlive()) {
+                    val needed = (progress.xpForNextLevel() - progress.currentXp + 1.0).coerceAtLeast(1.0)
+                    if (!progress.isMaxLevel()) progress.addXp(needed)
+                }
             }
             visible = false
             xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth - 8.0 - devBtnW, devBtnY)
@@ -283,13 +297,39 @@ class GameScene : Scene() {
             text("Next Wave", textSize = 16.0, color = Colors.WHITE, font = GameAssets.customFont) {
                 xy(6.0, (devBtnH - fontSize) / 2.0)
             }
+            onClick {
+                if (GameSettings.developerMode && !isPaused && player.isAlive()) {
+                    spawner.advanceTime(NEXT_WAVE_TIME_SKIP)
+                    gameTime += NEXT_WAVE_TIME_SKIP
+                }
+            }
             visible = false
             xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth - 8.0 - devBtnW * 2 - 8.0, devBtnY)
         }
         addChild(nextWaveBtn)
 
-        // Time-skip amount for "Next Wave" — jump the spawner forward by this many seconds
-        val NEXT_WAVE_TIME_SKIP = 20.0
+        // "God Mode" button — player takes no damage
+        val godModeBtn = container {
+            val bg = solidRect(devBtnW, devBtnH, korlibs.image.color.RGBA(100, 10, 10, 220)) {}
+            val txt = text("God: OFF", textSize = 16.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                xy(6.0, (devBtnH - fontSize) / 2.0)
+            }
+            onClick {
+                if (GameSettings.developerMode && !isPaused && player.isAlive()) {
+                    GameSettings.godMode = !GameSettings.godMode
+                    if (GameSettings.godMode) {
+                        bg.color = korlibs.image.color.RGBA(10, 100, 10, 220)
+                        txt.text = "God: ON"
+                    } else {
+                        bg.color = korlibs.image.color.RGBA(100, 10, 10, 220)
+                        txt.text = "God: OFF"
+                    }
+                }
+            }
+            visible = false
+            xy(Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth - 8.0 - devBtnW * 3 - 16.0, devBtnY)
+        }
+        addChild(godModeBtn)
 
         /**
          * Attempt to spend a skill point on [skillCfg].
@@ -476,6 +516,14 @@ class GameScene : Scene() {
             y = 20.0 + pauseBtnHeight + 6.0                    // directly below pause button
         }
 
+        // -------------------------------------------------------
+        // WAVE UI — positioned below the timer
+        // -------------------------------------------------------
+        val waveText = text("Wave 1", textSize = 18.0, color = Colors.YELLOW, font = GameAssets.customFont) {
+            x = Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth  // left-aligned with pause button
+            y = 20.0 + pauseBtnHeight + 6.0 + 28.0             // below timer
+        }
+
         fun formatTime(seconds: Double): String {
             val mins = (seconds / 60).toInt()
             val secs = (seconds % 60).toInt()
@@ -509,6 +557,8 @@ class GameScene : Scene() {
             if (!isPaused && player.isAlive()) {
                 gameTime += dtSec
                 timerText.text = formatTime(gameTime)
+                val currentWave = WaveSystem.getWaveNumber(gameTime)
+                waveText.text = "Wave $currentWave"
             }
 
             // --- INPUT HANDLING (Touch + Mouse for Desktop) ---
@@ -533,24 +583,14 @@ class GameScene : Scene() {
             val devOn = GameSettings.developerMode
             levelUpBtn.visible  = devOn
             nextWaveBtn.visible = devOn
+            godModeBtn.visible  = devOn
 
-            // ── Developer Mode button clicks ──────────────────────────────
-            if (devOn && !isPaused && player.isAlive()) {
-                for (point in inputPoints) {
-                    if (levelUpBtn.hitTest(point) != null) {
-                        // Force a level-up by adding enough XP to cross the threshold
-                        val needed = (progress.xpForNextLevel() - progress.currentXp + 1.0)
-                            .coerceAtLeast(1.0)
-                        if (!progress.isMaxLevel()) progress.addXp(needed)
-                        break
-                    }
-                    if (nextWaveBtn.hitTest(point) != null) {
-                        // Advance the spawner's internal clock so upcoming spawn events trigger
-                        spawner.advanceTime(NEXT_WAVE_TIME_SKIP)
-                        gameTime += NEXT_WAVE_TIME_SKIP
-                        break
-                    }
-                }
+            if (!devOn && GameSettings.godMode) {
+                GameSettings.godMode = false
+                val bg = godModeBtn.children.getOrNull(0) as? korlibs.korge.view.SolidRect
+                val txt = godModeBtn.children.getOrNull(1) as? korlibs.korge.view.Text
+                bg?.color = korlibs.image.color.RGBA(100, 10, 10, 220)
+                txt?.text = "God: OFF"
             }
 
             // If paused or player dead, skip gameplay updates
@@ -563,6 +603,14 @@ class GameScene : Scene() {
             if (!player.isAlive() && deathScreenContainer == null) {
                 deathScreenContainer = createDeathScreen()
                 this@sceneMain.addChild(deathScreenContainer!!)
+                
+                // --- SCORE INTEGRATION ---
+                ScoreManager.onGameEnd(
+                    currentScore = progress.score,
+                    timeSurvived = gameTime,
+                    wavesCleared = (WaveSystem.getWaveNumber(gameTime) - 1).coerceAtLeast(0),
+                    kills = progress.totalKills
+                )
             }
 
             // Skip further updates if player is dead
@@ -628,7 +676,12 @@ class GameScene : Scene() {
                     for (event in toSpawn) {
                         for (i in 0 until event.count.coerceAtLeast(1)) {
                             val enemy = EnemyFactory.create(event.enemyType)
-                            enemy.onDeath = { progress.addXp(enemy.xpGain) }
+                            enemy.onDeath = {
+                                if (!GameSettings.developerMode) {
+                                    progress.addXp(enemy.xpGain)
+                                    progress.addKill()
+                                }
+                            }
                             enemy.x = event.x + i * event.offsetX
                             enemy.y = Constants.GROUND
                             spawner.addEnemy(enemy)

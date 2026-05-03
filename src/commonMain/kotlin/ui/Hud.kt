@@ -1,6 +1,11 @@
+package ui
+
 import korlibs.image.color.Colors
 import korlibs.image.color.RGBA
 import korlibs.korge.view.*
+import entities.Character
+import managers.*
+import utils.*
 
 /**
  * Heads-Up Display.

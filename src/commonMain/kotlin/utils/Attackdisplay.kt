@@ -1,3 +1,5 @@
+package utils
+
 import korlibs.image.bitmap.BmpSlice
 import korlibs.image.color.Colors
 import korlibs.korge.view.*
@@ -87,6 +89,10 @@ class AttackDisplay(
     private val damagePerFrame = config.damage / totalFrames.toDouble()
     // For moving attacks: track which targets have already been hit (hit-once logic)
     private val hitTargets: MutableSet<Damageable> = mutableSetOf()
+    // Track which targets were damaged in the CURRENT animation frame
+    // to avoid applying damage multiple times per animation frame when
+    // the game's update rate exceeds the animation frame rate.
+    private val damagedThisFrame: MutableSet<Damageable> = mutableSetOf()
 
     // -------------------------------------------------------
     // HITBOX
@@ -166,14 +172,17 @@ class AttackDisplay(
             if (!target.isAlive()) continue
             if (!hitbox.intersects(target.hitboxRect())) continue
             if (config.moving) {
-                // Projectile: each target hit at most once
+                // Projectile: each target hit at most once EVER
                 if (target !in hitTargets) {
                     target.takeDamage(config.damage)
                     hitTargets.add(target)
                 }
             } else {
-                // Stationary / lingering: damage every frame while overlapping
-                target.takeDamage(damagePerFrame)
+                // Stationary: damage once per animation frame while overlapping
+                if (target !in damagedThisFrame) {
+                    target.takeDamage(damagePerFrame)
+                    damagedThisFrame.add(target)
+                }
             }
         }
 
@@ -182,6 +191,8 @@ class AttackDisplay(
         if (frameTime >= config.frameDuration) {
             frameTime = 0.0
             currentFrame++
+            // Clear per-frame damage tracking at the start of each new animation frame
+            damagedThisFrame.clear()
             if (currentFrame >= config.frames.size) {
                 currentFrame = 0
                 repeatsDone++

@@ -1,3 +1,5 @@
+package scenes
+
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.image.color.Colors
@@ -8,6 +10,8 @@ import korlibs.io.async.launchImmediately
 import korlibs.time.*
 import kotlinx.coroutines.delay
 import korlibs.math.geom.*
+import managers.GameAssets
+import utils.Constants
 
 class LoadingScene : Scene() {
 

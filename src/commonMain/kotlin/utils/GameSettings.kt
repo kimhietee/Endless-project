@@ -1,3 +1,5 @@
+package utils
+
 /**
  * GameSettings — persistent global state shared across all scenes.
  *
@@ -26,4 +28,7 @@ object GameSettings {
 
     /** Master switch for all developer / testing features. */
     var developerMode: Boolean = false
+
+    /** When true and developerMode is enabled, player takes no damage. */
+    var godMode: Boolean = false
 }

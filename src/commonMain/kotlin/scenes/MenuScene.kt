@@ -1,3 +1,5 @@
+package scenes
+
 import korlibs.image.color.Colors
 import korlibs.image.format.readBitmapSlice
 import korlibs.io.file.std.resourcesVfs
@@ -6,6 +8,9 @@ import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.*
+import managers.GameAssets
+import utils.Constants
+import utils.AttackDisplay
 
 class MenuScene : Scene() {
 

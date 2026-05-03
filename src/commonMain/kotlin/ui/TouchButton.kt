@@ -1,3 +1,5 @@
+package ui
+
 import korlibs.image.bitmap.BmpSlice
 import korlibs.korge.view.*
 

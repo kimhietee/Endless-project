@@ -1,3 +1,8 @@
+package entities
+
+import utils.*
+import managers.GameAssets
+
 /**
  * Factory for creating enemies by type string.
  * 
@@ -14,7 +19,7 @@ class EnemyFactory {
         /**
          * Create an enemy by type string.
          * 
-         * @param type Enemy type: "skeleton", "skeleton_spearman", "skeleton_archer", "wolf1", "wolf2", "wolf3"
+         * @param type Enemy type: "skeleton", "skeleton_spearman", "skeleton_archer", "skeleton_ranger", "skeleton_brute", "skeleton_scout", "skeleton_boss", "flying_eye", "goblin", "kobold", "wolf1", "wolf2", "wolf3"
          * @return Enemy instance
          * @throws IllegalArgumentException if type is unknown
          */
@@ -27,10 +32,15 @@ class EnemyFactory {
                 "skeleton"           -> EnemyConfigs.skeleton(attackFrames)
                 "skeleton_spearman"  -> EnemyConfigs.skeletonSpearman(attackFrames)
                 "skeleton_archer"    -> EnemyConfigs.skeletonArcher(attackFrames)
-                "skeleton_boss"    -> EnemyConfigs.skeletonBoss(attackFrames)
+                "skeleton_boss"      -> EnemyConfigs.skeletonBoss(attackFrames)
+
                 "wolf1"              -> EnemyConfigs.wolf1(attackFrames)
                 "wolf2"              -> EnemyConfigs.wolf2(attackFrames)
                 "wolf3"              -> EnemyConfigs.wolf3(attackFrames)
+
+                "flying_eye"         -> EnemyConfigs.flyingEye(attackFrames)
+                "goblin"             -> EnemyConfigs.goblin(attackFrames)
+                "kobold"             -> EnemyConfigs.kobold(attackFrames)
                 else                 -> throw IllegalArgumentException("Unknown enemy type: $type")
             }
             
@@ -74,12 +84,43 @@ class EnemyFactory {
                 )
             }
             "skeleton_boss" -> {
-                // Archer uses arrow
+                // Boss uses sword projectile
                 GameAssets.loadFrames(
                     FrameConfig(
                         folder = "skeleton_enemy/skeleton_boss",
                         sheet = SpriteSheetConfig("sword_projectile", columns = 8, rows = 1),
                         count = 8
+                    )
+                )
+            }
+
+            "flying_eye" -> {
+                // Flying Eye uses eye projectile
+                GameAssets.loadFrames(
+                    FrameConfig(
+                        folder = "monster_enemy/attacks",
+                        sheet = SpriteSheetConfig("eye_projectile", columns = 8, rows = 1),
+                        count = 8
+                    )
+                )
+            }
+            "goblin" -> {
+                // Goblin uses bomb projectile
+                GameAssets.loadFrames(
+                    FrameConfig(
+                        folder = "monster_enemy/attacks",
+                        sheet = SpriteSheetConfig("bomb", columns = 19, rows = 1),
+                        count = 19
+                    )
+                )
+            }
+            "kobold" -> {
+                // Kobold uses existing melee projectile (same as skeleton for now)
+                GameAssets.loadFrames(
+                    FrameConfig(
+                        folder = "skeleton_enemy/skeleton_slash",
+                        sheet = SpriteSheetConfig("slash", columns = 4, rows = 1),
+                        count = 4
                     )
                 )
             }
@@ -107,6 +148,9 @@ class EnemyFactory {
             "skeleton_spearman",
             "skeleton_archer",
             "skeleton_boss",
+            "flying_eye",
+            "goblin",
+            "kobold",
             "wolf1",
             "wolf2",
             "wolf3"

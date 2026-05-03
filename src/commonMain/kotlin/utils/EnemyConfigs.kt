@@ -1,3 +1,5 @@
+package utils
+
 import korlibs.image.bitmap.BmpSlice
 
 /**
@@ -454,6 +456,198 @@ object EnemyConfigs {
             deathLingerTime = 2.0,
             frameDuration = 0.09,
             xpGain = 100.0  // ★ AUDIT FIX: comment updated to match value (was "xpGain = 30")
+        )
+    }
+
+    // ============================================================
+    // MONSTER ENEMIES (Monster Army expansion)
+    // ============================================================
+
+    /**
+     * Flying Eye — floating eye with projectile attack.
+     * Role: RANGED — medium hp, projectile damage
+     * Single image used for all animation states
+     * Attack projectile: 1 row, 8 columns
+     * xpGain = 45
+     */
+    suspend fun flyingEye(attackFrames: List<BmpSlice>): EnemyConfig {
+        return EnemyConfig(
+            idleConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("flying_eye", columns = 6, rows = 1),
+                count = 6
+            ),
+            runConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("flying_eye", columns = 6, rows = 1),
+                count = 6
+            ),
+            attackConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("flying_eye", columns = 6, rows = 1),
+                count = 6
+            ),
+            deathConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("flying_eye", columns = 6, rows = 1),
+                count = 6
+            ),
+            attackDisplayConfig = AttackConfig(
+                frames = attackFrames,
+                frameDuration = 0.08,
+                damage = 0.5,
+                moving = true,
+                speed = 340.0,
+                hitboxScaleX = 0.6,
+                hitboxScaleY = 0.6,
+                repeatAnimation = 1,
+                displayScale = 1.8,
+                offsetX = 00.0,
+                offsetY = 20.0
+            ),
+            width = 190.0,
+            height = 165.0,
+            maxHealth = 15.0,
+            moveSpeed = 130.0,
+            behavior = EnemyBehavior.RANGED,
+            attackRange = 180.0,
+            attackCooldown = 0.5,
+            deathLingerTime = 1.0,
+            frameDuration = 0.06,
+            xpGain = 15.0
+        )
+    }
+
+    /**
+     * Goblin — fast melee enemy with bomb projectile.
+     * Role: FAST — chaser with ranged bomb
+     * Single image used for all animation states
+     * Attack projectile (bomb): 1 row, 19 columns
+     * xpGain = 50
+     */
+    suspend fun goblin(attackFrames: List<BmpSlice>): EnemyConfig {
+        return EnemyConfig(
+            idleConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("goblin", columns = 12, rows = 1),
+                count = 12
+            ),
+            runConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("goblin", columns = 12, rows = 1),
+                count = 12
+            ),
+            attackConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("goblin", columns = 12, rows = 1),
+                count = 12
+            ),
+            deathConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("goblin", columns = 12, rows = 1),
+                count = 12
+            ),
+            attackDisplayConfig = AttackConfig(
+                frames = attackFrames,
+                frameDuration = 0.05,
+                damage = 3.0,
+                moving = true,
+                speed = 300.0,
+                hitboxScaleX = 0.7,
+                hitboxScaleY = 0.7,
+                repeatAnimation = 1,
+                displayScale = 1.8,
+                offsetX = 0.0,
+                offsetY = 60.0
+            ),
+            width = 200.0,
+            height = 150.0,
+            maxHealth = 25.0,
+            moveSpeed = 80.0,
+            behavior = EnemyBehavior.RANGED,
+            attackRange = 2000.0,
+            attackCooldown = 1.4,
+            deathLingerTime = 1.0,
+            frameDuration = 0.12,
+            xpGain = 30.0
+        )
+    }
+
+    /**
+     * Kobold — melee enemy with separate idle/run/attack sprites.
+     * Uses existing attack system (kobold_attack.png).
+     * Individual PNG files for each animation state.
+     * xpGain = 35
+     */
+    suspend fun kobold(attackFrames: List<BmpSlice>): EnemyConfig {
+        return EnemyConfig(
+//            idleConfig = FrameConfig(
+//                folder = "monster_enemy",
+//                prefix = "kobold_idle",
+//                extension = "png",
+//                count = 1
+//            ),
+//            runConfig = FrameConfig(
+//                folder = "monster_enemy",
+//                prefix = "kobold_run",
+//                extension = "png",
+//                count = 1
+//            ),
+//            attackConfig = FrameConfig(
+//                folder = "monster_enemy",
+//                prefix = "kobold_attack",
+//                extension = "png",
+//                count = 1
+//            ),
+//            deathConfig = FrameConfig(
+//                folder = "monster_enemy",
+//                prefix = "kobold_idle",
+//                extension = "png",
+//                count = 1
+//            ),
+            idleConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("kobold_idle", columns = 6, rows = 1),
+                count = 6
+            ),
+            runConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("kobold_run", columns = 8, rows = 1),
+                count = 8
+            ),
+            attackConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("kobold_attack", columns = 5, rows = 1),
+                count = 5
+            ),
+            deathConfig = FrameConfig(
+                folder = "monster_enemy",
+                sheet = SpriteSheetConfig("kobold_run", columns = 8, rows = 1),
+                count = 8
+            ),
+            attackDisplayConfig = AttackConfig(
+                frames = attackFrames,
+                frameDuration = 0.08,
+                damage = 3.0,
+                moving = true,
+                speed = 0.0,
+                hitboxScaleX = 0.6,
+                hitboxScaleY = 0.6,
+                repeatAnimation = 1,
+                displayScale = 0.8,
+                offsetX = 30.0,
+                offsetY = 5.0
+            ),
+            width = 145.0,
+            height = 110.0,
+            maxHealth = 30.0,
+            moveSpeed = 130.0,
+            behavior = EnemyBehavior.MELEE,
+            attackRange = 55.0,
+            attackCooldown = 1.3,
+            deathLingerTime = 1.0,
+            frameDuration = 0.08,
+            xpGain = 35.0
         )
     }
 }

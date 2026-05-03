@@ -1,3 +1,5 @@
+package utils
+
 object TouchInput {
     var left   = false
     var right  = false

@@ -1,3 +1,5 @@
+package ui
+
 import korlibs.image.bitmap.BmpSlice
 import korlibs.image.color.Colors
 import korlibs.image.color.RGBA
@@ -5,6 +7,8 @@ import korlibs.korge.input.onClick
 import korlibs.korge.view.*
 import korlibs.math.geom.Point
 import kotlin.math.ceil
+import utils.*
+import managers.GameAssets
 
 /**
  * A skill-slot button that shows:
@@ -152,7 +156,7 @@ class SkillButton(
             8 -> RGBA(255, 140, 0, 255)
             9 -> RGBA(255, 140, 0, 255)
             MAX_LEVEL -> RGBA(255, 215, 0, 255)
-            else -> Colors.WHITE
+            else -> RGBA(255, 215, 0, 255)
         }
     }
 

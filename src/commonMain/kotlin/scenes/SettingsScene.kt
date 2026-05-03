@@ -1,3 +1,5 @@
+package scenes
+
 import korlibs.image.color.Colors
 import korlibs.image.color.RGBA
 import korlibs.io.async.launchImmediately
@@ -7,6 +9,9 @@ import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
+import managers.GameAssets
+import utils.Constants
+import utils.GameSettings
 
 /**
  * SettingsScene — toggle Show Hitbox and Developer Mode.

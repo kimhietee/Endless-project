@@ -1,8 +1,11 @@
+package managers
+
 import korlibs.image.bitmap.BmpSlice
 import korlibs.image.format.readBitmapSlice
 import korlibs.io.file.std.resourcesVfs
 import korlibs.image.font.Font
 import korlibs.image.font.readFont
+import utils.*
 
 object GameAssets {
 

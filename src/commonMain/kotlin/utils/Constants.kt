@@ -1,3 +1,5 @@
+package utils
+
 object Constants {
     const val SCREEN_WIDTH  = 1280
     const val SCREEN_HEIGHT = 720

@@ -2,10 +2,11 @@ import korlibs.korge.gradle.*
 import korlibs.korge.gradle.Orientation
 plugins {
 	alias(libs.plugins.korge)
+	id("com.google.gms.google-services") version "4.4.4" apply false
 }
 
 korge {
-	id = "com.sample.demo"
+	id = "com.kimhietee.endless"
 
 
 // To enable all targets at once
@@ -22,7 +23,7 @@ korge {
     targetWasm()
 	targetDesktop()
 	targetIos()
-	targetAndroid()
+	android()
 
 	serializationJson()
 
@@ -32,6 +33,19 @@ korge {
 
 dependencies {
     add("commonMainApi", project(":deps"))
+    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.12.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.12.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.12.0")
+    add("commonMainImplementation", "korlibs.korge:korge-ui:6.0.0")
     //add("commonMainApi", project(":korge-dragonbones"))
+}
+
+// Apply Google Services plugin to the Android project once it is created by KorGE
+subprojects {
+    afterEvaluate {
+        if (name == "android" || project.plugins.hasPlugin("com.android.application")) {
+            apply(plugin = "com.google.gms.google-services")
+        }
+    }
 }
 
