@@ -769,15 +769,15 @@ object WaveSystem {
         // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         val autoEvents = AutoWaveGenerator(
             startTime            = autoPhaseStart,
-            startDifficulty      = 0.5,     // matches Wave 5 difficulty
+            startDifficulty      = 1.5,     // matches Wave 5 difficulty
             difficultyGainPerSec = 0.004,   // +1 difficulty per ~4 min â€” smooth climb
             baseInterval         = 5.0,    // start at one spawn every 12 s
-            intervalDecayRate    = 0.0015,  // interval shrinks to ~4 s by t = 700 s
+            intervalDecayRate    = 0.02,  // interval shrinks to ~4 s by t = 700 s
             minInterval          = 2.0,
             groupScaleRate       = 0.008,
             breathingWindowEvery = 90.0,    // 8-second breather every 90 seconds
             breathingWindowLength = 8.0,
-            durationToGenerate   = 600.0    // generate 10 minutes of auto-waves
+            durationToGenerate   = 900.0    // generate 10 minutes of auto-waves
         ).generate()
 
         spawner.scheduleList(autoEvents)

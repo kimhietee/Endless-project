@@ -15,6 +15,19 @@ import utils.Constants
 
 class LoadingScene : Scene() {
 
+    suspend fun testFirebaseSignup() { 
+        val email = "qa+test1@example.com" 
+        val pass = "Password123!" v
+        val success = AuthManager.signUp(email, pass) 
+        println("signUp success = $success, uid=${AuthManager.userId()}") 
+        if (success) {
+            // write a test score 
+            ScoreManager.onGameEnd(123.0, 60.0, 3, 10) 
+            val score = ScoreManager.getHighScore() 
+            println("fetched score: $score") 
+        } 
+    }
+
     override suspend fun SContainer.sceneMain() {
         val scene = this@LoadingScene
 
@@ -55,6 +68,9 @@ class LoadingScene : Scene() {
         // Once loaded, transition to GameScene
         launchImmediately {
             scene.sceneContainer.changeTo { GameScene() }
+        }
+        launchImmediately { 
+            testFirebaseSignup() 
         }
     }
 }
