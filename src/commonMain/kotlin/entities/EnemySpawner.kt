@@ -2,6 +2,7 @@ package entities
 
 import korlibs.korge.view.Container
 import utils.Constants
+import utils.Damageable
 
 /**
  * Represents a single scheduled enemy spawn event.

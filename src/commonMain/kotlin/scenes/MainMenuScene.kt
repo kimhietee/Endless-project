@@ -12,6 +12,7 @@ import korlibs.io.async.launchImmediately
 import korlibs.io.*
 import korlibs.io.async.*
 import korlibs.korge.ui.*
+import korlibs.math.geom.*
 import managers.GameAssets
 import managers.AuthManager
 import managers.ScoreManager
@@ -154,7 +155,7 @@ class MainMenuScene : Scene() {
             val modalH = 340.0
             
             val modal = container {
-                solidRect(modalW, modalH, Colors["#222222"]) { radius = 10.0 }
+                roundRect(Size(modalW, modalH), RectCorners(10.0), Colors["#222222"])
                 centerOn(this@container)
 
                 text(if (isSignUp) "NEW ACCOUNT" else "LOGIN", textSize = 32.0, color = Colors.WHITE, font = GameAssets.customFont) {
@@ -165,12 +166,12 @@ class MainMenuScene : Scene() {
                 val inputW = 320.0
                 val inputH = 40.0
                 
-                val emailInput = uiTextInput(placeholder = "Email Address", width = inputW, height = inputH) {
+                val emailInput = uiTextInput("Email Address", Size(inputW, inputH)) {
                     centerXOn(this@container)
                     y = 90.0
                 }
                 
-                val passInput = uiTextInput(placeholder = "Password", width = inputW, height = inputH) {
+                val passInput = uiTextInput("Password", Size(inputW, inputH)) {
                     centerXOn(this@container)
                     y = 150.0
                 }
@@ -202,11 +203,11 @@ class MainMenuScene : Scene() {
                     centerOn(actionBtn)
                 }
 
-                text("Cancel", textSize = 16.0, color = Colors.GRAY) {
+                text("Cancel", textSize = 16.0, color = Colors.LIGHTGRAY) {
                     centerXOn(this@container)
                     y = 295.0
                     onOver { color = Colors.WHITE }
-                    onOut  { color = Colors.GRAY }
+                    onOut  { color = Colors.LIGHTGRAY }
                     onClick { this@container.removeFromParent() }
                 }
             }

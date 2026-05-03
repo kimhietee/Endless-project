@@ -17,13 +17,16 @@ korge {
 	//targetDefault()
 
 // To selectively enable targets
-	
+    androidMinSdk = 23
+    androidTargetSdk = 34
+    androidCompileSdk = 34
+
 	targetJvm()
 	targetJs()
-    targetWasm()
+    targetWasmJs()
 	targetDesktop()
 	targetIos()
-	android()
+	targetAndroid()
 
 	serializationJson()
 
@@ -33,10 +36,10 @@ korge {
 
 dependencies {
     add("commonMainApi", project(":deps"))
-    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.12.0")
-    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.12.0")
-    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.12.0")
-    add("commonMainImplementation", "korlibs.korge:korge-ui:6.0.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.13.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.13.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.13.0")
+    // korge-ui is built-in with the KorGE plugin, no need for a separate dependency
     //add("commonMainApi", project(":korge-dragonbones"))
 }
 
