@@ -466,12 +466,14 @@ object WaveSystem {
                 SpawnEvent(2.0, "skeleton_archer", 1000.0, 2, 40.0),
                 SpawnEvent(5.0, "skeleton", 1000.0, 2, 50.0),
                 SpawnEvent(7.0, "skeleton", 100.0, 2, 60.0),
-                SpawnEvent(10.0, "skeleton", 100.0, 1, 60.0),
-                SpawnEvent(11.0, "skeleton_archer", 1200.0, 1, 50.0),
-                SpawnEvent(20.0, "skeleton", 100.0, 2, 60.0),
+                SpawnEvent(10.0, "skeleton", 100.0, 2, 60.0),
+                SpawnEvent(11.0, "skeleton_archer", 1200.0, 2, 50.0),
+                SpawnEvent(20.0, "skeleton", 100.0, 3, 60.0),
                 SpawnEvent(20.0, "wolf1", 90.0),
                 SpawnEvent(20.0, "skeleton_archer", 1000.0),
                 SpawnEvent(30.0, "skeleton_spearman", 950.0, 1, 40.0),
+                SpawnEvent(30.0, "wolf1", 90.0),
+
                 SpawnEvent(33.0, "skeleton", 90.0, 1, 40.0),
                 SpawnEvent(36.0, "skeleton_archer", 100.0, 1, 30.0),
                 SpawnEvent(37.0, "wolf1", 1100.0, 1, 80.0),
@@ -485,253 +487,260 @@ object WaveSystem {
                 SpawnEvent(56.0, "skeleton", 90.0, 2, 40.0),
                 SpawnEvent(58.0, "skeleton_archer", 100.0, 1, 50.0),
                 SpawnEvent(60.0, "skeleton", 90.0, 1, 40.0),
-                SpawnEvent(70.0, "wolf1", 50.0, 2, 100.0),
+                SpawnEvent(70.0, "wolf3", 50.0, 1, 100.0),
                 SpawnEvent(75.0, "wolf2", 50.0),
-                SpawnEvent(80.0, "wolf3", 50.0),
+                SpawnEvent(80.0, "wolf1", 50.0, 2, 100.0),
             )
         ),
         Wave(
             duration = 90.0,
             name = "Wave 5",
             events = listOf(
-                SpawnEvent(2.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(2.0, "skeleton", 100.0, 1, 50.0),
-                SpawnEvent(4.0, "skeleton_archer", 1000.0, 1, 50.0),
-                SpawnEvent(4.0, "skeleton_archer", 100.0, 1, 50.0),
-                SpawnEvent(7.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(7.0, "skeleton_spearman", 100.0, 1, 50.0),
-                SpawnEvent(7.0, "skeleton", 1000.0, 2, 50.0),
-                SpawnEvent(7.0, "skeleton", 100.0, 2, 50.0),
-                SpawnEvent(15.0, "skeleton", 1000.0, 2, 50.0),
-                SpawnEvent(15.0, "skeleton", 100.0, 2, 50.0),
-                SpawnEvent(18.0, "skeleton", 1000.0, 2, 50.0),
-                SpawnEvent(18.0, "skeleton", 100.0, 2, 50.0),
-                SpawnEvent(20.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(20.0, "skeleton", 100.0, 1, 50.0),
-                SpawnEvent(20.0, "skeleton_archer", 1000.0, 1, 50.0),
-                SpawnEvent(20.0, "skeleton_archer", 100.0, 1, 50.0),
-                SpawnEvent(20.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(20.0, "skeleton_spearman", 100.0, 1, 50.0),
-                SpawnEvent(30.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(30.0, "skeleton", 100.0, 1, 50.0),
-                SpawnEvent(30.0, "skeleton_archer", 1000.0, 1, 50.0),
-                SpawnEvent(30.0, "skeleton_archer", 100.0, 1, 50.0),
-                SpawnEvent(30.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(30.0, "skeleton_spearman", 100.0, 1, 50.0),
-                SpawnEvent(32.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(32.0, "skeleton", 100.0, 1, 50.0),
-                SpawnEvent(34.0, "skeleton_archer", 1000.0, 1, 50.0),
-                SpawnEvent(34.0, "skeleton_archer", 100.0, 1, 50.0),
-                SpawnEvent(37.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(37.0, "skeleton_spearman", 100.0, 1, 50.0),
-                SpawnEvent(37.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(37.0, "skeleton", 100.0, 1, 50.0),
+                SpawnEvent(2.0, "skeleton", 1000.0, 3, 50.0),
+                SpawnEvent(2.0, "skeleton", 100.0, 3, 50.0),
+                SpawnEvent(4.0, "skeleton_archer", 1000.0, 3, 50.0),
+                SpawnEvent(4.0, "skeleton_archer", 100.0, 3, 50.0),
+                SpawnEvent(7.0, "skeleton_spearman", 1000.0, 2, 50.0),
+                SpawnEvent(7.0, "skeleton_spearman", 100.0, 2, 50.0),
+                SpawnEvent(7.0, "skeleton", 1000.0, 3, 50.0),
+                SpawnEvent(7.0, "skeleton", 100.0, 3, 50.0),
+                SpawnEvent(15.0, "skeleton", 1000.0, 3, 50.0),
+                SpawnEvent(15.0, "skeleton", 100.0, 3, 50.0),
+                SpawnEvent(18.0, "skeleton", 1000.0, 3, 50.0),
+                SpawnEvent(18.0, "skeleton", 100.0, 3, 50.0),
+                SpawnEvent(20.0, "skeleton", 1000.0, 2, 50.0),
+                SpawnEvent(20.0, "skeleton", 100.0, 2, 50.0),
+                SpawnEvent(20.0, "skeleton_archer", 1000.0, 2, 50.0),
+                SpawnEvent(20.0, "skeleton_archer", 100.0, 2, 50.0),
+                SpawnEvent(20.0, "skeleton_spearman", 1000.0, 2, 50.0),
+                SpawnEvent(20.0, "skeleton_spearman", 100.0, 2, 50.0),
+                SpawnEvent(30.0, "skeleton", 1000.0, 2, 50.0),
+                SpawnEvent(30.0, "skeleton", 100.0, 2, 50.0),
+                SpawnEvent(30.0, "skeleton_archer", 1000.0, 2, 50.0),
+                SpawnEvent(30.0, "skeleton_archer", 100.0, 2, 50.0),
+                SpawnEvent(30.0, "skeleton_spearman", 1000.0, 2, 50.0),
+                SpawnEvent(30.0, "skeleton_spearman", 100.0, 2, 50.0),
+                SpawnEvent(32.0, "skeleton", 1000.0, 2, 50.0),
+                SpawnEvent(32.0, "skeleton", 100.0, 2, 50.0),
+                SpawnEvent(34.0, "skeleton_archer", 1000.0, 2, 50.0),
+                SpawnEvent(34.0, "skeleton_archer", 100.0, 2, 50.0),
+                SpawnEvent(37.0, "skeleton_spearman", 1000.0, 2, 50.0),
+                SpawnEvent(37.0, "skeleton_spearman", 100.0, 2, 50.0),
+                SpawnEvent(37.0, "skeleton", 1000.0, 2, 50.0),
+                SpawnEvent(37.0, "skeleton", 100.0, 2, 50.0),
                 SpawnEvent(55.0, "skeleton_boss", 900.0),
-                SpawnEvent(62.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(62.0, "skeleton", 100.0, 1, 50.0),
-                SpawnEvent(64.0, "skeleton_archer", 1000.0, 1, 50.0),
-                SpawnEvent(64.0, "skeleton_archer", 100.0, 1, 50.0),
-                SpawnEvent(67.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(67.0, "skeleton_spearman", 100.0, 1, 50.0),
-                SpawnEvent(67.0, "skeleton", 1000.0, 1, 50.0),
-                SpawnEvent(67.0, "skeleton", 100.0, 1, 50.0),
-                SpawnEvent(70.0, "skeleton_archer", 900.0, 2, 50.0),
-                SpawnEvent(72.0, "skeleton", 900.0, 2, 50.0),
+                SpawnEvent(62.0, "skeleton", 1000.0, 2, 50.0),
+                SpawnEvent(62.0, "skeleton", 100.0, 2, 50.0),
+                SpawnEvent(64.0, "skeleton_archer", 1000.0, 2, 50.0),
+                SpawnEvent(64.0, "skeleton_archer", 100.0, 2, 50.0),
+                SpawnEvent(67.0, "skeleton_spearman", 1000.0, 2, 50.0),
+                SpawnEvent(67.0, "skeleton_spearman", 100.0, 2, 50.0),
+                SpawnEvent(67.0, "skeleton", 1000.0, 2, 50.0),
+                SpawnEvent(67.0, "skeleton", 100.0, 2, 50.0),
+                SpawnEvent(70.0, "skeleton_archer", 900.0, 3, 50.0),
+                SpawnEvent(72.0, "skeleton", 900.0, 3, 50.0),
                 SpawnEvent(72.0, "skeleton_spearman", 900.0, 2, 50.0),
                 SpawnEvent(75.0, "skeleton_archer", 900.0, 2, 50.0),
-                SpawnEvent(76.0, "skeleton", 900.0, 2, 50.0),
-                SpawnEvent(79.0, "skeleton", 900.0, 2, 50.0)
+                SpawnEvent(76.0, "skeleton", 900.0, 3, 50.0),
+                SpawnEvent(79.0, "skeleton", 900.0, 3, 50.0)
             )
         ),
         Wave(
             duration = 90.0,
             name = "Wave 6 (Control Phase)",
             events = listOf(
+                // Early pressure
+                SpawnEvent(1.0, "skeleton", 980.0, 2, 80.0),
+                SpawnEvent(1.0, "skeleton", 120.0, 2, 80.0),
+                SpawnEvent(3.5, "skeleton_archer", 950.0, 2, 75.0),
+                SpawnEvent(5.5, "flying_eye", 990.0),
+                SpawnEvent(7.5, "flying_eye", 80.0),
 
-                // ── Phase 1: Warm-up ──
-                SpawnEvent(1.0, "skeleton", 1000.0, 2, 50.0),
-                SpawnEvent(4.0, "skeleton_archer", 1000.0, 1, 50.0),
+                SpawnEvent(10.0, "skeleton_spearman", 920.0, 3, 70.0),
+                SpawnEvent(12.5, "goblin", 520.0),           // Middle
+                SpawnEvent(13.5, "kobold", 970.0),
+                SpawnEvent(15.5, "flying_eye", 100.0),
 
-                // ── Phase 2: Add flying pressure ──
-                SpawnEvent(10.0, "flying_eye", 1050.0),
-                SpawnEvent(10.0, "flying_eye", 50.0),
-                SpawnEvent(12.0, "skeleton", 150.0, 2, 40.0),
-                SpawnEvent(12.0, "skeleton", 900.0, 2, 40.0),
-                SpawnEvent(15.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(15.0, "skeleton_spearman", 100.0, 1, 50.0),
-                SpawnEvent(18.0, "skeleton_spearman", 1000.0, 1, 50.0),
-                SpawnEvent(18.0, "skeleton_spearman", 100.0, 1, 50.0),
+                SpawnEvent(17.0, "kobold", 110.0, 2, 80.0),
+                SpawnEvent(19.0, "flying_eye", 980.0),
 
+                // First boss
+                SpawnEvent(25.0, "skeleton_boss", 600.0),
+                SpawnEvent(27.5, "goblin", 930.0),           // Right
+                SpawnEvent(28.0, "goblin", 150.0),           // Left
+                SpawnEvent(29.5, "flying_eye", 70.0),
 
-                // ── Phase 3: Introduce goblin (SAFE) ──
-                SpawnEvent(20.0, "goblin", 700.0),
-                SpawnEvent(22.0, "skeleton_spearman", 800.0, 1, 50.0),
-                SpawnEvent(25.0, "skeleton_spearman", 800.0, 1, 50.0),
-                SpawnEvent(27.0, "skeleton_archer", 1000.0, 2, 40.0),
+                // === Breathing Room 1 (32–38s) ===
 
+                // Mid pressure
+                SpawnEvent(39.0, "kobold", 960.0, 2, 65.0),
+                SpawnEvent(41.0, "skeleton_spearman", 140.0, 2, 75.0),
+                SpawnEvent(43.0, "goblin", 480.0),           // Middle
+                SpawnEvent(44.5, "flying_eye", 990.0),
+                SpawnEvent(46.5, "flying_eye", 110.0),
 
-                // ── Phase 4: Add melee pressure ──
-                SpawnEvent(35.0, "kobold", 900.0),
-                SpawnEvent(36.0, "skeleton", 1000.0, 2, 50.0),
-                SpawnEvent(39.0, "kobold", 900.0),
+                SpawnEvent(48.0, "skeleton_boss", 650.0),
+                SpawnEvent(50.0, "kobold", 120.0, 2, 80.0),
+                SpawnEvent(51.0, "goblin", 950.0),           // Right
+                SpawnEvent(52.5, "flying_eye", 980.0),
 
+                // === Breathing Room 2 (54–59s) ===
 
-                // ── Phase 5: Controlled mix ──
-                SpawnEvent(40.0, "goblin", 900.0),
-                SpawnEvent(42.0, "flying_eye", 1050.0),
-                SpawnEvent(45.0, "kobold", 1000.0),
+                // Late pressure
+                SpawnEvent(60.0, "kobold", 980.0, 2, 70.0),
+                SpawnEvent(61.5, "flying_eye", 90.0),
+                SpawnEvent(63.5, "skeleton_archer", 920.0, 3, 65.0),
+                SpawnEvent(65.0, "flying_eye", 980.0),
+                SpawnEvent(66.0, "goblin", 180.0),           // Left
+                SpawnEvent(66.5, "goblin", 550.0),           // Middle
 
-                // ── Breathing window ──
-                // (no spawns 50–55)
+                SpawnEvent(70.0, "kobold", 110.0, 2, 75.0),
+                SpawnEvent(72.0, "flying_eye", 120.0),
+                SpawnEvent(74.0, "skeleton_spearman", 930.0, 2, 70.0),
+                SpawnEvent(76.0, "flying_eye", 950.0),
 
-                // ── Phase 6: Slight spike ──
-                SpawnEvent(55.0, "skeleton", 1000.0, 3, 40.0),
-                SpawnEvent(58.0, "skeleton_archer", 1000.0, 2, 50.0),
+                // === Breathing Room 3 (77–80s) ===
 
-                // ── Boss moment ──
-                SpawnEvent(65.0, "skeleton_boss", 640.0),
-
-                // ── Final mix (still fair) ──
-                SpawnEvent(70.0, "goblin", 900.0),
-                SpawnEvent(72.0, "kobold", 1000.0),
-                SpawnEvent(75.0, "flying_eye", 1050.0),
-
-                // ── End stabilization ──
-                SpawnEvent(82.0, "skeleton", 1000.0, 2, 50.0)
-
+                // Final push
+                SpawnEvent(81.0, "skeleton_boss", 620.0),
+                SpawnEvent(83.0, "kobold", 950.0, 2, 70.0),
+                SpawnEvent(84.0, "kobold", 130.0),
+                SpawnEvent(85.0, "flying_eye", 980.0),
+                SpawnEvent(86.0, "flying_eye", 80.0),
+                SpawnEvent(87.0, "goblin", 500.0)            // Middle
             )
         ),
+
         Wave(
             duration = 90.0,
             name = "Wave 7 (Punishment Phase)",
             events = listOf(
+                // Aggressive start
+                SpawnEvent(0.5, "kobold", 960.0, 2, 75.0),
+                SpawnEvent(1.2, "kobold", 110.0),
+                SpawnEvent(2.5, "flying_eye", 990.0),
+                SpawnEvent(4.0, "skeleton_archer", 130.0, 3, 70.0),
+                SpawnEvent(5.5, "flying_eye", 100.0),
 
-                // ── Phase 1 ──
-                SpawnEvent(1.0, "skeleton", 1000.0, 2, 50.0),
-                SpawnEvent(4.0, "skeleton_archer", 1000.0, 2, 50.0),
+                SpawnEvent(8.0, "wolf1", 920.0),
+                SpawnEvent(10.0, "goblin", 520.0),           // Middle
+                SpawnEvent(10.5, "goblin", 150.0),           // Left
+                SpawnEvent(11.5, "kobold", 980.0, 2, 75.0),
+                SpawnEvent(13.0, "flying_eye", 950.0),
 
-                // ── Introduce wolf (no goblin yet) ──
-                SpawnEvent(10.0, "wolf1", 900.0),
-                SpawnEvent(12.0, "skeleton", 1000.0, 2, 40.0),
+                SpawnEvent(16.0, "flying_eye", 80.0),
+                SpawnEvent(17.0, "flying_eye", 980.0),
+                SpawnEvent(18.5, "flying_eye", 120.0),
+                SpawnEvent(20.0, "skeleton_boss", 630.0),
 
-                // ── Add goblin AFTER wolf resolves ──
-                SpawnEvent(18.0, "goblin", 900.0),
+                // === Breathing Room 1 (23–29s) ===
 
-                // ── Mid pressure ──
-                SpawnEvent(25.0, "kobold", 1000.0),
-                SpawnEvent(28.0, "flying_eye", 1050.0),
+                SpawnEvent(30.0, "wolf2", 910.0),
+                SpawnEvent(32.0, "kobold", 120.0, 2, 65.0),
+                SpawnEvent(34.0, "goblin", 930.0),           // Right
+                SpawnEvent(36.0, "flying_eye", 90.0),
 
-                // ── Boss ──
-                SpawnEvent(35.0, "skeleton_boss", 640.0),
+                SpawnEvent(38.0, "skeleton_boss", 600.0),
+                SpawnEvent(39.5, "flying_eye", 980.0),
+                SpawnEvent(41.0, "wolf1", 930.0),
+                SpawnEvent(42.5, "flying_eye", 110.0),
 
-                // ── Controlled chaos ──
-                SpawnEvent(45.0, "wolf1", 900.0),
-                SpawnEvent(48.0, "skeleton", 1000.0, 3, 40.0),
+                // === Breathing Room 2 (44–48s) ===
 
-                // Goblin delayed
-                SpawnEvent(52.0, "goblin", 900.0),
+                // Heavy phase
+                SpawnEvent(49.0, "kobold", 950.0, 2, 65.0),
+                SpawnEvent(51.0, "goblin", 480.0),           // Middle
+                SpawnEvent(51.5, "goblin", 140.0),           // Left
+                SpawnEvent(52.5, "flying_eye", 990.0),
+                SpawnEvent(54.0, "flying_eye", 80.0),
+                SpawnEvent(55.0, "wolf2", 110.0),
 
-                // ── Heavy push ──
-                SpawnEvent(60.0, "wolf2", 850.0),
-                SpawnEvent(63.0, "skeleton_archer", 1000.0, 2, 50.0),
+                SpawnEvent(59.0, "kobold", 960.0, 2, 65.0),
+                SpawnEvent(61.0, "flying_eye", 950.0),
+                SpawnEvent(62.0, "skeleton_boss", 570.0),
+                SpawnEvent(64.0, "flying_eye", 120.0),
+                SpawnEvent(65.0, "goblin", 950.0),           // Right
 
-                // ── Final spike ──
-                SpawnEvent(70.0, "wolf1", 900.0, 2, 40.0),
-                SpawnEvent(73.0, "kobold", 1000.0, 2, 40.0),
-
-                // Goblin last (safe timing)
-                SpawnEvent(78.0, "goblin", 900.0),
-
-                // ── End ──
-                SpawnEvent(85.0, "skeleton", 1000.0, 2, 50.0)
-
+                // Final push
+                SpawnEvent(70.0, "wolf1", 920.0, 2, 70.0),
+                SpawnEvent(73.0, "kobold", 150.0, 2, 65.0),
+                SpawnEvent(74.5, "flying_eye", 980.0),
+                SpawnEvent(76.0, "flying_eye", 90.0),
+                SpawnEvent(78.0, "goblin", 500.0),           // Middle
+                SpawnEvent(81.0, "wolf2", 100.0),
+                SpawnEvent(83.0, "flying_eye", 950.0),
+                SpawnEvent(84.0, "skeleton_spearman", 930.0, 2, 60.0),
+                SpawnEvent(86.0, "flying_eye", 110.0),
+                SpawnEvent(87.5, "flying_eye", 80.0)
             )
         ),
+
         Wave(
             duration = 90.0,
             name = "Wave 8 (High Pressure Control)",
             events = listOf(
+                // Very dense opening
+                SpawnEvent(0.5, "kobold", 970.0),
+                SpawnEvent(1.3, "kobold", 130.0),
+                SpawnEvent(2.0, "flying_eye", 990.0),
+                SpawnEvent(2.8, "flying_eye", 90.0),
+                SpawnEvent(3.5, "goblin", 920.0),            // Right
+                SpawnEvent(4.8, "kobold", 150.0),
+                SpawnEvent(6.0, "flying_eye", 980.0),
 
-                // ─────────────────────────────
-                // Early pressure starts immediately (no safe opening)
-                // ─────────────────────────────
-                SpawnEvent(1.0, "kobold", 900.0),
-                SpawnEvent(2.5, "flying_eye", 1050.0),
-                SpawnEvent(3.5, "kobold", 950.0),
-                SpawnEvent(5.0, "goblin", 900.0),
+                SpawnEvent(8.0, "kobold", 950.0, 2, 70.0),
+                SpawnEvent(9.2, "flying_eye", 100.0),
+                SpawnEvent(10.5, "wolf1", 930.0),
+                SpawnEvent(12.0, "goblin", 480.0),           // Middle
+                SpawnEvent(12.5, "goblin", 150.0),           // Left
+                SpawnEvent(13.5, "flying_eye", 950.0),
 
-                // ─────────────────────────────
-                // Early overlap (2 threats at once begins early)
-                // ─────────────────────────────
-                SpawnEvent(8.0, "kobold", 900.0, 2, 40.0),
-                SpawnEvent(9.5, "flying_eye", 1050.0),
-                SpawnEvent(11.0, "goblin", 950.0),
+                // === Short Breathing 1 (15–17.5s) ===
 
-                // ─────────────────────────────
-                // Mid-phase compression (less spacing, more stacking)
-                // ─────────────────────────────
-                SpawnEvent(15.0, "kobold", 900.0),
-                SpawnEvent(16.0, "kobold", 950.0),
-                SpawnEvent(17.5, "flying_eye", 1050.0),
+                SpawnEvent(18.0, "kobold", 980.0, 2, 65.0),
+                SpawnEvent(19.5, "flying_eye", 80.0),
+                SpawnEvent(21.0, "flying_eye", 980.0),
+                SpawnEvent(21.5, "goblin", 550.0),           // Middle
+                SpawnEvent(23.0, "wolf2", 960.0),
 
-                SpawnEvent(20.0, "goblin", 900.0),
-                SpawnEvent(21.0, "kobold", 900.0),
-                SpawnEvent(22.0, "flying_eye", 1050.0),
-                SpawnEvent(23.0, "kobold", 950.0),
+                SpawnEvent(27.0, "skeleton_boss", 620.0),
+                SpawnEvent(28.5, "flying_eye", 110.0),
+                SpawnEvent(29.5, "kobold", 140.0, 2, 65.0),
+                SpawnEvent(31.0, "flying_eye", 950.0),
 
-                // ─────────────────────────────
-                // Pressure spike cluster (multi-threat overlap window)
-                // ─────────────────────────────
-                SpawnEvent(28.0, "goblin", 900.0),
-                SpawnEvent(29.0, "kobold", 900.0, 2, 40.0),
-                SpawnEvent(30.0, "flying_eye", 1050.0),
-                SpawnEvent(31.0, "kobold", 950.0),
+                // === Breathing Room 2 (33–39s) ===
 
-                SpawnEvent(34.0, "kobold", 900.0),
-                SpawnEvent(35.0, "goblin", 900.0),
-                SpawnEvent(36.0, "flying_eye", 1050.0),
+                // Heavy late pressure
+                SpawnEvent(41.0, "wolf2", 920.0),
+                SpawnEvent(43.0, "kobold", 110.0, 2, 60.0),
+                SpawnEvent(44.5, "flying_eye", 990.0),
+                SpawnEvent(45.0, "goblin", 930.0),           // Right
+                SpawnEvent(45.8, "goblin", 480.0),           // Middle
+                SpawnEvent(47.0, "flying_eye", 130.0),
 
-                // ─────────────────────────────
-                // Minimal breathing window (very short)
-                // ─────────────────────────────
-                // 40–43s (slightly reduced recovery compared to previous wave)
+                SpawnEvent(52.0, "kobold", 960.0, 2, 60.0),
+                SpawnEvent(53.5, "flying_eye", 90.0),
+                SpawnEvent(54.5, "wolf1", 100.0, 2, 70.0),
+                SpawnEvent(56.0, "goblin", 160.0),           // Left
+                SpawnEvent(58.0, "flying_eye", 980.0),
 
-                // ─────────────────────────────
-                // Post-breathing punish (immediate re-engage)
-                // ─────────────────────────────
-                SpawnEvent(43.0, "kobold", 900.0),
-                SpawnEvent(44.0, "goblin", 900.0),
-                SpawnEvent(45.0, "kobold", 950.0),
-                SpawnEvent(46.0, "flying_eye", 1050.0),
+                SpawnEvent(63.0, "kobold", 150.0, 2, 65.0),
+                SpawnEvent(64.5, "flying_eye", 110.0),
+                SpawnEvent(65.0, "skeleton_boss", 570.0),
+                SpawnEvent(67.0, "flying_eye", 950.0),
 
-                // ─────────────────────────────
-                // Late-phase sustained pressure (no downtime stacking)
-                // ─────────────────────────────
-                SpawnEvent(50.0, "kobold", 900.0, 2, 40.0),
-                SpawnEvent(52.0, "flying_eye", 1050.0),
-                SpawnEvent(54.0, "goblin", 900.0),
-
-                SpawnEvent(57.0, "kobold", 900.0),
-                SpawnEvent(58.0, "kobold", 950.0),
-                SpawnEvent(59.0, "flying_eye", 1050.0),
-
-                SpawnEvent(62.0, "goblin", 900.0),
-                SpawnEvent(64.0, "kobold", 900.0),
-                SpawnEvent(66.0, "flying_eye", 1050.0),
-
-                // ─────────────────────────────
-                // Final pressure stack (continuous threat layering)
-                // ─────────────────────────────
-                SpawnEvent(72.0, "kobold", 900.0, 2, 40.0),
-                SpawnEvent(73.5, "goblin", 900.0),
-                SpawnEvent(75.0, "flying_eye", 1050.0),
-                SpawnEvent(76.0, "kobold", 950.0),
-
-                SpawnEvent(80.0, "kobold", 900.0),
-                SpawnEvent(82.0, "goblin", 900.0),
-                SpawnEvent(84.0, "flying_eye", 1050.0),
-
-                SpawnEvent(88.0, "kobold", 900.0, 2, 40.0)
+                // Final insane push
+                SpawnEvent(73.0, "kobold", 950.0, 2, 60.0),
+                SpawnEvent(74.5, "wolf2", 120.0),
+                SpawnEvent(75.5, "flying_eye", 980.0),
+                SpawnEvent(76.0, "goblin", 520.0),           // Middle
+                SpawnEvent(76.8, "goblin", 930.0),           // Right
+                SpawnEvent(77.8, "flying_eye", 80.0),
+                SpawnEvent(80.0, "kobold", 140.0, 2, 60.0),
+                SpawnEvent(82.0, "flying_eye", 960.0),
+                SpawnEvent(82.5, "goblin", 150.0),           // Left
+                SpawnEvent(84.5, "flying_eye", 120.0),
+                SpawnEvent(87.0, "kobold", 930.0, 2, 70.0)
             )
         )
     )
@@ -768,9 +777,9 @@ object WaveSystem {
         // AUTO-PHASE â€” pre-generate and schedule endless waves
         // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         val autoEvents = AutoWaveGenerator(
-            startTime            = autoPhaseStart,
+            startTime            = 1.0,
             startDifficulty      = 0.5,     // matches Wave 5 difficulty
-            difficultyGainPerSec = 0.004,   // +1 difficulty per ~4 min â€” smooth climb
+            difficultyGainPerSec = 1.0,   // +1 difficulty per ~2 min â€” smooth climb
             baseInterval         = 5.0,    // start at one spawn every 12 s
             intervalDecayRate    = 0.0015,  // interval shrinks to ~4 s by t = 700 s
             minInterval          = 2.0,
