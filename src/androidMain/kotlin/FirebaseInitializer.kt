@@ -2,7 +2,7 @@ package managers
 
 actual fun configureFirebase(): String? {
     return try {
-        val app = dev.gitlive.firebase.Firebase.app
+        dev.gitlive.firebase.Firebase.auth
         println("[Firebase] Android - Firebase initialized successfully")
         null
     } catch (e: Exception) {
