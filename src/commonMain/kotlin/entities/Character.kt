@@ -50,17 +50,25 @@ class Character(
     private val healthRegen = 0.5
 
     // -------------------------------------------------------
-    // OVERHEAD HP BAR (player only — same idea as [Enemy])
+    // OVERHEAD HP BAR (player only)
     // -------------------------------------------------------
     private companion object PlayerHpBar {
-        const val WIDTH   = 80.0
-        const val HEIGHT  = 8.0
+        const val WIDTH    = 80.0
+        const val HEIGHT   = 8.0
         const val Y_OFFSET = 5.0
     }
 
     private lateinit var hpBarBg: SolidRect
     private lateinit var hpBarFill: SolidRect
     private var hpBarDamageFlash = 0.0
+
+    // -------------------------------------------------------
+    // DEBUG BODY OUTLINE
+    // FIX: declared as lateinit and initialized inside init {}
+    // to avoid the Android Kotlin compiler bug with container {}
+    // assigned directly as a property initializer.
+    // -------------------------------------------------------
+    private lateinit var debugOutline: Container
 
     // -------------------------------------------------------
     // DAMAGEABLE
@@ -80,7 +88,6 @@ class Character(
     /** Increase max health permanently (e.g., from passive skill upgrade). */
     fun increaseMaxHealth(amount: Double) {
         maxHealth += amount
-        // Also heal by the same amount when increasing max health
         heal(amount)
     }
 
@@ -97,21 +104,7 @@ class Character(
     }
 
     // -------------------------------------------------------
-    // DEBUG BODY OUTLINE  (blue = player body)
-    // Always created; visibility is toggled each frame via GameSettings.showHitbox.
-    // -------------------------------------------------------
-    private val debugOutline: Container = container {
-        val t = 2.0
-        solidRect(1.0, t, Colors["#0044ff"]).name("top")
-        solidRect(1.0, t, Colors["#0044ff"]).name("bot")
-        solidRect(t, 1.0, Colors["#0044ff"]).name("lft")
-        solidRect(t, 1.0, Colors["#0044ff"]).name("rgt")
-        visible = false  // hidden until GameSettings.showHitbox is true
-    }
-
-    // -------------------------------------------------------
-    // PER-SKILL CONFIGS — unlock levels follow the task spec:
-    //   skill1 → LV2,  skill2 → LV4,  skill3 → LV6,  skill4 → LV10
+    // PER-SKILL CONFIGS
     // -------------------------------------------------------
     val basicAttackSkill = SkillConfig(
         name                  = "Basic Attack",
@@ -164,50 +157,37 @@ class Character(
         maxUpgrades                 = 5
     )
 
-    // -------------------------------------------------------
-    // HEALING SKILL (Active, right-side UI)
-    // Heals player for base 10 HP + 2 per upgrade
-    // Mana cost: 30, Fixed cooldown (no scaling)
-    // Icon: ramen at Lv1-5, bento at Lv6+
-    // -------------------------------------------------------
     val healingSkillConfig = SkillConfig(
         name                        = "Healing",
-        cooldownMax                 = 3.0,  // Fixed cooldown, does NOT scale
+        cooldownMax                 = 3.0,
         manaCost                    = 30,
-        damage                      = 10.0, // Base heal amount (will be incremented like damage)
+        damage                      = 10.0,
         unlockLevel                 = 1,
         requiresPointUnlock         = true,
-        damagePerUpgrade            = 2.0,  // +2 HP per upgrade (reuse damage scaling)
-        cooldownReductionPerUpgrade = 0.0,  // NO cooldown reduction?
-        minCooldown                 = 3.0,  // Keep it fixed at 3.0
+        damagePerUpgrade            = 2.0,
+        cooldownReductionPerUpgrade = 0.0,
+        minCooldown                 = 3.0,
         maxUpgrades                 = 10
     )
 
-    // -------------------------------------------------------
-    // MAX HEALTH PASSIVE (Passive, right-side UI)
-    // No active effect when clicked. Increases max/current HP on each upgrade.
-    // -------------------------------------------------------
     val maxHealthSkillConfig = SkillConfig(
         name                        = "Max Health",
-        cooldownMax                 = 0.0,  // No cooldown
-        manaCost                    = 0,    // No mana
-        damage                      = 0.0,  // No damage value
+        cooldownMax                 = 0.0,
+        manaCost                    = 0,
+        damage                      = 0.0,
         unlockLevel                 = 1,
         requiresPointUnlock         = true,
-        damagePerUpgrade            = 0.0,  // Not used
+        damagePerUpgrade            = 0.0,
         cooldownReductionPerUpgrade = 0.0,
         maxUpgrades                 = 10
     )
 
-    // Track if we've already applied the passive upgrade (prevent re-triggering)
     private var lastMaxHealthUpgradeCount = 0
 
-    /** All skills for easy iteration (cooldown ticking, reset, UI). */
     val allSkills = listOf(basicAttackSkill, skill1Config, skill2Config, skill3Config, skill4Config, healingSkillConfig, maxHealthSkillConfig)
 
     // -------------------------------------------------------
     // ATTACK CONFIG BUILDERS
-    // These read from SkillConfig.damage so upgrades are automatic.
     // -------------------------------------------------------
     private fun buildBasicAtkConfig() = AttackConfig(
         frames          = basicAtkFrames,
@@ -253,9 +233,6 @@ class Character(
     private fun buildSkill3Config() = AttackConfig(
         frames          = skill3Frames,
         frameDuration   = 0.06,
-        // Pass full damage value — AttackDisplay (stationary mode) already splits
-        // this across all frames internally via damagePerFrame = damage / totalFrames.
-        // Dividing here caused a double-division: 30 / 34 frames / 34 again = ~0.026 per frame.
         damage          = skill3Config.damage,
         moving          = false,
         speed           = 0.0,
@@ -269,7 +246,6 @@ class Character(
     private fun buildSkill4Config() = AttackConfig(
         frames          = skill4Frames,
         frameDuration   = 0.08,
-        // Same fix as Skill 3: pass full damage, AttackDisplay splits per-frame.
         damage          = skill4Config.damage,
         moving          = false,
         speed           = 0.0,
@@ -311,6 +287,9 @@ class Character(
         CharacterState.SKILL     to AnimationConfig(skillAnims,  loop = false)
     )
 
+    // -------------------------------------------------------
+    // INIT
+    // -------------------------------------------------------
     init {
         body.anchor(0.5, 1.0)
         body.width  = characterWidth
@@ -327,6 +306,17 @@ class Character(
             }
             addChild(hpBarBg)
             addChild(hpBarFill)
+        }
+
+        // FIX: initialize debugOutline here instead of as a property initializer
+        // to avoid the Android Kotlin compiler internal error in ExternalPackageParentPatcherLowering
+        debugOutline = container {
+            val t = 2.0
+            solidRect(1.0, t, Colors["#0044ff"]).name("top")
+            solidRect(1.0, t, Colors["#0044ff"]).name("bot")
+            solidRect(t, 1.0, Colors["#0044ff"]).name("lft")
+            solidRect(t, 1.0, Colors["#0044ff"]).name("rgt")
+            visible = false
         }
     }
 
@@ -362,21 +352,17 @@ class Character(
     // DEBUG OUTLINE UPDATE
     // -------------------------------------------------------
     private fun updateDebugOutline() {
-        debugOutline?.let { c ->
-            val r  = hitboxRect()
-            val w  = r.width.toDouble()
-            val h  = r.height.toDouble()
-            // hitboxRect() returns WORLD coordinates. The debugOutline container is
-            // a child of Character (which is itself at world position this.x/this.y),
-            // so we must convert to LOCAL space by subtracting the parent's world pos.
-            val ox = r.x.toDouble() - this.x
-            val oy = r.y.toDouble() - this.y
-            val t  = 2.0
-            (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
-            (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }
-            (c.children.firstOrNull { it.name == "lft" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox, oy) }
-            (c.children.firstOrNull { it.name == "rgt" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox + w - t, oy) }
-        }
+        val c  = debugOutline
+        val r  = hitboxRect()
+        val w  = r.width.toDouble()
+        val h  = r.height.toDouble()
+        val ox = r.x.toDouble() - this.x
+        val oy = r.y.toDouble() - this.y
+        val t  = 2.0
+        (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
+        (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }
+        (c.children.firstOrNull { it.name == "lft" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox, oy) }
+        (c.children.firstOrNull { it.name == "rgt" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox + w - t, oy) }
     }
 
     // -------------------------------------------------------
@@ -424,9 +410,9 @@ class Character(
     // -------------------------------------------------------
     // MANA
     // -------------------------------------------------------
-    private fun hasMana(cost: Int)    = mana >= cost
-    private fun spendMana(cost: Int)  { mana = (mana - cost).coerceAtLeast(0.0) }
-    private fun regenMana(dt: Double) { mana = (mana + manaRegen * dt).coerceAtMost(maxMana) }
+    private fun hasMana(cost: Int)      = mana >= cost
+    private fun spendMana(cost: Int)    { mana = (mana - cost).coerceAtLeast(0.0) }
+    private fun regenMana(dt: Double)   { mana = (mana + manaRegen * dt).coerceAtMost(maxMana) }
     private fun regenHealth(dt: Double) { health = (health + healthRegen * dt).coerceAtMost(maxHealth) }
 
     // -------------------------------------------------------
@@ -445,22 +431,14 @@ class Character(
     }
 
     // -------------------------------------------------------
-    // HEALING SKILL ACTION
+    // HEALING SKILL
     // -------------------------------------------------------
-    /** Cast the healing skill if conditions are met. Requires player level and current progress. */
     fun castHealingSkill(playerLevel: Int): Boolean {
-        // Check if healing skill is unlocked for use AND usable (mana, cooldown)
         if (!healingSkillConfig.isUnlockedForUse(playerLevel)) return false
         if (!healingSkillConfig.isUsable(mana)) return false
-        
-        // Spend mana and start cooldown
         spendMana(healingSkillConfig.manaCost)
         healingSkillConfig.startCooldown()
-        
-        // Heal the player
-        val healAmount = healingSkillConfig.damage
-        heal(healAmount)
-        
+        heal(healingSkillConfig.damage)
         return true
     }
 
@@ -493,8 +471,6 @@ class Character(
 
     // -------------------------------------------------------
     // UPDATE
-    // playerProgress is now passed in so unlock checks are
-    // done here with the live player level.
     // -------------------------------------------------------
     fun update(
         dt:             Double,
@@ -507,11 +483,8 @@ class Character(
         regenHealth(dt)
         regenMana(dt)
 
-        // Tick all skill cooldowns
         for (skill in allSkills) skill.tickCooldown(dt)
 
-        // --- APPLY MAX HEALTH PASSIVE UPGRADE (one-time per upgrade level) ---
-        // At Lv2+: gain +10 max HP and +10 current HP per upgrade
         val currentUpgradeCount = maxHealthSkillConfig.upgradeCount
         if (currentUpgradeCount > lastMaxHealthUpgradeCount && currentUpgradeCount > 0) {
             val upgradesDifference = currentUpgradeCount - lastMaxHealthUpgradeCount
@@ -537,7 +510,6 @@ class Character(
                         input.skill3 -> skill3Config to buildSkill3Config()
                         else         -> skill4Config to buildSkill4Config()
                     }
-                    // Guard: level + point unlock (when required) AND usable
                     if (skill.isUnlockedForUse(playerProgress.level) && skill.isUsable(mana)) {
                         spendMana(skill.manaCost)
                         skill.startCooldown()
@@ -569,7 +541,6 @@ class Character(
 
         updateAnimation(dt)
         updatePlayerHpBar(dt)
-        // Toggle hitbox outline visibility based on runtime setting
         debugOutline.visible = GameSettings.showHitbox
         if (GameSettings.showHitbox) updateDebugOutline()
     }
