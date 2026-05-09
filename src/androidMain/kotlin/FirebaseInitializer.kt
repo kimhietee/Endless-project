@@ -1,6 +1,9 @@
 package managers
 
+import android.content.Context
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.initialize
+
 actual fun configureFirebase(): String? {
-    println("[Firebase] Android - configureFirebase called, initialized via MainApplication")
-    return null
+    return null // Android initializes via MainApplication
 }
