@@ -4,7 +4,7 @@ import java.io.File
 
 plugins {
     alias(libs.plugins.korge)
-    id("com.google.gms.google-services") version "4.4.4" apply false
+    id("com.google.gms.google-services") version "4.4.4"
 }
 
 korge {
@@ -35,9 +35,9 @@ korge {
 
 dependencies {
     add("commonMainApi", project(":deps"))
-    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.10.4")
-    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.10.4")
-    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.10.4")
+    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.13.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.13.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.13.0")
 }
 
 // FIX 5: Copy google-services.json to correct locations for KorGE 6 Android builds
