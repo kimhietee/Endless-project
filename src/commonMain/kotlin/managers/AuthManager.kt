@@ -6,38 +6,55 @@ import dev.gitlive.firebase.auth.auth
 /**
  * Manages Firebase Authentication state.
  * Tracks if the current player is a guest or a logged-in user.
- * Supports both Firebase (mobile/web) and REST fallback (desktop).
+ * On Desktop/JVM where Firebase is unavailable, returns clear error messages instead of faking success.
+ * 
+ * FIX 1: Removed silent demo mode. Desktop now returns clear error message.
+ * FIX 2: Added isInDemoMode() public helper function.
  */
 object AuthManager {
     
-    private var demoUserId: String? = null
-    private var demoEmail: String? = null
+    private var isFirebaseAvailable = false
     
     // Lazy init catches errors when Firebase isn't available
     private val auth by lazy {
         try {
-            Firebase.auth
+            val authInstance = Firebase.auth
+            isFirebaseAvailable = true
+            println("[Auth] Firebase Authentication initialized successfully")
+            authInstance
         } catch (e: Exception) {
-            println("Firebase.auth init failed (will use demo mode): ${e.message}")
+            isFirebaseAvailable = false
+            println("[Auth] Firebase.auth not available: ${e.message}")
+            println("[Auth] Running on Desktop/JVM - Firebase features disabled")
             null
         }
     }
 
-    /** Returns true if there is an active Firebase user session or demo session. */
-    fun isLoggedIn(): Boolean = auth?.currentUser != null || demoUserId != null
+    /**
+     * Returns true if Firebase is not available (e.g., on Desktop/JVM).
+     * Use this to skip Firebase-dependent operations gracefully.
+     * FIX 2: New helper function for ScoreManager and other managers to check.
+     */
+    fun isInDemoMode(): Boolean {
+        val _ = auth  // Force lazy init to determine availability
+        return !isFirebaseAvailable
+    }
+
+    /** Returns true if there is an active Firebase user session. On Desktop, always false. */
+    fun isLoggedIn(): Boolean = auth?.currentUser != null
 
     /** Returns true if the player is playing as a guest (no active session). */
     fun isGuest(): Boolean = !isLoggedIn()
 
-    /** Returns the unique Firebase UID for the logged-in user, or null if guest. */
-    fun userId(): String? = auth?.currentUser?.uid ?: demoUserId
+    /** Returns the unique Firebase UID for the logged-in user, or null if guest or Desktop. */
+    fun userId(): String? = auth?.currentUser?.uid
 
-    /** Returns the display name or email if available. */
+    /** Returns the display name or email if available. On Desktop, returns "Guest". */
     fun userLabel(): String {
         if (auth != null && auth!!.currentUser != null) {
             return auth!!.currentUser?.displayName ?: auth!!.currentUser?.email ?: "User"
         }
-        return demoEmail ?: "Guest"
+        return "Guest"
     }
 
     /** Attempts to sign in with email and password. Returns null on success, error message on failure. */
@@ -50,12 +67,10 @@ object AuthManager {
                 auth!!.signInWithEmailAndPassword(email, password)
                 null
             } else {
-                // Demo mode for JVM/Desktop
-                if (password.length < 6) return "Weak password"
-                demoUserId = "demo_${System.currentTimeMillis()}"
-                demoEmail = email
-                println("[DEMO MODE] Signed in as $email")
-                null
+                // FIX 1: No more fake success on desktop — return clear error instead
+                val desktopError = "Firebase not available on Desktop. Test on Android."
+                println("[Auth] $desktopError")
+                desktopError
             }
         } catch (e: Exception) {
             mapFirebaseError(e)
@@ -73,11 +88,10 @@ object AuthManager {
                 auth!!.createUserWithEmailAndPassword(email, password)
                 null
             } else {
-                // Demo mode for JVM/Desktop
-                demoUserId = "demo_${System.currentTimeMillis()}"
-                demoEmail = email
-                println("[DEMO MODE] Signed up as $email")
-                null
+                // FIX 1: No more fake success on desktop — return clear error instead
+                val desktopError = "Firebase not available on Desktop. Test on Android."
+                println("[Auth] $desktopError")
+                desktopError
             }
         } catch (e: Exception) {
             mapFirebaseError(e)
@@ -91,15 +105,13 @@ object AuthManager {
                 auth!!.signOut()
             }
         } catch (e: Exception) {
-            println("Logout error: ${e.message}")
+            println("[Auth] Logout error: ${e.message}")
         }
-        demoUserId = null
-        demoEmail = null
     }
     
     private fun mapFirebaseError(e: Exception): String {
         val msg = e.message ?: ""
-        println("Auth failed: $msg")
+        println("[Auth] Authentication failed: $msg")
         return when {
             msg.contains("INVALID_LOGIN_CREDENTIALS") || msg.contains("INVALID_PASSWORD") || msg.contains("user-not-found") -> "Wrong credentials"
             msg.contains("email-already-in-use") -> "Email already in use"
