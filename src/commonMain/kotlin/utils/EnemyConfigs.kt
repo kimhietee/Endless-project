@@ -154,7 +154,7 @@ object EnemyConfigs {
             maxHealth = 17.0,
             moveSpeed = 80.0,
             behavior = EnemyBehavior.RANGED,
-            attackRange = 400.0,
+            attackRange = 500.0,
             attackCooldown = 2.0,
             deathLingerTime = 2.0,
             frameDuration = 0.12,
@@ -316,7 +316,7 @@ object EnemyConfigs {
             attackDisplayConfig = AttackConfig(
                 frames = attackFrames,
                 frameDuration = 0.08,
-                damage = 5.0,
+                damage = 4.0,
                 moving = true,
                 speed = 0.0,
                 hitboxScaleX = 0.5,
@@ -376,7 +376,7 @@ object EnemyConfigs {
             attackDisplayConfig = AttackConfig(
                 frames = attackFrames,
                 frameDuration = 0.08,
-                damage = 7.0,
+                damage = 5.0,
                 moving = true,
                 speed = 0.0,
                 hitboxScaleX = 0.5,
@@ -388,8 +388,8 @@ object EnemyConfigs {
             ),
             width = 140.0,
             height = 140.0,
-            maxHealth = 50.0,
-            moveSpeed = 140.0,
+            maxHealth = 60.0,
+            moveSpeed = 130.0,
             behavior = EnemyBehavior.MELEE,
             attackRange = 70.0,
             attackCooldown = 1.5,
@@ -436,7 +436,7 @@ object EnemyConfigs {
             attackDisplayConfig = AttackConfig(
                 frames = attackFrames,
                 frameDuration = 0.08,
-                damage = 7.0,
+                damage = 6.0,
                 moving = true,
                 speed = 0.0,
                 hitboxScaleX = 0.5,
@@ -449,10 +449,10 @@ object EnemyConfigs {
             width = 150.0,
             height = 150.0,
             maxHealth = 80.0,
-            moveSpeed = 250.0,
+            moveSpeed = 240.0,
             behavior = EnemyBehavior.MELEE,
             attackRange = 70.0,
-            attackCooldown = 1.2,
+            attackCooldown = 1.4,
             deathLingerTime = 2.0,
             frameDuration = 0.09,
             xpGain = 100.0  // ★ AUDIT FIX: comment updated to match value (was "xpGain = 30")
@@ -514,7 +514,7 @@ object EnemyConfigs {
             attackCooldown = 0.5,
             deathLingerTime = 1.0,
             frameDuration = 0.06,
-            xpGain = 15.0
+            xpGain = 10.0
         )
     }
 
@@ -569,7 +569,7 @@ object EnemyConfigs {
             attackCooldown = 1.4,
             deathLingerTime = 1.0,
             frameDuration = 0.12,
-            xpGain = 30.0
+            xpGain = 20.0
         )
     }
 
@@ -647,7 +647,7 @@ object EnemyConfigs {
             attackCooldown = 1.3,
             deathLingerTime = 1.0,
             frameDuration = 0.08,
-            xpGain = 35.0
+            xpGain = 25.0
         )
     }
 }

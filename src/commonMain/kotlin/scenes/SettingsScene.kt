@@ -162,16 +162,12 @@ class SettingsScene : Scene() {
         // ── Back Button ──────────────────────────────────────────────────────
         val backBtnW = 220.0
         val backBtnH = 70.0
-        solidRect(backBtnW, backBtnH, Colors.DARKRED) {
+        val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
+            launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
+        }.apply {
             x = cx - backBtnW / 2.0
             y = 580.0
-            onOver { alpha = 0.7 }
-            onOut  { alpha = 1.0 }
-            onClick { launchImmediately { scene.sceneContainer.changeTo { MenuScene() } } }
         }
-        text("BACK", textSize = 26.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            centerXOn(this@sceneMain)
-            y = 580.0 + (backBtnH - fontSize) / 2.0
-        }
+        addChild(backBtn)
     }
 }

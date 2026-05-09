@@ -22,7 +22,14 @@ data class UserHighScore(
  * Manages the high score system and Firestore integration.
  */
 object ScoreManager {
-    private val firestore = Firebase.firestore
+    private val firestore by lazy {
+        try {
+            Firebase.firestore
+        } catch (e: Exception) {
+            println("Firebase.firestore init failed: ${e.message}")
+            null
+        }
+    }
 
     /**
      * Evaluates the current game results and updates Firestore if a new high score is achieved.
@@ -43,8 +50,12 @@ object ScoreManager {
 
         // Use a background coroutine to handle Firestore interaction
         CoroutineScope(Dispatchers.Default).launch {
+            if (firestore == null) {
+                println("Score tracking skipped: Firestore not available (Desktop Fallback)")
+                return@launch
+            }
             try {
-                val userDoc = firestore.collection("users").document(uid)
+                val userDoc = firestore!!.collection("users").document(uid)
                 val snapshot = userDoc.get()
                 
                 val best = if (snapshot.exists) {
@@ -83,8 +94,10 @@ object ScoreManager {
         if (AuthManager.isGuest()) return UserHighScore()
         val uid = AuthManager.userId() ?: return UserHighScore()
         
+        if (firestore == null) return UserHighScore()
+        
         return try {
-            val snapshot = firestore.collection("users").document(uid).get()
+            val snapshot = firestore!!.collection("users").document(uid).get()
             if (snapshot.exists) {
                 snapshot.data<UserHighScore>()
             } else {

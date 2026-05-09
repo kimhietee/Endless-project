@@ -101,6 +101,15 @@ class GameScene : Scene() {
         val hud = HUD(player, progress)
         addChild(hud)
 
+        // Score tracking and display
+        var currentScore = 0.0
+        val scoreDisplay = text("Score: 0", textSize = 20.0, color = Colors.WHITE, font = GameAssets.customFont).apply {
+            // Position to the left of the pause button (pause button is at SCREEN_WIDTH - 20 - 120 = SCREEN_WIDTH - 140)
+            x = Constants.SCREEN_WIDTH - 270.0  // Leave space for score text (about 130px wide) plus 20px margin
+            y = 30.0
+        }
+        addChild(scoreDisplay)
+
 
         GameAssets.load()
 
@@ -604,9 +613,9 @@ class GameScene : Scene() {
                 deathScreenContainer = createDeathScreen()
                 this@sceneMain.addChild(deathScreenContainer!!)
                 
-                // --- SCORE INTEGRATION ---
+                // Save score to Firebase
                 ScoreManager.onGameEnd(
-                    currentScore = progress.score,
+                    currentScore = currentScore,
                     timeSurvived = gameTime,
                     wavesCleared = (WaveSystem.getWaveNumber(gameTime) - 1).coerceAtLeast(0),
                     kills = progress.totalKills
@@ -680,6 +689,9 @@ class GameScene : Scene() {
                                 if (!GameSettings.developerMode) {
                                     progress.addXp(enemy.xpGain)
                                     progress.addKill()
+                                    // Add to score based on enemy XP value
+                                    currentScore += enemy.xpGain
+                                    scoreDisplay.text = "Score: ${currentScore.toInt()}"
                                 }
                             }
                             enemy.x = event.x + i * event.offsetX

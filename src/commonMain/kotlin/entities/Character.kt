@@ -235,10 +235,12 @@ class Character(
         offsetX         = -130.0,
         offsetY         = 25.0
     )
+
+    val repeatani = 5
     private fun buildSkill2Config() = AttackConfig(
         frames          = skill2Frames,
         frameDuration   = 0.07,
-        damage          = skill2Config.damage,
+        damage          = skill2Config.damage * repeatani,
         moving          = false,
         speed           = 0.0,
         hitboxScaleX    = 0.4,

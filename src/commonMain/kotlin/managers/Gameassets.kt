@@ -59,6 +59,7 @@ object GameAssets {
     lateinit var maxHealthSlice: BmpSlice
     lateinit var pauseSlice:  BmpSlice
     lateinit var playSlice:   BmpSlice
+    lateinit var buttonBgSlice: BmpSlice
 
     suspend fun load() {
         if (loaded) return
@@ -110,6 +111,7 @@ object GameAssets {
         maxHealthSlice = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
         pauseSlice  = resourcesVfs["ui/buttons/btn_menu.png"].readBitmapSlice()
         playSlice   = resourcesVfs["ui/buttons/btn_play.png"].readBitmapSlice()
+        buttonBgSlice = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
 
         loaded = true
     }

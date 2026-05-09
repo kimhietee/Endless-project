@@ -39,6 +39,7 @@ dependencies {
     add("commonMainImplementation", "dev.gitlive:firebase-auth:1.13.0")
     add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.13.0")
     add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.13.0")
+
     // korge-ui is built-in with the KorGE plugin, no need for a separate dependency
     //add("commonMainApi", project(":korge-dragonbones"))
 }

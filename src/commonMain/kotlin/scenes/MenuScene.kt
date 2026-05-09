@@ -52,46 +52,34 @@ class MenuScene : Scene() {
         // -------------------------------------------------------
         // START BUTTON → LoadingScene → GameScene
         // -------------------------------------------------------
-        solidRect(btnW, btnH, Colors.DARKGREEN) {
+        val startBtn = ui.TextButton(btnW, btnH, "START") {
+            launchImmediately { scene.sceneContainer.changeTo { LoadingScene() } }
+        }.apply {
             x = cx - btnW / 2
             y = 350.0
-            onOver { alpha = 0.7 }
-            onOut  { alpha = 1.0 }
-            onClick { launchImmediately { scene.sceneContainer.changeTo { LoadingScene() } } }
         }
-        text("START", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            centerXOn(this@sceneMain)
-            y = 350.0 + (btnH - fontSize) / 2
-        }
+        addChild(startBtn)
 
         // -------------------------------------------------------
         // SETTINGS BUTTON → SettingsScene
         // -------------------------------------------------------
-        solidRect(btnW, btnH, Colors.DARKBLUE) {
+        val settingsBtn = ui.TextButton(btnW, btnH, "SETTINGS") {
+            launchImmediately { scene.sceneContainer.changeTo { SettingsScene() } }
+        }.apply {
             x = cx - btnW / 2
             y = 470.0
-            onOver { alpha = 0.7 }
-            onOut  { alpha = 1.0 }
-            onClick { launchImmediately { scene.sceneContainer.changeTo { SettingsScene() } } }
         }
-        text("SETTINGS", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            centerXOn(this@sceneMain)
-            y = 470.0 + (btnH - fontSize) / 2
-        }
+        addChild(settingsBtn)
 
         // -------------------------------------------------------
         // BACK BUTTON → MainMenuScene
         // -------------------------------------------------------
-        solidRect(btnW, btnH, Colors.DARKRED) {
+        val backBtn = ui.TextButton(btnW, btnH, "BACK") {
+            launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } }
+        }.apply {
             x = cx - btnW / 2
             y = 590.0
-            onOver { alpha = 0.7 }
-            onOut  { alpha = 1.0 }
-            onClick { launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } } }
         }
-        text("BACK", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            centerXOn(this@sceneMain)
-            y = 590.0 + (btnH - fontSize) / 2
-        }
+        addChild(backBtn)
     }
 }
