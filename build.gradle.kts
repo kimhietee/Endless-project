@@ -40,10 +40,11 @@ dependencies {
     add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.13.0")
 }
 
-// FIX 5: Verify and copy google-services.json to Android subproject before build
-// The com.google.gms.google-services plugin looks for google-services.json in the Android app module
+// FIX 5: Copy google-services.json to correct locations for KorGE 6 Android builds
+// In KorGE 6, the Android target uses the root project and :deps subproject.
+// google-services.json must be at the root project dir for the Google Services plugin.
 tasks.register("copyGoogleServices") {
-    description = "Copy google-services.json to Android subproject if needed"
+    description = "Copy google-services.json to project root and deps subproject for Android builds"
     doLast {
         val sourceFile = File(project.projectDir, "src/androidMain/google-services.json")
         
@@ -53,33 +54,34 @@ tasks.register("copyGoogleServices") {
             return@doLast
         }
         
-        // KorGE generates the Android subproject at build time
-        // The google-services.json needs to be in: build/korge/android/app/google-services.json
-        val androidAppDir = File(project.buildDir, "korge/android/app")
-        if (androidAppDir.exists()) {
-            val destFile = File(androidAppDir, "google-services.json")
-            sourceFile.copyTo(destFile, overwrite = true)
-            println("[Build] ✓ Copied google-services.json to Android app module")
-        }
+        // Copy to project root (where Google Services plugin looks by default)
+        val rootDest = File(project.projectDir, "google-services.json")
+        sourceFile.copyTo(rootDest, overwrite = true)
+        println("[Build] ✓ Copied google-services.json to project root: ${rootDest.absolutePath}")
+        
+        // Copy to deps subproject (which has the Android library plugin)
+        val depsDest = File(project.projectDir, "deps/google-services.json")
+        sourceFile.copyTo(depsDest, overwrite = true)
+        println("[Build] ✓ Copied google-services.json to deps: ${depsDest.absolutePath}")
     }
 }
 
-// Apply Google Services plugin to the Android project once it is created by KorGE
-subprojects {
-    afterEvaluate {
-        if (name == "android" || project.plugins.hasPlugin("com.android.application")) {
-            apply(plugin = "com.google.gms.google-services")
-            
-            // Ensure google-services.json is in the right place for this project
-            val googleServicesFile = File(project.projectDir, "google-services.json")
-            if (!googleServicesFile.exists()) {
-                // Try to copy from common location
-                val sourceFile = File(rootProject.projectDir, "src/androidMain/google-services.json")
-                if (sourceFile.exists()) {
-                    sourceFile.copyTo(googleServicesFile, overwrite = true)
-                    println("[Build] ✓ Copied google-services.json to Android subproject: ${googleServicesFile.absolutePath}")
-                }
-            }
-        }
-    }
+// Ensure google-services.json is copied before any Android-related tasks
+tasks.matching { it.name.contains("Android") || it.name.contains("android") }.configureEach {
+    dependsOn("copyGoogleServices")
 }
+
+// Also copy at configuration time so it's available immediately
+val sourceGoogleServices = File(project.projectDir, "src/androidMain/google-services.json")
+if (sourceGoogleServices.exists()) {
+    val rootDest = File(project.projectDir, "google-services.json")
+    if (!rootDest.exists() || sourceGoogleServices.readText() != rootDest.readText()) {
+        sourceGoogleServices.copyTo(rootDest, overwrite = true)
+        println("[Build] ✓ (config-time) Copied google-services.json to project root")
+    }
+    val depsDest = File(project.projectDir, "deps/google-services.json")
+    if (!depsDest.exists() || sourceGoogleServices.readText() != depsDest.readText()) {
+        sourceGoogleServices.copyTo(depsDest, overwrite = true)
+        println("[Build] ✓ (config-time) Copied google-services.json to deps/")
+    }
+}

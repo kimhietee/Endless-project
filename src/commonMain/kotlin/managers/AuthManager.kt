@@ -16,16 +16,20 @@ object AuthManager {
     private var isFirebaseAvailable = false
 
     // Lazy init catches errors when Firebase isn't available
+    private var firebaseInitError: String? = null
+
     private val auth by lazy {
         try {
             val authInstance = Firebase.auth
             isFirebaseAvailable = true
+            firebaseInitError = null
             println("[Auth] Firebase Authentication initialized successfully")
             authInstance
         } catch (e: Exception) {
             isFirebaseAvailable = false
+            firebaseInitError = e.message?.take(80) ?: "Unknown error"
             println("[Auth] Firebase.auth not available: ${e.message}")
-            println("[Auth] Running on Desktop/JVM - Firebase features disabled")
+            println("[Auth] Firebase init error class: ${e::class.simpleName}")
             null
         }
     }
@@ -67,10 +71,10 @@ object AuthManager {
                 auth!!.signInWithEmailAndPassword(email, password)
                 null
             } else {
-                // FIX 1: No more fake success on desktop — return clear error instead
-                val desktopError = "Firebase not available on Desktop. Test on Android."
-                println("[Auth] $desktopError")
-                desktopError
+                // FIX 1: Show real Firebase init error instead of generic message
+                val initError = "Firebase init failed: ${firebaseInitError ?: "auth is null"}"
+                println("[Auth] $initError")
+                initError
             }
         } catch (e: Exception) {
             mapFirebaseError(e)
@@ -88,10 +92,10 @@ object AuthManager {
                 auth!!.createUserWithEmailAndPassword(email, password)
                 null
             } else {
-                // FIX 1: No more fake success on desktop — return clear error instead
-                val desktopError = "Firebase not available on Desktop. Test on Android."
-                println("[Auth] $desktopError")
-                desktopError
+                // FIX 1: Show real Firebase init error instead of generic message
+                val initError = "Firebase init failed: ${firebaseInitError ?: "auth is null"}"
+                println("[Auth] $initError")
+                initError
             }
         } catch (e: Exception) {
             mapFirebaseError(e)
