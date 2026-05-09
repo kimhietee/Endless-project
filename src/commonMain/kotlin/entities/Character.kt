@@ -309,10 +309,11 @@ class Character(
         }
 
         // FIX: initialize debugOutline here instead of as a property initializer
-        // to avoid the Android Kotlin compiler internal error in ExternalPackageParentPatcherLowering
-        debugOutline = Container().also { addChild(it) }
+        // (simple statements avoid triggering an IR-lowering compiler crash)
+        debugOutline = Container()
+        addChild(debugOutline)
         debugOutline.visible = false
-            }
+    }
 
     private fun updatePlayerHpBar(dt: Double) {
         if (!isPlayer) return
