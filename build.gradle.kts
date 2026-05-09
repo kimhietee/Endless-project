@@ -35,9 +35,9 @@ korge {
 
 dependencies {
     add("commonMainApi", project(":deps"))
-    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.13.0")
-    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.13.0")
-    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.13.0")
+    add("commonMainImplementation", "dev.gitlive:firebase-auth:1.10.4")
+    add("commonMainImplementation", "dev.gitlive:firebase-firestore:1.10.4")
+    add("commonMainImplementation", "dev.gitlive:firebase-analytics:1.10.4")
 }
 
 // FIX 5: Copy google-services.json to correct locations for KorGE 6 Android builds
@@ -84,4 +84,4 @@ if (sourceGoogleServices.exists()) {
         sourceGoogleServices.copyTo(depsDest, overwrite = true)
         println("[Build] ✓ (config-time) Copied google-services.json to deps/")
     }
-}
+}
