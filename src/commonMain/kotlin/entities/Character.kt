@@ -310,15 +310,9 @@ class Character(
 
         // FIX: initialize debugOutline here instead of as a property initializer
         // to avoid the Android Kotlin compiler internal error in ExternalPackageParentPatcherLowering
-        debugOutline = container {
-            val t = 2.0
-            solidRect(1.0, t, Colors["#0044ff"]).name("top")
-            solidRect(1.0, t, Colors["#0044ff"]).name("bot")
-            solidRect(t, 1.0, Colors["#0044ff"]).name("lft")
-            solidRect(t, 1.0, Colors["#0044ff"]).name("rgt")
-            visible = false
-        }
-    }
+        debugOutline = Container().also { addChild(it) }
+        debugOutline.visible = false
+            }
 
     private fun updatePlayerHpBar(dt: Double) {
         if (!isPlayer) return
@@ -351,18 +345,32 @@ class Character(
     // -------------------------------------------------------
     // DEBUG OUTLINE UPDATE
     // -------------------------------------------------------
+    private var dbTop: SolidRect? = null
+    private var dbBot: SolidRect? = null
+    private var dbLft: SolidRect? = null
+    private var dbRgt: SolidRect? = null
+
+    private fun ensureDebugRects() {
+        if (dbTop != null) return
+        val t = 2.0
+        dbTop = solidRect(1.0, t, Colors["#0044ff"]).also { debugOutline.addChild(it) }
+        dbBot = solidRect(1.0, t, Colors["#0044ff"]).also { debugOutline.addChild(it) }
+        dbLft = solidRect(t, 1.0, Colors["#0044ff"]).also { debugOutline.addChild(it) }
+        dbRgt = solidRect(t, 1.0, Colors["#0044ff"]).also { debugOutline.addChild(it) }
+    }
+
     private fun updateDebugOutline() {
-        val c  = debugOutline
+        ensureDebugRects()
         val r  = hitboxRect()
         val w  = r.width.toDouble()
         val h  = r.height.toDouble()
         val ox = r.x.toDouble() - this.x
         val oy = r.y.toDouble() - this.y
         val t  = 2.0
-        (c.children.firstOrNull { it.name == "top" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy) }
-        (c.children.firstOrNull { it.name == "bot" } as? SolidRect)?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }
-        (c.children.firstOrNull { it.name == "lft" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox, oy) }
-        (c.children.firstOrNull { it.name == "rgt" } as? SolidRect)?.also { it.width = t; it.height = h; it.xy(ox + w - t, oy) }
+        dbTop?.also { it.width = w; it.height = t; it.xy(ox, oy) }
+        dbBot?.also { it.width = w; it.height = t; it.xy(ox, oy + h - t) }
+        dbLft?.also { it.width = t; it.height = h; it.xy(ox, oy) }
+        dbRgt?.also { it.width = t; it.height = h; it.xy(ox + w - t, oy) }
     }
 
     // -------------------------------------------------------
