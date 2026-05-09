@@ -1,7 +1,6 @@
 package scenes
 
 import managers.ScoreManager.getHighScore
-import managers.ScoreManager.getLeaderboardFlow
 
 import korlibs.image.color.Colors
 import korlibs.image.format.readBitmapSlice
@@ -33,7 +32,7 @@ class MainMenuScene : Scene() {
         GameAssets.load()
 
         // -------------------------------------------------------
-        // BACKGROUND  (placeholder — swap later)
+        // BACKGROUND
         // -------------------------------------------------------
         val bgSlice = GameAssets.bg2Slice
         val bg = image(bgSlice).apply {
@@ -134,5 +133,4 @@ class MainMenuScene : Scene() {
             addChild(signupBtn)
         }
     }
-
 }

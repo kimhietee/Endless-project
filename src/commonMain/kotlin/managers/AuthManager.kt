@@ -7,14 +7,14 @@ import dev.gitlive.firebase.auth.auth
  * Manages Firebase Authentication state.
  * Tracks if the current player is a guest or a logged-in user.
  * On Desktop/JVM where Firebase is unavailable, returns clear error messages instead of faking success.
- * 
+ *
  * FIX 1: Removed silent demo mode. Desktop now returns clear error message.
  * FIX 2: Added isInDemoMode() public helper function.
  */
 object AuthManager {
-    
+
     private var isFirebaseAvailable = false
-    
+
     // Lazy init catches errors when Firebase isn't available
     private val auth by lazy {
         try {
@@ -36,7 +36,7 @@ object AuthManager {
      * FIX 2: New helper function for ScoreManager and other managers to check.
      */
     fun isInDemoMode(): Boolean {
-        val _ = auth  // Force lazy init to determine availability
+        auth // triggers lazy init to set isFirebaseAvailable
         return !isFirebaseAvailable
     }
 
@@ -61,7 +61,7 @@ object AuthManager {
     suspend fun signIn(email: String, password: String): String? {
         if (email.isEmpty() || password.isEmpty()) return "Invalid email or password"
         if (!email.contains("@")) return "Invalid email"
-        
+
         return try {
             if (auth != null) {
                 auth!!.signInWithEmailAndPassword(email, password)
@@ -82,7 +82,7 @@ object AuthManager {
         if (email.isEmpty() || password.isEmpty()) return "Invalid email or password"
         if (!email.contains("@")) return "Invalid email"
         if (password.length < 6) return "Weak password"
-        
+
         return try {
             if (auth != null) {
                 auth!!.createUserWithEmailAndPassword(email, password)
@@ -108,7 +108,7 @@ object AuthManager {
             println("[Auth] Logout error: ${e.message}")
         }
     }
-    
+
     private fun mapFirebaseError(e: Exception): String {
         val msg = e.message ?: ""
         println("[Auth] Authentication failed: $msg")
