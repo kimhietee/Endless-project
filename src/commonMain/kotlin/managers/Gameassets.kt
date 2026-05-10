@@ -159,33 +159,63 @@ object GameAssets {
         upgradeSlice      = resourcesVfs["ui/buttons/btn_upgrade.png"].readBitmapSlice()
 
         // ── Pause menu image buttons ────────────────────────────────────────────
-        pauseResumeSlice  = resourcesVfs["ui/buttons/btn_resume.png"].readBitmapSlice()
-        pauseRestartSlice = resourcesVfs["ui/buttons/btn_restart.png"].readBitmapSlice()
-        pauseQuitSlice    = resourcesVfs["ui/buttons/btn_quit.png"].readBitmapSlice()
+        pauseResumeSlice  = try { resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice() } catch(e: Exception) { buttonBgSlice }
+        pauseRestartSlice = try { resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice() } catch(e: Exception) { buttonBgSlice }
+        pauseQuitSlice    = try { resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice() } catch(e: Exception) { buttonBgSlice }
 
         loaded = true
     }
 
     suspend fun loadFrames(cfg: FrameConfig): List<BmpSlice> {
         val key = buildKey(cfg)
+
         return frameCache.getOrPut(key) {
+            val frames = mutableListOf<BmpSlice>()
+
             if (cfg.sheet != null) {
-                val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
-                val sheet = resourcesVfs[sheetPath].readBitmapSlice()
-                val frames = mutableListOf<BmpSlice>()
-                val frameWidth  = sheet.width  / cfg.sheet.columns
-                val frameHeight = sheet.height / cfg.sheet.rows
-                for (row in 0 until cfg.sheet.rows) {
-                    for (col in 0 until cfg.sheet.columns) {
-                        frames += sheet.sliceWithSize(col * frameWidth, row * frameHeight, frameWidth, frameHeight)
+                try {
+                    val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
+                    println("Loading sheet: $sheetPath")
+
+                    val sheet = resourcesVfs[sheetPath].readBitmapSlice()
+
+                    val frameWidth  = sheet.width  / cfg.sheet.columns
+                    val frameHeight = sheet.height / cfg.sheet.rows
+
+                    for (row in 0 until cfg.sheet.rows) {
+                        for (col in 0 until cfg.sheet.columns) {
+                            frames += sheet.sliceWithSize(
+                                col * frameWidth,
+                                row * frameHeight,
+                                frameWidth,
+                                frameHeight
+                            )
+                        }
+                    }
+
+                    frames.take(cfg.count)
+                } catch (e: Exception) {
+                    println("❌ FAILED to load sheet: ${e.message}")
+                    emptyList()
+                }
+            } else {
+                for (i in cfg.startIndex until cfg.startIndex + cfg.count) {
+                    val index = if (cfg.zeroPad > 0)
+                        i.toString().padStart(cfg.zeroPad, '0')
+                    else i.toString()
+
+                    val path = "${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"
+
+                    try {
+                        println("Loading frame: $path")
+                        val bmp = resourcesVfs[path].readBitmapSlice()
+                        frames.add(bmp)
+                    } catch (e: Exception) {
+                        println("❌ Missing frame: $path")
                     }
                 }
-                frames.take(cfg.count)
-            } else {
-                (cfg.startIndex until cfg.startIndex + cfg.count).map { i ->
-                    val index = if (cfg.zeroPad > 0) i.toString().padStart(cfg.zeroPad, '0') else i.toString()
-                    resourcesVfs["${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"].readBitmapSlice()
-                }
+
+                frames
             }
         }
     }
