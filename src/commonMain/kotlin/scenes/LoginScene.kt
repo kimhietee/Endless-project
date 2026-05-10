@@ -2,7 +2,7 @@ package scenes
 
 import korlibs.image.color.Colors
 import korlibs.korge.scene.Scene
-import korlibs.korge.ui.uiTextInput
+import korlibs.korge.ui.*
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
 import korlibs.korge.input.*
@@ -83,10 +83,14 @@ class LoginScene : Scene() {
         }
 
         // Observe every keystroke on the hidden input and update the display
-        passInput.onTextChanged { newText ->
-            realPassword = newText
-            passDisplay.text = if (isPasswordVisible) realPassword
-                               else "*".repeat(realPassword.length)
+        var lastPass = ""
+        passInput.addUpdater {
+            if (passInput.text != lastPass) {
+                lastPass = passInput.text
+                realPassword = lastPass
+                passDisplay.text = if (isPasswordVisible) realPassword
+                                   else "*".repeat(realPassword.length)
+            }
         }
 
         // ── Eye-icon toggle button ───────────────────────────────
