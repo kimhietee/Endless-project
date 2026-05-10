@@ -482,12 +482,10 @@ class GameScene : Scene() {
                 // Uses GameAssets.backgroundList which cycles automatically.
                 if (currentWave != lastRenderedWave) {
                     lastRenderedWave = currentWave
-                    val newBg = GameAssets.backgroundForWave(currentWave)
-                    bg.bitmap = newBg
-                    // Keep size and position intact
-                    bg.width  = Constants.SCREEN_WIDTH.toDouble()
-                    bg.height = Constants.SCREEN_HEIGHT.toDouble()
-                    // bg.y      = Constants.GROUND - Constants.SCREEN_HEIGHT
+                    bg.bitmap = GameAssets.backgroundForWave(currentWave)
+
+                    // This scales the image to the target size in one call
+                    bg.setSize(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble())
                 }
 
             }
