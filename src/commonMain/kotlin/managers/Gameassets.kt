@@ -16,7 +16,7 @@ object GameAssets {
         private set
 
     // Fallback pixel if something fails to load
-    private val fallbackSlice by lazy { korlibs.image.bitmap.Bitmap32(1, 1, Colors.MAGENTA.value).slice() }
+    private val fallbackSlice: BmpSlice by lazy { korlibs.image.bitmap.Bitmap32(1, 1, Colors.MAGENTA).slice() }
 
     // ── Individual named backgrounds ────────────────────────────────────────
     lateinit var bgSlice:  BmpSlice
