@@ -1,18 +1,10 @@
 package scenes
 
-import managers.ScoreManager.getHighScore
-
 import korlibs.image.color.Colors
-import korlibs.image.format.readBitmapSlice
-import korlibs.io.file.std.resourcesVfs
-import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
-import korlibs.korge.view.align.centerOn
 import korlibs.io.async.launchImmediately
-import korlibs.io.*
-import korlibs.io.async.*
 import korlibs.korge.ui.*
 import korlibs.math.geom.*
 import managers.GameAssets
@@ -20,13 +12,10 @@ import managers.AuthManager
 import managers.ScoreManager
 import utils.Constants
 
-
 class MainMenuScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
         val scene = this@MainMenuScene
-
-        // Preload all game assets
         GameAssets.load()
 
         // -------------------------------------------------------
@@ -39,7 +28,6 @@ class MainMenuScene : Scene() {
             smoothing = true
         }
 
-        // Semi-transparent overlay
         solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK).apply {
             alpha = 0.50
         }
@@ -53,15 +41,14 @@ class MainMenuScene : Scene() {
         }
 
         // -------------------------------------------------------
-        // MENU BUTTONS (Centered)
+        // MENU BUTTONS
         // -------------------------------------------------------
         val cx = Constants.SCREEN_WIDTH / 2.0
         val btnW = 300.0
         val btnH = 80.0
-        val spacing = 100.0
         var currentY = 280.0
 
-        // 1. PLAY BUTTON (Always visible)
+        // 1. PLAY BUTTON
         val playSlice = GameAssets.playSlice
         image(playSlice).apply {
             width  = btnW
@@ -73,56 +60,46 @@ class MainMenuScene : Scene() {
             onClick { launchImmediately { scene.sceneContainer.changeTo { MenuScene() } } }
         }
         
-        currentY += spacing
+        currentY += 120.0
 
+        // 2. USER INFO / STATUS
         if (AuthManager.isLoggedIn()) {
-            // USER INFO & LOGOUT
             val label = AuthManager.userLabel()
             text("Welcome, $label", textSize = 32.0, color = Colors.WHITE, font = GameAssets.customFont) {
                 centerXOn(this@sceneMain)
                 y = currentY
             }
 
-            // High Score
             launchImmediately {
                 val stats = ScoreManager.getHighScore()
                 text("High Score: ${stats.score.toInt()}", textSize = 28.0, color = Colors.YELLOW, font = GameAssets.customFont) {
                     centerXOn(this@sceneMain)
-                    y = currentY + 40.0
+                    y = currentY + 45.0
                 }
             }
-
-            // LOGOUT BUTTON
-            ui.TextButton(btnW, btnH, "LOGOUT") {
-                launchImmediately {
-                    AuthManager.logout()
-                    scene.sceneContainer.changeTo { MainMenuScene() } // Refresh scene
-                }
-            }.apply {
-                centerXOn(this@sceneMain)
-                y = currentY + 100.0
-                addChild(this)
-            }
-            
         } else {
-            // LOGIN BUTTON
-            ui.TextButton(btnW, btnH, "LOGIN") {
-                launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
-            }.apply {
+            text("Guest Mode", textSize = 32.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
                 centerXOn(this@sceneMain)
                 y = currentY
-                currentY += spacing
-                addChild(this)
             }
+            text("Log in to save progress", textSize = 20.0, color = Colors.GRAY, font = GameAssets.customFont) {
+                centerXOn(this@sceneMain)
+                y = currentY + 45.0
+            }
+        }
 
-            // SIGN UP BUTTON
-            ui.TextButton(btnW, btnH, "SIGN UP") {
-                launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
-            }.apply {
-                centerXOn(this@sceneMain)
-                y = currentY
-                addChild(this)
+        // 3. STANDALONE LOGOUT BUTTON (Phase 4a)
+        // Positioned at the bottom center, clearly visible but out of the way of the main Play flow.
+        val logoutBtnW = 220.0
+        val logoutBtnH = 60.0
+        uiTextButton(logoutBtnW, logoutBtnH, "LOG OUT") {
+            launchImmediately {
+                AuthManager.logout()
+                scene.sceneContainer.changeTo { LoginScene() }
             }
+        }.apply {
+            centerXOn(this@sceneMain)
+            y = Constants.SCREEN_HEIGHT - 100.0
         }
     }
 }

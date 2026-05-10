@@ -166,8 +166,20 @@ class SettingsScene : Scene() {
             launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
         }.apply {
             x = cx - backBtnW / 2.0
-            y = 580.0
+            y = 540.0
         }
         addChild(backBtn)
+
+        // ── Logout Button (Phase 4b) ─────────────────────────────────────────
+        val logoutBtn = ui.TextButton(backBtnW, backBtnH, "LOG OUT") {
+            launchImmediately {
+                managers.AuthManager.logout()
+                scene.sceneContainer.changeTo { LoginScene() }
+            }
+        }.apply {
+            x = cx - backBtnW / 2.0
+            y = 620.0
+        }
+        addChild(logoutBtn)
     }
 }
