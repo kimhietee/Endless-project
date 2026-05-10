@@ -9,9 +9,9 @@ import dev.gitlive.firebase.auth.auth
  * On Desktop/JVM where Firebase is unavailable, returns clear error messages instead of faking success.
  */
 object AuthManager {
-    
+
     private var isFirebaseAvailable = false
-    
+
     // Lazy init catches errors when Firebase isn't available
     private val auth by lazy {
         try {
@@ -27,26 +27,15 @@ object AuthManager {
         }
     }
 
-    /**
-     * Returns true if Firebase is not available (e.g., on Desktop/JVM).
-     * Use this to skip Firebase-dependent operations gracefully.
-     */
     fun isInDemoMode(): Boolean {
-        // Force lazy init of auth by referencing it
-        auth // just reference to trigger lazy initialization
+        auth
         return !isFirebaseAvailable
     }
 
-    /** Returns true if there is an active Firebase user session. On Desktop, always false. */
     fun isLoggedIn(): Boolean = auth?.currentUser != null
-
-    /** Returns true if the player is playing as a guest (no active session). */
     fun isGuest(): Boolean = !isLoggedIn()
-
-    /** Returns the unique Firebase UID for the logged-in user, or null if guest or Desktop. */
     fun userId(): String? = auth?.currentUser?.uid
 
-    /** Returns the display name or email if available. On Desktop, returns "Guest". */
     fun userLabel(): String {
         if (auth != null && auth!!.currentUser != null) {
             return auth!!.currentUser?.displayName ?: auth!!.currentUser?.email ?: "User"
@@ -54,32 +43,41 @@ object AuthManager {
         return "Guest"
     }
 
-    /** Attempts to sign in with email and password. Returns null on success, error message on failure. */
+    /**
+     * Attempts to sign in with email and password.
+     * Returns null on success, or a user-friendly error message on failure.
+     */
     suspend fun signIn(email: String, password: String): String? {
-        if (email.isEmpty() || password.isEmpty()) return "Invalid email or password"
-        if (!email.contains("@")) return "Invalid email"
-        
+        if (email.isEmpty() && password.isEmpty()) return "Please enter your email and password."
+        if (email.isEmpty()) return "Please enter your email."
+        if (password.isEmpty()) return "Please enter your password."
+        if (!email.contains("@")) return "Please enter a valid email address."
+
         return try {
             if (auth != null) {
                 auth!!.signInWithEmailAndPassword(email, password)
                 null
             } else {
-                // No fake demo - return clear error to UI
                 val desktopError = "Firebase not available on Desktop. Test on Android."
                 println("[Auth] $desktopError")
                 desktopError
             }
         } catch (e: Exception) {
-            mapFirebaseError(e)
+            mapSignInError(e)
         }
     }
 
-    /** Attempts to create a new user with email and password. Returns null on success, error message on failure. */
+    /**
+     * Attempts to create a new user with email and password.
+     * Returns null on success, or a user-friendly error message on failure.
+     */
     suspend fun signUp(email: String, password: String): String? {
-        if (email.isEmpty() || password.isEmpty()) return "Invalid email or password"
-        if (!email.contains("@")) return "Invalid email"
-        if (password.length < 6) return "Weak password"
-        
+        if (email.isEmpty() && password.isEmpty()) return "Please enter your email and password."
+        if (email.isEmpty()) return "Please enter your email."
+        if (password.isEmpty()) return "Please enter your password."
+        if (!email.contains("@")) return "Please enter a valid email address."
+        if (password.length < 6) return "Password must be at least 6 characters."
+
         return try {
             if (auth != null) {
                 auth!!.createUserWithEmailAndPassword(email, password)
@@ -90,32 +88,75 @@ object AuthManager {
                 desktopError
             }
         } catch (e: Exception) {
-            mapFirebaseError(e)
+            mapSignUpError(e)
         }
     }
 
-    /** Signs out the current user. */
     suspend fun logout() {
         try {
-            if (auth != null) {
-                auth!!.signOut()
-            }
+            auth?.signOut()
         } catch (e: Exception) {
             println("[Auth] Logout error: ${e.message}")
         }
     }
-    
-    private fun mapFirebaseError(e: Exception): String {
+
+    // ── Error mapping for SIGN IN ────────────────────────────────────────────
+    // Keep it simple: never reveal which field is wrong (security best practice),
+    // but do give the "account not found" hint so the user knows to sign up.
+    private fun mapSignInError(e: Exception): String {
         val msg = e.message ?: ""
-        println("[Auth] Authentication failed: $msg")
+        println("[Auth] Sign-in failed: $msg")
         return when {
-            msg.contains("INVALID_LOGIN_CREDENTIALS") || msg.contains("INVALID_PASSWORD") || msg.contains("user-not-found") -> "Wrong credentials"
-            msg.contains("email-already-in-use") -> "This account is already registered. Please log in instead."
-            msg.contains("invalid-email") -> "Invalid email"
-            msg.contains("weak-password") -> "Weak password"
-            msg.contains("network") -> "Network error"
-            msg.contains("user-not-found") -> "Account not found."
-            else -> "Auth failed: ${msg.take(30)}"
+            // Account does not exist at all
+            msg.contains("user-not-found", ignoreCase = true) ||
+            msg.contains("USER_NOT_FOUND", ignoreCase = true) ->
+                "No account found with that email. Please sign up first."
+
+            // Wrong password — intentionally vague for security
+            msg.contains("INVALID_LOGIN_CREDENTIALS", ignoreCase = true) ||
+            msg.contains("INVALID_PASSWORD", ignoreCase = true) ||
+            msg.contains("wrong-password", ignoreCase = true) ->
+                "Wrong email or password. Please try again."
+
+            msg.contains("invalid-email", ignoreCase = true) ->
+                "Please enter a valid email address."
+
+            msg.contains("user-disabled", ignoreCase = true) ->
+                "This account has been disabled. Contact support."
+
+            msg.contains("too-many-requests", ignoreCase = true) ->
+                "Too many attempts. Please wait a moment and try again."
+
+            msg.contains("network", ignoreCase = true) ->
+                "Network error. Check your connection and try again."
+
+            else -> "Sign in failed. Please check your details and try again."
+        }
+    }
+
+    // ── Error mapping for SIGN UP ────────────────────────────────────────────
+    private fun mapSignUpError(e: Exception): String {
+        val msg = e.message ?: ""
+        println("[Auth] Sign-up failed: $msg")
+        return when {
+            // Account already exists — tell them to log in instead
+            msg.contains("email-already-in-use", ignoreCase = true) ||
+            msg.contains("EMAIL_EXISTS", ignoreCase = true) ->
+                "An account with this email already exists. Please log in."
+
+            msg.contains("invalid-email", ignoreCase = true) ->
+                "Please enter a valid email address."
+
+            msg.contains("weak-password", ignoreCase = true) ->
+                "Password is too weak. Use at least 6 characters."
+
+            msg.contains("too-many-requests", ignoreCase = true) ->
+                "Too many attempts. Please wait a moment and try again."
+
+            msg.contains("network", ignoreCase = true) ->
+                "Network error. Check your connection and try again."
+
+            else -> "Sign up failed. Please try again."
         }
     }
 }

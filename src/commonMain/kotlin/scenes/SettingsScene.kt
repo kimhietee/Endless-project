@@ -3,8 +3,6 @@ package scenes
 import korlibs.image.color.Colors
 import korlibs.image.color.RGBA
 import korlibs.io.async.launchImmediately
-import korlibs.io.file.std.resourcesVfs
-import korlibs.image.format.readBitmapSlice
 import korlibs.korge.input.*
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
@@ -17,9 +15,8 @@ import utils.GameSettings
 /**
  * SettingsScene — toggle Show Hitbox and Developer Mode.
  *
- * Both toggles use "ui/buttons/button_bg.png" as their background image,
- * exactly as specified.  The label on each button updates immediately when
- * tapped to reflect the new ON/OFF state.
+ * LOG OUT button is only shown when the user is actually logged in.
+ * Guests do not see a logout button here.
  *
  * Navigation: Back button → MenuScene.
  */
@@ -28,15 +25,13 @@ class SettingsScene : Scene() {
     override suspend fun SContainer.sceneMain() {
         val scene = this@SettingsScene
 
-        // ── Background ─────────────────────────────────────────────────────
+        // ── Background ──────────────────────────────────────────────────────
         val bgSlice = GameAssets.bg3Slice
         image(bgSlice) {
             width     = Constants.SCREEN_WIDTH.toDouble()
             height    = Constants.SCREEN_HEIGHT.toDouble()
             smoothing = true
         }
-
-        // Dark overlay
         solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK) {
             alpha = 0.55
         }
@@ -48,41 +43,35 @@ class SettingsScene : Scene() {
         }
 
         // ── Layout constants ─────────────────────────────────────────────────
-        val btnW  = 420.0
-        val btnH  = 90.0
-        val cx    = Constants.SCREEN_WIDTH / 2.0
+        val btnW   = 420.0
+        val btnH   = 90.0
+        val cx     = Constants.SCREEN_WIDTH / 2.0
         val startY = 230.0
         val gapY   = 120.0
 
-        // Load the button background image declared in spec
-        val buttonBgSlice = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
+        val buttonBgSlice = GameAssets.buttonBgSlice
 
         // ── Helper: build one toggle button ─────────────────────────────────
-        //  Returns the label Text so the caller can update it on click.
         fun buildToggleButton(
             labelPrefix: String,
             isOn: () -> Boolean,
             yPos: Double,
             onToggle: () -> Unit
         ): Text {
-            // Background image button
             image(buttonBgSlice) {
-                width  = btnW
-                height = btnH
-                x      = cx - btnW / 2.0
-                y      = yPos
+                width     = btnW
+                height    = btnH
+                x         = cx - btnW / 2.0
+                y         = yPos
                 smoothing = false
             }
 
-            // Status badge (ON / OFF coloured rect on the right side)
             val badgeW = 90.0
             val badgeH = 48.0
             val badge = solidRect(badgeW, badgeH, RGBA(0, 0, 0, 180)) {
                 x = cx + btnW / 2.0 - badgeW - 16.0
                 y = yPos + (btnH - badgeH) / 2.0
             }
-
-            // Badge fill colour (green = ON, red = OFF)
             val badgeFill = solidRect(badgeW - 6.0, badgeH - 6.0, Colors.DARKGREEN) {
                 x = badge.x + 3.0
                 y = badge.y + 3.0
@@ -93,7 +82,6 @@ class SettingsScene : Scene() {
             }
             refreshBadge()
 
-            // Badge text (ON / OFF)
             val badgeText = text(if (isOn()) "ON" else "OFF", textSize = 18.0, color = Colors.WHITE, font = GameAssets.customFont) {
                 x = badge.x + (badgeW - textBounds.width) / 2.0
                 y = badge.y + (badgeH - textBounds.height) / 2.0
@@ -105,13 +93,11 @@ class SettingsScene : Scene() {
                 badgeText.y = badge.y + (badgeH - badgeText.textBounds.height) / 2.0
             }
 
-            // Label text (left side of button)
             val label = text("$labelPrefix: ${if (isOn()) "ON" else "OFF"}", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
                 x = cx - btnW / 2.0 + 20.0
                 y = yPos + (btnH - textBounds.height) / 2.0
             }
 
-            // Invisible hit rect — covers the whole button for clean tap detection
             solidRect(btnW, btnH, RGBA(0, 0, 0, 0)) {
                 x = cx - btnW / 2.0
                 y = yPos
@@ -135,8 +121,6 @@ class SettingsScene : Scene() {
             yPos        = startY
         ) {
             GameSettings.showHitbox = !GameSettings.showHitbox
-            // Hitbox overlays are evaluated every frame via GameSettings.showHitbox,
-            // so the change is visible immediately when the game is running.
         }
 
         // ── Toggle 2: Developer Mode ──────────────────────────────────────────
@@ -146,8 +130,6 @@ class SettingsScene : Scene() {
             yPos        = startY + gapY
         ) {
             GameSettings.developerMode = !GameSettings.developerMode
-            // GameScene reads developerMode each frame; dev-only buttons
-            // are shown/hidden reactively — no extra cleanup needed here.
         }
 
         // ── Info text ─────────────────────────────────────────────────────────
@@ -160,27 +142,49 @@ class SettingsScene : Scene() {
             y = startY + gapY * 2 + 52.0
         }
 
-        // ── Back Button ──────────────────────────────────────────────────────
+        // ── Bottom buttons ───────────────────────────────────────────────────
+        // Back button is always shown.
+        // Log Out button is ONLY shown when the user is actually logged in —
+        // a guest user has nothing to log out from.
         val backBtnW = 220.0
         val backBtnH = 70.0
-        val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
-            launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
-        }.apply {
-            x = cx - backBtnW / 2.0
-            y = 560.0
-        }
-        addChild(backBtn)
 
-        // ── Log Out Button ───────────────────────────────────────────────────
-        val logoutBtn = ui.TextButton(backBtnW, backBtnH, "LOG OUT") {
-            launchImmediately {
-                AuthManager.logout()
-                scene.sceneContainer.changeTo { LoginScene() }
+        val isUserLoggedIn = AuthManager.isLoggedIn()
+
+        // If logged in, centre both buttons side by side; otherwise just centre Back.
+        if (isUserLoggedIn) {
+            val gap = 20.0
+            val totalW = backBtnW * 2 + gap
+            val startX = cx - totalW / 2.0
+
+            val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
+                launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
+            }.apply {
+                x = startX
+                y = 560.0
             }
-        }.apply {
-            x = cx - backBtnW / 2.0
-            y = 560.0 + backBtnH + 16.0
+            addChild(backBtn)
+
+            val logoutBtn = ui.TextButton(backBtnW, backBtnH, "LOG OUT") {
+                launchImmediately {
+                    AuthManager.logout()
+                    scene.sceneContainer.changeTo { LoginScene() }
+                }
+            }.apply {
+                x = startX + backBtnW + gap
+                y = 560.0
+            }
+            addChild(logoutBtn)
+
+        } else {
+            // Guest: only the Back button, centred
+            val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
+                launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
+            }.apply {
+                x = cx - backBtnW / 2.0
+                y = 560.0
+            }
+            addChild(backBtn)
         }
-        addChild(logoutBtn)
     }
 }
