@@ -103,12 +103,11 @@ class GameScene : Scene() {
 
         // Score tracking and display
         var currentScore = 0.0
-        val scoreDisplay = text("Score: 0", textSize = 20.0, color = Colors.WHITE, font = GameAssets.customFont).apply {
-            // Position to the left of the pause button (pause button is at SCREEN_WIDTH - 20 - 120 = SCREEN_WIDTH - 140)
-            x = Constants.SCREEN_WIDTH - 270.0  // Leave space for score text (about 130px wide) plus 20px margin
+        // scoreDisplay is added AFTER all other addChild calls below so it renders on top
+        val scoreDisplay = text("Score: 0", textSize = 40.0, color = Colors.WHITE, font = GameAssets.customFont).apply {
+            x = Constants.SCREEN_WIDTH / 2.0 - 100.0
             y = 30.0
         }
-        addChild(scoreDisplay)
 
 
         GameAssets.load()
@@ -466,21 +465,70 @@ class GameScene : Scene() {
         // DEATH SCREEN SETUP
         // -------------------------------------------------------
         var deathScreenContainer: Container? = null
-        fun createDeathScreen(): Container {
+        fun createDeathScreen(
+            score: Double,
+            timeSurvived: Double,
+            wavesCleared: Int,
+            kills: Int,
+            cheatWarning: String?
+        ): Container {
             return container {
                 solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK) {
                     alpha = 0.8
                 }
+                val deathCx = Constants.SCREEN_WIDTH / 2.0
+
                 text("YOU DIED", textSize = 100.0, color = Colors["#cc2222"], font = GameAssets.customFont) {
-                    x = Constants.SCREEN_WIDTH / 2.0 - 200.0
-                    y = 200.0
+                    x = deathCx - 200.0
+                    y = 100.0
                 }
 
-                val deathBtnW = 240.0
-                val deathBtnH = 80.0
-                val deathCx   = Constants.SCREEN_WIDTH / 2.0
-                val deathStartY = 420.0
-                val deathGap = 100.0
+                // --- Stats block ---
+                val statStartY = 220.0
+                val statGap    = 36.0
+                val mins = (timeSurvived / 60).toInt()
+                val secs = (timeSurvived % 60).toInt()
+                val timeStr = String.format("%d:%02d", mins, secs)
+                val statLines = listOf(
+                    "Score:  ${score.toInt()}",
+                    "Time:   $timeStr",
+                    "Waves:  $wavesCleared",
+                    "Kills:  $kills"
+                )
+                statLines.forEachIndexed { i, line ->
+                    text(line, textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                        x = deathCx - 120.0
+                        y = statStartY + i * statGap
+                    }
+                }
+
+                // --- Save status / cheat warning ---
+                val saveStatusY = statStartY + statLines.size * statGap + 16.0
+                if (cheatWarning != null) {
+                    text("Data NOT recorded", textSize = 22.0, color = Colors["#ff6600"], font = GameAssets.customFont) {
+                        x = deathCx - 130.0
+                        y = saveStatusY
+                    }
+                    text(cheatWarning, textSize = 18.0, color = Colors["#ff6600"], font = GameAssets.customFont) {
+                        x = deathCx - 130.0
+                        y = saveStatusY + 28.0
+                    }
+                } else if (!AuthManager.isGuest()) {
+                    text("Progress saved!", textSize = 22.0, color = Colors["#44cc44"], font = GameAssets.customFont) {
+                        x = deathCx - 100.0
+                        y = saveStatusY
+                    }
+                } else {
+                    text("Log in to save progress", textSize = 22.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
+                        x = deathCx - 140.0
+                        y = saveStatusY
+                    }
+                }
+
+                val deathBtnW  = 240.0
+                val deathBtnH  = 80.0
+                val deathStartY = saveStatusY + 60.0
+                val deathGap   = 100.0
 
                 // Restart button
                 solidRect(deathBtnW, deathBtnH, Colors.DARKGREEN) {
@@ -520,6 +568,9 @@ class GameScene : Scene() {
         // TIMER UI — positioned directly below the pause button
         // pauseBtn: x = SCREEN_WIDTH - 20 - pauseBtnWidth, y = 20, h = pauseBtnHeight
         // -------------------------------------------------------
+        // Add scoreDisplay on top of all other children
+        addChild(scoreDisplay)
+
         val timerText = text("Time: 0:00", textSize = 20.0, color = Colors.WHITE, font = GameAssets.customFont) {
             x = Constants.SCREEN_WIDTH - 20.0 - pauseBtnWidth  // left-aligned with pause button
             y = 20.0 + pauseBtnHeight + 6.0                    // directly below pause button
@@ -610,16 +661,33 @@ class GameScene : Scene() {
 
             // Check if player died
             if (!player.isAlive() && deathScreenContainer == null) {
-                deathScreenContainer = createDeathScreen()
-                this@sceneMain.addChild(deathScreenContainer!!)
-                
-                // Save score to Firebase
-                ScoreManager.onGameEnd(
-                    currentScore = currentScore,
+                val wavesThisRun = (WaveSystem.getWaveNumber(gameTime) - 1).coerceAtLeast(0)
+
+                // Build cheat warning if any dev flags are active
+                val cheatFlags = buildList {
+                    if (GameSettings.developerMode) add("Developer Mode is ON")
+                    if (GameSettings.showHitbox)    add("Show Hitbox is ON")
+                }
+                val cheatWarning = if (cheatFlags.isNotEmpty()) cheatFlags.joinToString(" | ") else null
+
+                deathScreenContainer = createDeathScreen(
+                    score        = currentScore,
                     timeSurvived = gameTime,
-                    wavesCleared = (WaveSystem.getWaveNumber(gameTime) - 1).coerceAtLeast(0),
-                    kills = progress.totalKills
+                    wavesCleared = wavesThisRun,
+                    kills        = progress.totalKills,
+                    cheatWarning = cheatWarning
                 )
+                this@sceneMain.addChild(deathScreenContainer!!)
+
+                // Only save score when no cheat flags are active
+                if (cheatWarning == null) {
+                    ScoreManager.onGameEnd(
+                        currentScore = currentScore,
+                        timeSurvived = gameTime,
+                        wavesCleared = wavesThisRun,
+                        kills        = progress.totalKills
+                    )
+                }
             }
 
             // Skip further updates if player is dead
