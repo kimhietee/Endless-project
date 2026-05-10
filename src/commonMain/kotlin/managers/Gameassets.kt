@@ -1,6 +1,8 @@
 package managers
 
 import korlibs.image.bitmap.BmpSlice
+import korlibs.image.bitmap.slice
+import korlibs.image.color.Colors
 import korlibs.image.format.readBitmapSlice
 import korlibs.io.file.std.resourcesVfs
 import korlibs.image.font.Font
@@ -13,31 +15,19 @@ object GameAssets {
     var loaded = false
         private set
 
-    // ── Individual named backgrounds (kept for scenes that reference them directly) ──
+    // Fallback pixel if something fails to load
+    private val fallbackSlice by lazy { korlibs.image.bitmap.Bitmap32(1, 1, Colors.MAGENTA.value).slice() }
+
+    // ── Individual named backgrounds ────────────────────────────────────────
     lateinit var bgSlice:  BmpSlice
     lateinit var bg2Slice: BmpSlice
     lateinit var bg3Slice: BmpSlice
     lateinit var bg4Slice: BmpSlice
 
-    /**
-     * All backgrounds available for wave rotation.
-     *
-     * How it works:
-     *  - We attempt to load bg/background.png, bg/background2.png, … bg/background10.png
-     *    (and beyond, up to MAX_BG_PROBE).
-     *  - Any file that exists is added to the list; missing files are silently skipped.
-     *  - You can have fewer OR more than 10 — the code handles it automatically.
-     *  - Minimum: if no numbered backgrounds are found at all, the list falls back to
-     *    [bgSlice] so the game always has at least one background.
-     *
-     * To add more backgrounds, just drop bg/background11.png, bg/background12.png, etc.
-     * into your resources/bg/ folder — no code changes needed.
-     */
     val backgroundList = mutableListOf<BmpSlice>()
 
-    /** Returns the background for a given wave number (1-based), cycling if needed. */
     fun backgroundForWave(waveNumber: Int): BmpSlice {
-        if (backgroundList.isEmpty()) return bgSlice
+        if (backgroundList.isEmpty()) return if (::bgSlice.isInitialized) bgSlice else fallbackSlice
         val index = (waveNumber - 1).coerceAtLeast(0) % backgroundList.size
         return backgroundList[index]
     }
@@ -80,8 +70,6 @@ object GameAssets {
     lateinit var upgradeSlice:       BmpSlice
 
     // ── Pause menu image buttons ─────────────────────────────────────────────
-    // Replace the placeholder paths below with your actual asset paths.
-    // e.g. "ui/buttons/button_bg.png" (Using button_bg.png as placeholder for missing btn_resume/restart/quit)
     lateinit var pauseResumeSlice:  BmpSlice
     lateinit var pauseRestartSlice: BmpSlice
     lateinit var pauseQuitSlice:    BmpSlice
@@ -89,26 +77,26 @@ object GameAssets {
     suspend fun load() {
         if (loaded) return
 
+        suspend fun safeLoad(path: String, fallback: BmpSlice = fallbackSlice): BmpSlice {
+            return try {
+                resourcesVfs[path].readBitmapSlice()
+            } catch (e: Exception) {
+                println("[GameAssets] FAILED to load: $path. Error: ${e.message}")
+                fallback
+            }
+        }
+
         // ── Named background shortcuts ──────────────────────────────────────
-        bgSlice  = resourcesVfs["bg/background.png"].readBitmapSlice()
-        bg2Slice = resourcesVfs["bg/background2.png"].readBitmapSlice()
-        bg3Slice = resourcesVfs["bg/background3.png"].readBitmapSlice()
-        bg4Slice = resourcesVfs["bg/background4.png"].readBitmapSlice()
+        bgSlice  = safeLoad("bg/background.png")
+        bg2Slice = safeLoad("bg/background2.png")
+        bg3Slice = safeLoad("bg/background3.png")
+        bg4Slice = safeLoad("bg/background4.png")
 
-        // ── Dynamic background list for wave rotation ───────────────────────
-        // Probes bg/background.png, bg/background2.png … bg/backgroundN.png
-        // until MAX_BG_PROBE consecutive misses are encountered.
-        // The first file uses no number suffix; subsequent files use 2, 3, 4 …
-        // Adjust MAX_BG_PROBE if you ever plan to have more than 20 backgrounds.
-        val MAX_BG_PROBE = 20
+        // ── Dynamic background list ─────────────────────────────────────────
         backgroundList.clear()
+        backgroundList.add(bgSlice)
 
-        // bg/background.png  (index 1, no number suffix)
-        try {
-            backgroundList.add(resourcesVfs["bg/background.png"].readBitmapSlice())
-        } catch (_: Exception) { }
-
-        // bg/background2.png … bg/background{MAX_BG_PROBE}.png
+        val MAX_BG_PROBE = 20
         var consecutiveMisses = 0
         for (i in 2..MAX_BG_PROBE) {
             try {
@@ -117,29 +105,32 @@ object GameAssets {
                 consecutiveMisses = 0
             } catch (_: Exception) {
                 consecutiveMisses++
-                // Stop probing after 3 consecutive missing files so startup
-                // doesn't stall trying every number up to MAX_BG_PROBE.
                 if (consecutiveMisses >= 3) break
             }
         }
 
-        // Fallback: make sure the list is never empty
-        if (backgroundList.isEmpty()) backgroundList.add(bgSlice)
-
-        println("[GameAssets] Loaded ${backgroundList.size} background(s) for wave rotation.")
-
         // ── HUD bars ────────────────────────────────────────────────────────
-        hpBarGreenSlice  = resourcesVfs["ui/bar/green_health_bar.jpg"].readBitmapSlice()
-        hpBarYellowSlice = resourcesVfs["ui/bar/yellow_health_bar.jpg"].readBitmapSlice()
-        hpBarRedSlice    = resourcesVfs["ui/bar/red_health_bar.jpg"].readBitmapSlice()
-        manaBarSlice     = resourcesVfs["ui/bar/mana_bar.jpg"].readBitmapSlice()
+        hpBarGreenSlice  = safeLoad("ui/bar/green_health_bar.jpg")
+        hpBarYellowSlice = safeLoad("ui/bar/yellow_health_bar.jpg")
+        hpBarRedSlice    = safeLoad("ui/bar/red_health_bar.jpg")
+        manaBarSlice     = safeLoad("ui/bar/mana_bar.jpg")
 
         // ── HUD icons ───────────────────────────────────────────────────────
-        healthIconSlice = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
-        manaIconSlice   = resourcesVfs["ui/icons/potion.png"].readBitmapSlice()
+        // Trying 'heart (1).png' as primary if heart.PNG fails or is too large
+        healthIconSlice = try {
+            resourcesVfs["ui/icons/heart (1).png"].readBitmapSlice()
+        } catch (_: Exception) {
+            safeLoad("ui/icons/heart.PNG")
+        }
+        manaIconSlice   = safeLoad("ui/icons/potion.png")
 
         // ── Font ─────────────────────────────────────────────────────────────
-        customFont = resourcesVfs["ui/font/slkscr.ttf"].readFont()
+        customFont = try {
+            resourcesVfs["ui/font/slkscr.ttf"].readFont()
+        } catch (e: Exception) {
+            println("[GameAssets] Font load failed: ${e.message}")
+            korlibs.image.font.DefaultTtfFont
+        }
 
         // ── Character frames ─────────────────────────────────────────────────
         idleFrames   = loadFrames(FrameConfig("fireWizard/idle_pngs",     "image_0-",  startIndex = 0, count = 7))
@@ -148,35 +139,26 @@ object GameAssets {
         attackFrames = loadFrames(FrameConfig("fireWizard/slash_pngs",    "Attack_1_", startIndex = 0, count = 10))
         skillFrames  = loadFrames(FrameConfig("fireWizard/fireball_pngs", "image_0-",  startIndex = 0, count = 8))
 
-        // Preload shared enemy assets
-        loadFrames(FrameConfig("fireWizard/idle_pngs",     "image_0-",  startIndex = 0, count = 7))
-        loadFrames(FrameConfig("fireWizard/run_pngs",      "Run_",      startIndex = 0, count = 8))
-        loadFrames(FrameConfig("fireWizard/slash_pngs",    "Attack_1_", startIndex = 0, count = 10))
-        loadFrames(FrameConfig("fireWizard/fireball_pngs", "image_0-",  startIndex = 0, count = 8))
-        loadFrames(FrameConfig("fireWizard/jump_pngs",     "Jump_",     startIndex = 0, count = 6))
-
         // ── UI buttons ───────────────────────────────────────────────────────
-        leftSlice         = resourcesVfs["ui/buttons/btn_left.png"].readBitmapSlice()
-        rightSlice        = resourcesVfs["ui/buttons/btn_right.png"].readBitmapSlice()
-        jumpSlice         = resourcesVfs["ui/buttons/btn_jump.png"].readBitmapSlice()
-        attackSlice       = resourcesVfs["ui/buttons/btn_attack.png"].readBitmapSlice()
-        skill1Slice       = resourcesVfs["skill_icons/fire_wizard/1.png"].readBitmapSlice()
-        skill2Slice       = resourcesVfs["skill_icons/fire_wizard/2.png"].readBitmapSlice()
-        skill3Slice       = resourcesVfs["skill_icons/fire_wizard/3.png"].readBitmapSlice()
-        skill4Slice       = resourcesVfs["skill_icons/fire_wizard/4.png"].readBitmapSlice()
-        healingRamenSlice = resourcesVfs["ui/icons/ramen.png"].readBitmapSlice()
-        healingBentoSlice = resourcesVfs["ui/icons/bento.png"].readBitmapSlice()
-        maxHealthSlice    = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
-        pauseSlice        = resourcesVfs["ui/buttons/btn_menu.png"].readBitmapSlice()
-        playSlice         = resourcesVfs["ui/buttons/btn_play.png"].readBitmapSlice()
-        buttonBgSlice     = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
-        upgradeSlice      = resourcesVfs["ui/buttons/btn_upgrade.png"].readBitmapSlice()
+        leftSlice         = safeLoad("ui/buttons/btn_left.png")
+        rightSlice        = safeLoad("ui/buttons/btn_right.png")
+        jumpSlice         = safeLoad("ui/buttons/btn_jump.png")
+        attackSlice       = safeLoad("ui/buttons/btn_attack.png")
+        skill1Slice       = safeLoad("skill_icons/fire_wizard/1.png")
+        skill2Slice       = safeLoad("skill_icons/fire_wizard/2.png")
+        skill3Slice       = safeLoad("skill_icons/fire_wizard/3.png")
+        skill4Slice       = safeLoad("skill_icons/fire_wizard/4.png")
+        healingRamenSlice = safeLoad("ui/icons/ramen.png")
+        healingBentoSlice = safeLoad("ui/icons/bento.png")
+        maxHealthSlice    = healthIconSlice
+        pauseSlice        = safeLoad("ui/buttons/btn_menu.png")
+        playSlice         = safeLoad("ui/buttons/btn_play.png")
+        buttonBgSlice     = safeLoad("ui/buttons/button_bg.png")
+        upgradeSlice      = safeLoad("ui/buttons/btn_upgrade.png")
 
-        // ── Pause menu image buttons ─────────────────────────────────────────
-        // TODO: replace placeholder paths with your actual pause-menu button images.
-        pauseResumeSlice  = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
-        pauseRestartSlice = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
-        pauseQuitSlice    = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
+        pauseResumeSlice  = buttonBgSlice
+        pauseRestartSlice = buttonBgSlice
+        pauseQuitSlice    = buttonBgSlice
 
         loaded = true
     }
@@ -184,23 +166,28 @@ object GameAssets {
     suspend fun loadFrames(cfg: FrameConfig): List<BmpSlice> {
         val key = buildKey(cfg)
         return frameCache.getOrPut(key) {
-            if (cfg.sheet != null) {
-                val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
-                val sheet = resourcesVfs[sheetPath].readBitmapSlice()
-                val frames = mutableListOf<BmpSlice>()
-                val frameWidth  = sheet.width  / cfg.sheet.columns
-                val frameHeight = sheet.height / cfg.sheet.rows
-                for (row in 0 until cfg.sheet.rows) {
-                    for (col in 0 until cfg.sheet.columns) {
-                        frames += sheet.sliceWithSize(col * frameWidth, row * frameHeight, frameWidth, frameHeight)
+            try {
+                if (cfg.sheet != null) {
+                    val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
+                    val sheet = resourcesVfs[sheetPath].readBitmapSlice()
+                    val frames = mutableListOf<BmpSlice>()
+                    val frameWidth  = sheet.width  / cfg.sheet.columns
+                    val frameHeight = sheet.height / cfg.sheet.rows
+                    for (row in 0 until cfg.sheet.rows) {
+                        for (col in 0 until cfg.sheet.columns) {
+                            frames += sheet.sliceWithSize(col * frameWidth, row * frameHeight, frameWidth, frameHeight)
+                        }
+                    }
+                    frames.take(cfg.count)
+                } else {
+                    (cfg.startIndex until cfg.startIndex + cfg.count).map { i ->
+                        val index = if (cfg.zeroPad > 0) i.toString().padStart(cfg.zeroPad, '0') else i.toString()
+                        resourcesVfs["${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"].readBitmapSlice()
                     }
                 }
-                frames.take(cfg.count)
-            } else {
-                (cfg.startIndex until cfg.startIndex + cfg.count).map { i ->
-                    val index = if (cfg.zeroPad > 0) i.toString().padStart(cfg.zeroPad, '0') else i.toString()
-                    resourcesVfs["${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"].readBitmapSlice()
-                }
+            } catch (e: Exception) {
+                println("[GameAssets] loadFrames FAILED for ${cfg.folder}: ${e.message}")
+                List(cfg.count) { fallbackSlice }
             }
         }
     }
