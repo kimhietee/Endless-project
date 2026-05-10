@@ -46,10 +46,10 @@ class LoginScene : Scene() {
         val emailInputY = emailLabelY + 44.0          // label → input gap: 44 px
         val passLabelY  = emailInputY + inputH + 50.0 // input → next label gap: 50 px
         val passInputY  = passLabelY + 44.0
-        val errorY      = passInputY + inputH + 36.0  // generous space before error
-        val row1BtnY    = errorY + 58.0               // error → buttons gap: 58 px
-        val row2BtnY    = row1BtnY + 100.0            // row gap between button rows
-        val noteY       = row2BtnY + 100.0
+        val errorY      = passInputY + inputH + 16.0  // slightly closer to input
+        val row1BtnY    = errorY + 36.0               // closer to error text
+        val row2BtnY    = row1BtnY + 92.0             // gap for the second row
+        val noteY       = row2BtnY + 92.0
 
         // ── Title ────────────────────────────────────────────────
         text("Login / Sign Up", textSize = titleSize, color = Colors.WHITE, font = GameAssets.customFont) {

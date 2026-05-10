@@ -205,8 +205,8 @@ object GameAssets {
             wmBasicProjectileFrames = sheet("wandererMagician/skills/projectile", "Charge_2", "png", 6, 1, 6)
             wmSkill1Frames = sheet("wandererMagician/skills/skill_1", "Charge_1", "png", 9, 1, 9)
             wmSkill2AuraFrames = sheet("wandererMagician/skills/skill_2", "513", "PNG", 5, 10, 50)
-            wmSkill3CastFrames = sheet("wandererMagician/skills/skill_3", "334", "PNG", 5, 7, 35)
-            wmSkill3ExplodeFrames = sheet("wandererMagician/explode_pngs", "Attack_2", "png", 9, 1, 9)
+            wmSkill3CastFrames = sheet("wandererMagician/explode_pngs", "Attack_2", "png", 9, 1, 9)
+            wmSkill3ExplodeFrames = sheet("wandererMagician/skills/skill_3", "334", "PNG", 5, 7, 35)
             wmSkill4ChargeFrames = sheet("wandererMagician/charging_pngs", "Magic_sphere", "png", 16, 1, 16)
             wmSkill4BallFrames = listOf(
                 resourcesVfs["wandererMagician/skills/skill_4/vv1.png"].readBitmapSlice(),
@@ -227,10 +227,10 @@ object GameAssets {
             wmSkill4ChargeFrames = skillFrames
             wmSkill4BallFrames = skill4Frames
         }
-        wmSkill1Icon = wmSkill1Frames.firstOrNull() ?: skill1Slice
-        wmSkill2Icon = wmSkill2AuraFrames.firstOrNull() ?: skill2Slice
-        wmSkill3Icon = wmSkill3ExplodeFrames.firstOrNull() ?: skill3Slice
-        wmSkill4Icon = wmSkill4BallFrames.firstOrNull() ?: skill4Slice
+        wmSkill1Icon = try { resourcesVfs["skill_icons/wanderer_magician/1.jpeg"].readBitmapSlice() } catch(e: Exception) { skill1Slice }
+        wmSkill2Icon = try { resourcesVfs["skill_icons/wanderer_magician/2.png"].readBitmapSlice() } catch(e: Exception) { skill2Slice }
+        wmSkill3Icon = try { resourcesVfs["skill_icons/wanderer_magician/3.png"].readBitmapSlice() } catch(e: Exception) { skill3Slice }
+        wmSkill4Icon = try { resourcesVfs["skill_icons/wanderer_magician/4.png"].readBitmapSlice() } catch(e: Exception) { skill4Slice }
     }
 
     suspend fun loadFrames(cfg: FrameConfig): List<BmpSlice> {

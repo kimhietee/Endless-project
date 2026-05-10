@@ -71,19 +71,29 @@ class HeroSelectionScene : Scene() {
 
         val heroes = heroPickerEntries()
         val portraitSize = 140.0
-        val gap = 28.0
+        val gap = 140.0 // Increased from 28.0 to prevent names from overlapping
         val totalW = heroes.size * portraitSize + (heroes.size - 1).coerceAtLeast(0) * gap
         val rowX0 = sw / 2.0 - totalW / 2.0
         val rowY = 240.0
 
         val btnW = 260.0
         val btnH = 80.0
+        val btnGap = 24.0
+        val totalBtnW = btnW * 2 + btnGap
+
+        val backBtn = TextButton(btnW, btnH, "BACK") {
+            launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } }
+        }.apply {
+            x = cx - totalBtnW / 2.0
+            y = 520.0
+        }
+        addChild(backBtn)
 
         val startGameBtn = TextButton(btnW, btnH, "START") {
             if (GameSession.selectedHeroId == null) return@TextButton
             launchImmediately { scene.sceneContainer.changeTo { LoadingScene() } }
         }.apply {
-            x = cx - btnW / 2.0
+            x = cx - totalBtnW / 2.0 + btnW + btnGap
             y = 520.0
             visible = false
         }

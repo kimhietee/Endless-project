@@ -496,22 +496,11 @@ class Character(
                 spawnAttack(buildSkill4Config(), getEnemies, container)
                 skill4OrbSpawned = true
                 skill4BallWaitElapsed = 0.0
+                endSkillAction() // Immediately unlock the player once the orb is spawned!
             }
         }
 
-        if (actionPlaying && activeSkillSlot == 4 && skill4OrbSpawned && heroConfig.skill4BallMaxDurationSeconds > 0.0) {
-            skill4BallWaitElapsed += dt
-            if (skill4BallWaitElapsed >= heroConfig.skill4BallMaxDurationSeconds) {
-                endSkillAction()
-            }
-        }
-
-        if (actionPlaying && activeSkillSlot == 2 && heroConfig.skill2AuraTotalHeal > 0.0 && heroConfig.skill2AuraDurationSeconds > 0.0) {
-            skill2AuraTimer += dt
-            if (skill2AuraTimer >= heroConfig.skill2AuraDurationSeconds) {
-                endSkillAction()
-            }
-        }
+        // Skill 4 ball wait and Skill 2 aura wait blocks removed since player shouldn't freeze
 
         if (!actionPlaying) {
             when {
@@ -536,10 +525,7 @@ class Character(
                 isOnGround() && input.skill2 && skill2Config.isUnlockedForUse(playerProgress.level) && skill2Config.isUsable(mana) -> {
                     spendMana(skill2Config.manaCost)
                     skill2Config.startCooldown()
-                    actionPlaying = true
-                    activeSkillSlot = 2
-                    skill2AuraTimer = 0.0
-                    state         = CharacterState.SKILL
+                    // Don't set actionPlaying = true, so the player is not frozen!
                     spawnAttack(buildSkill2Config(), getEnemies, container)
                 }
 
@@ -568,6 +554,7 @@ class Character(
                         spawnAttack(buildSkill4Config(), getEnemies, container)
                         skill4OrbSpawned = heroConfig.skill4BallMaxDurationSeconds > 0.0
                         skill4BallWaitElapsed = 0.0
+                        endSkillAction() // Immediately unlock the player!
                     }
                 }
 
@@ -578,10 +565,7 @@ class Character(
 
         updatePhysics(dt)
 
-        val useTimerSkill2 = actionPlaying && activeSkillSlot == 2 && heroConfig.skill2AuraTotalHeal > 0.0 && heroConfig.skill2AuraDurationSeconds > 0.0
-        val useTimerSkill4Ball = actionPlaying && activeSkillSlot == 4 && skill4OrbSpawned && heroConfig.skill4BallMaxDurationSeconds > 0.0
-
-        if (actionPlaying && !useTimerSkill2 && !useTimerSkill4Ball && !skill4ChargePhase) {
+        if (actionPlaying && !skill4ChargePhase) {
             val anim = currentBodyAnimConfig()
             if ((state == CharacterState.ATTACKING || state == CharacterState.SKILL) && !anim.loop && anim.frames.isNotEmpty()) {
                 if (currentFrame >= anim.frames.size - 1) {

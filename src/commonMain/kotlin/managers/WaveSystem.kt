@@ -92,16 +92,16 @@ data class EnemyProfile(
 
 object EnemyRegistry {
     val profiles: List<EnemyProfile> = listOf(
-        EnemyProfile("skeleton",         EnemyRole.BASIC,     1.0, 0.0,   1000.0, 3, 40.0),
-        EnemyProfile("skeleton_archer",  EnemyRole.RANGED,    2.0, 0.0,   1050.0, 2, 50.0),
-        EnemyProfile("skeleton_spearman",EnemyRole.ELITE,     3.0, 10.0,   950.0, 2, 50.0),
+        EnemyProfile("skeleton",         EnemyRole.BASIC,     1.0, 0.0,   1000.0, 6, 180.0),
+        EnemyProfile("skeleton_archer",  EnemyRole.RANGED,    2.0, 0.0,   1050.0, 5, 180.0),
+        EnemyProfile("skeleton_spearman",EnemyRole.ELITE,     3.0, 10.0,   950.0, 5, 170.0),
         EnemyProfile("skeleton_boss",    EnemyRole.MINI_BOSS, 8.0, 60.0,   640.0, 1, 0.0),
-        EnemyProfile("kobold",           EnemyRole.ELITE,     3.0, 30.0,  1000.0, 3, 40.0),
-        EnemyProfile("flying_eye",       EnemyRole.RANGED,    2.0, 0.0,   1050.0, 2, 60.0),
-        EnemyProfile("goblin",           EnemyRole.RANGED,    2.0, 0.0,    950.0, 3, 50.0),
-        EnemyProfile("wolf1",            EnemyRole.FAST,      4.0, 30.0,   950.0, 2, 60.0),
-        EnemyProfile("wolf2",            EnemyRole.BRUISER,   5.0, 60.0,   900.0, 1, 0.0),
-        EnemyProfile("wolf3",            EnemyRole.MINI_BOSS, 9.0, 100.0,  900.0, 1, 0.0)
+        EnemyProfile("kobold",           EnemyRole.ELITE,     3.0, 30.0,  1000.0, 4, 150.0),
+        EnemyProfile("flying_eye",       EnemyRole.RANGED,    2.0, 0.0,   1050.0, 3, 150.0),
+        EnemyProfile("goblin",           EnemyRole.RANGED,    2.0, 0.0,    950.0, 4, 150.0),
+        EnemyProfile("wolf1",            EnemyRole.FAST,      4.0, 30.0,   950.0, 3, 90.0),
+        EnemyProfile("wolf2",            EnemyRole.BRUISER,   5.0, 60.0,   900.0, 2, 0.0),
+        EnemyProfile("wolf3",            EnemyRole.MINI_BOSS, 9.0, 100.0,  900.0, 2, 0.0)
     )
 
     fun byName(name: String): EnemyProfile? = profiles.firstOrNull { it.name == name }
@@ -861,8 +861,8 @@ object WaveSystem {
         val autoEvents = AutoWaveGenerator(
             startTime            = autoPhaseStart,  // ← critical fix: was 1.0
             startDifficulty      = 2.5,
-            difficultyGainPerSec = 0.004,
-            baseInterval         = 10.0,
+            difficultyGainPerSec = 0.01,
+            baseInterval         = 8.0,
             intervalDecayRate    = 0.0015,
             minInterval          = 3.0,
             groupScaleRate       = 0.002,
