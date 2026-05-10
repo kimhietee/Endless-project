@@ -108,7 +108,6 @@ object GameAssets {
             }
         }
         if (backgroundList.isEmpty()) backgroundList.add(bgSlice)
-        println("[GameAssets] ${backgroundList.size} background(s) loaded for wave rotation.")
 
         // ── HUD bars ───────────────────────────────────────────────────────────
         hpBarGreenSlice  = resourcesVfs["ui/bar/green_health_bar.jpg"].readBitmapSlice()
@@ -175,7 +174,6 @@ object GameAssets {
             if (cfg.sheet != null) {
                 try {
                     val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
-                    println("Loading sheet: $sheetPath")
 
                     val sheet = resourcesVfs[sheetPath].readBitmapSlice()
 
@@ -207,7 +205,6 @@ object GameAssets {
                     val path = "${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"
 
                     try {
-                        println("Loading frame: $path")
                         val bmp = resourcesVfs[path].readBitmapSlice()
                         frames.add(bmp)
                     } catch (e: Exception) {

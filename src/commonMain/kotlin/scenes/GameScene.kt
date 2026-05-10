@@ -482,10 +482,16 @@ class GameScene : Scene() {
                 // Uses GameAssets.backgroundList which cycles automatically.
                 if (currentWave != lastRenderedWave) {
                     lastRenderedWave = currentWave
+                    
+                    // 1. Swap the bitmap
                     bg.bitmap = GameAssets.backgroundForWave(currentWave)
-
-                    // This scales the image to the target size in one call
-                    bg.setSize(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble())
+                    
+                    // 2. Use scaledWidth/Height (These are verified KorGE properties)
+                    bg.scaledWidth = Constants.SCREEN_WIDTH.toDouble()
+                    bg.scaledHeight = Constants.SCREEN_HEIGHT.toDouble()
+                    
+                    // 3. Ensure it's positioned at the origin
+                    bg.xy(0, 0)
                 }
 
             }
