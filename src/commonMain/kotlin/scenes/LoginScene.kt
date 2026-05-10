@@ -2,7 +2,7 @@ package scenes
 
 import korlibs.image.color.Colors
 import korlibs.korge.scene.Scene
-import korlibs.korge.ui.uiTextInput
+import korlibs.korge.ui.*
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
 import korlibs.korge.input.*
@@ -19,12 +19,6 @@ class LoginScene : Scene() {
         GameAssets.load()
         val scene = this@LoginScene
 
-        // If already logged in, skip to main menu
-        if (AuthManager.isLoggedIn()) {
-            launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } }
-            return
-        }
-
         val bgSlice = GameAssets.bg3Slice
         image(bgSlice).apply {
             width = Constants.SCREEN_WIDTH.toDouble()
@@ -36,194 +30,199 @@ class LoginScene : Scene() {
             alpha = 0.50
         }
 
-        // REDESIGN: All content centered and spaced
-        val cx = Constants.SCREEN_WIDTH / 2.0
-        
-        text("Welcome to Endless", textSize = 60.0, color = Colors.WHITE, font = GameAssets.customFont) {
+        // REDESIGN: All content moved to the TOP half of the screen (above 360px)
+        // to avoid being covered by the Android soft keyboard.
+
+        text("Login / Signup", textSize = 40.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
-            y = 60.0
+            y = 20.0
         }
 
-        val inputW = 500.0
-        val inputH = 70.0
-        val labelSize = 28.0
-        val inputFontSize = 32.0
-        val vGap = 120.0
-        var currentY = 160.0
+        val cx     = Constants.SCREEN_WIDTH / 2.0
+        val inputW = 450.0
+        val inputH = 60.0
 
-        // --- Email Section ---
-        text("Email:", textSize = labelSize, color = Colors.WHITE, font = GameAssets.customFont) {
+        // ── Email section ────────────────────────────────────────
+        text("Email", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
-            y = currentY
+            y = 75.0
         }
-        currentY += 40.0
-        
-        // Background for email input
-        solidRect(inputW, inputH, korlibs.image.color.RGBA(30, 30, 30, 200)) {
-            centerXOn(this@sceneMain)
-            y = currentY
+
+        // Email: dark background for the styled display text
+        solidRect(inputW, inputH, korlibs.image.color.RGBA(40, 40, 40, 200)) {
+            x = cx - inputW / 2.0
+            y = 105.0
         }
-        
-        val emailDisplay = text("", textSize = inputFontSize, color = Colors.WHITE, font = GameAssets.customFont) {
-            x = cx - inputW / 2.0 + 15.0
-            y = currentY + (inputH - inputFontSize) / 2.0
+
+        // Email: styled display text (mirrors what the user types)
+        val emailDisplay = text("", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
+            x = cx - inputW / 2.0 + 10.0
+            y = 105.0 + (inputH - 24.0) / 2.0
         }
-        
+
+        // Email: invisible real input for keyboard capture
         val emailInput = uiTextInput("", Size(inputW, inputH)) {
             centerXOn(this@sceneMain)
-            y = currentY
-            alpha = 0.0 // capture input but hidden
+            y = 105.0
+            alpha = 0.0
         }
-        emailInput.onTextChanged {
-            emailDisplay.text = it
-        }
-        
-        currentY += vGap
 
-        // --- Password Section ---
-        text("Password:", textSize = labelSize, color = Colors.WHITE, font = GameAssets.customFont) {
-            centerXOn(this@sceneMain)
-            y = currentY
-        }
-        currentY += 40.0
-        
-        // Background for password input
-        solidRect(inputW, inputH, korlibs.image.color.RGBA(30, 30, 30, 200)) {
-            centerXOn(this@sceneMain)
-            y = currentY
-        }
-        
-        var realPassword = ""
-        var isPasswordVisible = false
-        
-        val passDisplay = text("", textSize = inputFontSize, color = Colors.WHITE, font = GameAssets.customFont) {
-            x = cx - inputW / 2.0 + 15.0
-            y = currentY + (inputH - inputFontSize) / 2.0
-        }
-        
-        val passInput = uiTextInput("", Size(inputW, inputH)) {
-            centerXOn(this@sceneMain)
-            y = currentY
-            alpha = 0.0 // capture input but hidden
-        }
-        
-        fun refreshPasswordDisplay() {
-            passDisplay.text = if (isPasswordVisible) realPassword else "*".repeat(realPassword.length)
-        }
-        
-        passInput.onTextChanged {
-            realPassword = it
-            refreshPasswordDisplay()
-        }
-        
-        // Eye icon toggle
-        val eyeSize = 50.0
-        val eyeBtn = image(GameAssets.skill4Slice) {
-            width = eyeSize
-            height = eyeSize
-            x = cx + inputW / 2.0 + 10.0
-            y = currentY + (inputH - eyeSize) / 2.0
-            alpha = 0.6
-            onClick {
-                isPasswordVisible = !isPasswordVisible
-                alpha = if (isPasswordVisible) 1.0 else 0.6
-                refreshPasswordDisplay()
+        // Mirror email keystrokes to the styled display
+        var lastEmail = ""
+        emailInput.addUpdater {
+            if (emailInput.text != lastEmail) {
+                lastEmail = emailInput.text
+                emailDisplay.text = lastEmail
             }
         }
-        
-        currentY += vGap
 
-        // --- Error Text ---
-        val errorText = text("", textSize = 22.0, color = Colors.RED, font = GameAssets.customFont) {
+        // ── Password section ─────────────────────────────────────
+        text("Password", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
-            y = currentY - 30.0
+            y = 175.0
         }
 
-        // --- Buttons ---
-        val btnW = 340.0
-        val btnH = 80.0
-        
+        // Track real password string and visibility toggle
+        var realPassword      = ""
+        var isPasswordVisible = false
+
+        // Password: dark background
+        solidRect(inputW, inputH, korlibs.image.color.RGBA(40, 40, 40, 200)) {
+            x = cx - inputW / 2.0
+            y = 205.0
+        }
+
+        // Password: styled display text (shows masked or plain text)
+        val passDisplay = text("", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
+            x = cx - inputW / 2.0 + 10.0
+            y = 205.0 + (inputH - 24.0) / 2.0
+        }
+
+        // Password: invisible real input for keyboard capture
+        val passInput = uiTextInput("", Size(inputW, inputH)) {
+            centerXOn(this@sceneMain)
+            y = 205.0
+            alpha = 0.0
+        }
+
+        // Mirror password keystrokes to the styled display
+        var lastPass = ""
+        passInput.addUpdater {
+            if (passInput.text != lastPass) {
+                lastPass = passInput.text
+                realPassword = lastPass
+                passDisplay.text = if (isPasswordVisible) realPassword
+                                   else "*".repeat(realPassword.length)
+            }
+        }
+
+        // ── Eye-icon toggle button ───────────────────────────────
+        val eyeSize = 48.0
+        val eyeIcon = image(GameAssets.manaIconSlice) {
+            width  = eyeSize
+            height = eyeSize
+            x      = cx + inputW / 2.0 + 8.0
+            y      = 205.0 + (inputH - eyeSize) / 2.0
+        }
+        eyeIcon.onClick {
+            isPasswordVisible = !isPasswordVisible
+            passDisplay.text  = if (isPasswordVisible) realPassword
+                                else "*".repeat(realPassword.length)
+            eyeIcon.alpha     = if (isPasswordVisible) 1.0 else 0.5
+        }
+        eyeIcon.alpha = 0.5
+
+        // ── Error / status text ───────────────────────────────────
+        val errorText = text("", textSize = 20.0, color = Colors.RED, font = GameAssets.customFont) {
+            centerXOn(this@sceneMain)
+            y = 275.0
+        }
+
+        val btnW = 220.0
+        val btnH = 70.0
+
         var isLoading = false
-        lateinit var loginBtn: TextButton
+        lateinit var loginBtn:  TextButton
         lateinit var signupBtn: TextButton
-        lateinit var guestBtn: TextButton
+        lateinit var guestBtn:  TextButton
 
         fun setLoading(loading: Boolean) {
-            isLoading = loading
-            loginBtn.isEnabled = !loading
+            isLoading           = loading
+            loginBtn.isEnabled  = !loading
             signupBtn.isEnabled = !loading
-            guestBtn.isEnabled = !loading
+            guestBtn.isEnabled  = !loading
         }
 
+        // ── Row 1: LOG IN and SIGN UP ────────────────────────────
         loginBtn = TextButton(btnW, btnH, "LOG IN") {
             if (isLoading) return@TextButton
             setLoading(true)
-            errorText.text = "Logging in..."
+            errorText.text  = "Loading..."
             errorText.color = Colors.YELLOW
             errorText.centerXOn(this@sceneMain)
-            
+
             launchImmediately {
                 val error = AuthManager.signIn(emailInput.text, realPassword)
                 if (error == null) {
                     scene.sceneContainer.changeTo { MainMenuScene() }
                 } else {
                     setLoading(false)
-                    errorText.text = error
+                    errorText.text  = error
                     errorText.color = Colors.RED
                     errorText.centerXOn(this@sceneMain)
                 }
             }
         }.apply {
-            centerXOn(this@sceneMain)
-            y = currentY
+            x = cx - btnW - 10.0
+            y = 300.0
         }
-        
-        currentY += 100.0
 
         signupBtn = TextButton(btnW, btnH, "SIGN UP") {
             if (isLoading) return@TextButton
             setLoading(true)
-            errorText.text = "Signing up..."
+            errorText.text  = "Loading..."
             errorText.color = Colors.YELLOW
             errorText.centerXOn(this@sceneMain)
-            
+
             launchImmediately {
                 val error = AuthManager.signUp(emailInput.text, realPassword)
                 if (error == null) {
                     scene.sceneContainer.changeTo { MainMenuScene() }
                 } else {
                     setLoading(false)
-                    errorText.text = error
+                    errorText.text  = error
                     errorText.color = Colors.RED
                     errorText.centerXOn(this@sceneMain)
                 }
             }
         }.apply {
-            centerXOn(this@sceneMain)
-            y = currentY
+            x = cx + 10.0
+            y = 300.0
         }
-        
-        currentY += 100.0
 
-        guestBtn = TextButton(btnW, btnH, "PLAY AS GUEST") {
+        // ── Row 2: PLAY AS GUEST (centered, full width) ──────────
+        guestBtn = TextButton(btnW * 2 + 20.0, btnH, "PLAY AS GUEST") {
             if (isLoading) return@TextButton
             launchImmediately {
-                // For guest, we just transition to main menu (AuthManager.isLoggedIn will be false)
                 scene.sceneContainer.changeTo { MainMenuScene() }
             }
         }.apply {
-            centerXOn(this@sceneMain)
-            y = currentY
+            x = cx - (btnW * 2 + 20.0) / 2.0
+            y = 380.0
         }
 
         addChild(loginBtn)
         addChild(signupBtn)
         addChild(guestBtn)
-        
-        // Info text
-        text("Progress only saved when logged in", textSize = 18.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
+
+        // Bring the display texts and eye icon in front of buttons
+        addChild(emailDisplay)
+        addChild(passDisplay)
+        addChild(eyeIcon)
+
+        text("Progress only saved when logged in", textSize = 16.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
-            y = currentY + 100.0
+            y = 460.0
         }
     }
 }

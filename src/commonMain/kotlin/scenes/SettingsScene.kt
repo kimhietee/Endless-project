@@ -10,6 +10,7 @@ import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
 import managers.GameAssets
+import managers.AuthManager
 import utils.Constants
 import utils.GameSettings
 
@@ -166,19 +167,19 @@ class SettingsScene : Scene() {
             launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
         }.apply {
             x = cx - backBtnW / 2.0
-            y = 540.0
+            y = 560.0
         }
         addChild(backBtn)
 
-        // ── Logout Button (Phase 4b) ─────────────────────────────────────────
+        // ── Log Out Button ───────────────────────────────────────────────────
         val logoutBtn = ui.TextButton(backBtnW, backBtnH, "LOG OUT") {
             launchImmediately {
-                managers.AuthManager.logout()
+                AuthManager.logout()
                 scene.sceneContainer.changeTo { LoginScene() }
             }
         }.apply {
             x = cx - backBtnW / 2.0
-            y = 620.0
+            y = 560.0 + backBtnH + 16.0
         }
         addChild(logoutBtn)
     }
