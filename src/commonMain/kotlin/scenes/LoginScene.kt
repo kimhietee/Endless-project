@@ -63,6 +63,12 @@ class LoginScene : Scene() {
         var realPassword      = ""
         var isPasswordVisible = false
 
+        // ── Password field background (must be declared BEFORE passDisplay so it sits underneath) ──
+        solidRect(inputW, inputH, korlibs.image.color.RGBA(40, 40, 40, 200)) {
+            x = cx - inputW / 2.0
+            y = 205.0
+        }
+
         // Visible display text node (shows masked or plain text)
         val passDisplay = text("", textSize = 28.0, color = Colors.WHITE, font = GameAssets.customFont) {
             x = cx - inputW / 2.0 + 10.0
@@ -77,17 +83,11 @@ class LoginScene : Scene() {
         }
 
         // Observe every keystroke on the hidden input and update the display
-        passInput.onChange {
-            realPassword = passInput.text
+        passInput.onTextChanged { newText ->
+            realPassword = newText
             passDisplay.text = if (isPasswordVisible) realPassword
                                else "*".repeat(realPassword.length)
         }
-
-        // ── Password field background (so display text has a visible backing) ──
-        solidRect(inputW, inputH, korlibs.image.color.RGBA(40, 40, 40, 200)) {
-            x = cx - inputW / 2.0
-            y = 205.0
-        }.also { addChildAt(it, childrenCount - 1) } // insert just below passDisplay
 
         // ── Eye-icon toggle button ───────────────────────────────
         val eyeSize  = 48.0
