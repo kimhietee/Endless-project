@@ -20,8 +20,6 @@ class GameScene : Scene() {
     private var isPaused = false
     private var gameTime = 0.0
 
-
-
     override suspend fun SContainer.sceneMain() {
         // Ensure assets are loaded before anything else
         GameAssets.load()
@@ -33,10 +31,10 @@ class GameScene : Scene() {
         var lastRenderedWave = -1   // force a set on first frame
 
         val bg = image(GameAssets.backgroundForWave(1)).apply {
-            width  = Constants.SCREEN_WIDTH.toDouble()
-            height = Constants.SCREEN_HEIGHT.toDouble()
+            scaledWidth  = Constants.SCREEN_WIDTH.toDouble()
+            scaledHeight = Constants.SCREEN_HEIGHT.toDouble()
             smoothing    = true
-            y         = Constants.GROUND - Constants.SCREEN_HEIGHT
+            //y         = Constants.GROUND - Constants.SCREEN_HEIGHT
 
         }
         addChild(bg)
@@ -484,12 +482,10 @@ class GameScene : Scene() {
                 // Uses GameAssets.backgroundList which cycles automatically.
                 if (currentWave != lastRenderedWave) {
                     lastRenderedWave = currentWave
-                    val newBg = GameAssets.backgroundForWave(currentWave)
-                    bg.bitmap = newBg
-                    // Keep size and position intact
-                    bg.width  = Constants.SCREEN_WIDTH.toDouble()
-                    bg.height = Constants.SCREEN_HEIGHT.toDouble()
-                     bg.y      = Constants.GROUND - Constants.SCREEN_HEIGHT
+                    bg.bitmap = GameAssets.backgroundForWave(currentWave)
+
+                    // This scales the image to the target size in one call
+                    bg.setSize(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble())
                 }
 
             }
