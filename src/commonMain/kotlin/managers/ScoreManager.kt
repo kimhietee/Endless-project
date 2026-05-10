@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 /**
  * Data class representing the user's highest achievements.
@@ -20,7 +22,7 @@ data class UserHighScore(
 
 /**
  * Manages the high score system and Firestore integration.
- * 
+ *
  * FIX 3: Uses AuthManager.isInDemoMode() to check firebase availability with clear [DESKTOP] logging.
  * FIX 4: Accepts init(scope) for proper coroutine scope management instead of fire-and-forget.
  */
@@ -39,7 +41,7 @@ object ScoreManager {
     /**
      * Initialize ScoreManager with the game's coroutine scope.
      * FIX 4: Call this once from your GameScene or game initialization code.
-     * 
+     *
      * Example in GameScene.kt:
      *   ScoreManager.init(CoroutineScope(Dispatchers.Main))
      */
@@ -50,10 +52,10 @@ object ScoreManager {
 
     /**
      * Evaluates the current game results and updates Firestore if a new high score is achieved.
-     * 
+     *
      * FIX 3: Now uses AuthManager.isInDemoMode() instead of firestore == null check.
      * FIX 4: Uses stored gameScope for proper lifecycle management. Logs all failures visibly.
-     * 
+     *
      * @param currentScore The score achieved in the current run.
      * @param timeSurvived Time in seconds the player survived.
      * @param wavesCleared Total number of waves cleared.
@@ -114,7 +116,7 @@ object ScoreManager {
 
     /**
      * Fetches the current user's high score data from Firestore.
-     * 
+     *
      * FIX 3: Now uses AuthManager.isInDemoMode() with clear [DESKTOP] label.
      * FIX 4: Visible error logging for fetch failures.
      */
@@ -152,6 +154,42 @@ object ScoreManager {
             println("[ScoreManager] ✗ ERROR fetching high score: ${e.message}")
             e.printStackTrace()
             UserHighScore()
+        }
+    }
+
+    /**
+     * Provide a simple leaderboard flow.
+     * Restored to satisfy callers expecting ScoreManager.getLeaderboardFlow().
+     *
+     * This emits a single snapshot list of users ordered by score descending.
+     * For Desktop/demo mode it emits an empty list and logs a clear message.
+     */
+    fun getLeaderboardFlow(): Flow<List<UserHighScore>> = flow {
+        if (AuthManager.isInDemoMode()) {
+            println("[DESKTOP] Firestore unavailable - leaderboard empty. Run on Android to test.")
+            emit(emptyList())
+            return@flow
+        }
+        if (firestore == null) {
+            println("[ScoreManager] ✗ Firestore not initialized - leaderboard fetch skipped")
+            emit(emptyList())
+            return@flow
+        }
+        try {
+            // Fetch all user docs and map to UserHighScore; then sort descending by score
+            val querySnapshot = firestore!!.collection("users").get()
+            val list = querySnapshot.mapNotNull { doc ->
+                try {
+                    doc.data<UserHighScore>()
+                } catch (_: Exception) {
+                    null
+                }
+            }.sortedByDescending { it.score }
+            emit(list)
+        } catch (e: Exception) {
+            println("[ScoreManager] ✗ ERROR fetching leaderboard: ${e.message}")
+            e.printStackTrace()
+            emit(emptyList())
         }
     }
 }

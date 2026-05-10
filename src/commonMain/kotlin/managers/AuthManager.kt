@@ -7,29 +7,22 @@ import dev.gitlive.firebase.auth.auth
  * Manages Firebase Authentication state.
  * Tracks if the current player is a guest or a logged-in user.
  * On Desktop/JVM where Firebase is unavailable, returns clear error messages instead of faking success.
- *
- * FIX 1: Removed silent demo mode. Desktop now returns clear error message.
- * FIX 2: Added isInDemoMode() public helper function.
  */
 object AuthManager {
-
+    
     private var isFirebaseAvailable = false
-
+    
     // Lazy init catches errors when Firebase isn't available
-    private var firebaseInitError: String? = null
-
     private val auth by lazy {
         try {
             val authInstance = Firebase.auth
             isFirebaseAvailable = true
-            firebaseInitError = null
             println("[Auth] Firebase Authentication initialized successfully")
             authInstance
         } catch (e: Exception) {
             isFirebaseAvailable = false
-            firebaseInitError = e.message?.take(80) ?: "Unknown error"
             println("[Auth] Firebase.auth not available: ${e.message}")
-            println("[Auth] Firebase init error class: ${e::class.simpleName}")
+            println("[Auth] Running on Desktop/JVM - Firebase features disabled")
             null
         }
     }
@@ -37,10 +30,10 @@ object AuthManager {
     /**
      * Returns true if Firebase is not available (e.g., on Desktop/JVM).
      * Use this to skip Firebase-dependent operations gracefully.
-     * FIX 2: New helper function for ScoreManager and other managers to check.
      */
     fun isInDemoMode(): Boolean {
-        auth // triggers lazy init to set isFirebaseAvailable
+        // Force lazy init of auth by referencing it
+        auth // just reference to trigger lazy initialization
         return !isFirebaseAvailable
     }
 
@@ -65,16 +58,16 @@ object AuthManager {
     suspend fun signIn(email: String, password: String): String? {
         if (email.isEmpty() || password.isEmpty()) return "Invalid email or password"
         if (!email.contains("@")) return "Invalid email"
-
+        
         return try {
             if (auth != null) {
                 auth!!.signInWithEmailAndPassword(email, password)
                 null
             } else {
-                // FIX 1: Show real Firebase init error instead of generic message
-                val initError = "Firebase init failed: ${firebaseInitError ?: "auth is null"}"
-                println("[Auth] $initError")
-                initError
+                // No fake demo - return clear error to UI
+                val desktopError = "Firebase not available on Desktop. Test on Android."
+                println("[Auth] $desktopError")
+                desktopError
             }
         } catch (e: Exception) {
             mapFirebaseError(e)
@@ -86,16 +79,15 @@ object AuthManager {
         if (email.isEmpty() || password.isEmpty()) return "Invalid email or password"
         if (!email.contains("@")) return "Invalid email"
         if (password.length < 6) return "Weak password"
-
+        
         return try {
             if (auth != null) {
                 auth!!.createUserWithEmailAndPassword(email, password)
                 null
             } else {
-                // FIX 1: Show real Firebase init error instead of generic message
-                val initError = "Firebase init failed: ${firebaseInitError ?: "auth is null"}"
-                println("[Auth] $initError")
-                initError
+                val desktopError = "Firebase not available on Desktop. Test on Android."
+                println("[Auth] $desktopError")
+                desktopError
             }
         } catch (e: Exception) {
             mapFirebaseError(e)
@@ -112,16 +104,17 @@ object AuthManager {
             println("[Auth] Logout error: ${e.message}")
         }
     }
-
+    
     private fun mapFirebaseError(e: Exception): String {
         val msg = e.message ?: ""
         println("[Auth] Authentication failed: $msg")
         return when {
             msg.contains("INVALID_LOGIN_CREDENTIALS") || msg.contains("INVALID_PASSWORD") || msg.contains("user-not-found") -> "Wrong credentials"
-            msg.contains("email-already-in-use") -> "Email already in use"
+            msg.contains("email-already-in-use") -> "This account is already registered. Please log in instead."
             msg.contains("invalid-email") -> "Invalid email"
             msg.contains("weak-password") -> "Weak password"
             msg.contains("network") -> "Network error"
+            msg.contains("user-not-found") -> "Account not found."
             else -> "Auth failed: ${msg.take(30)}"
         }
     }
