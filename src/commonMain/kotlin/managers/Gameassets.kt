@@ -1,8 +1,6 @@
 package managers
 
 import korlibs.image.bitmap.BmpSlice
-import korlibs.image.bitmap.slice
-import korlibs.image.color.Colors
 import korlibs.image.format.readBitmapSlice
 import korlibs.io.file.std.resourcesVfs
 import korlibs.image.font.Font
@@ -15,61 +13,74 @@ object GameAssets {
     var loaded = false
         private set
 
-    // Fallback pixel if something fails to load
-    private val fallbackSlice: BmpSlice by lazy { korlibs.image.bitmap.Bitmap32(1, 1, Colors.MAGENTA).slice() }
-
-    // ── Individual named backgrounds ────────────────────────────────────────
+    // ── Individual named backgrounds ─────────────────────────────────────────
     lateinit var bgSlice:  BmpSlice
     lateinit var bg2Slice: BmpSlice
     lateinit var bg3Slice: BmpSlice
     lateinit var bg4Slice: BmpSlice
 
+    /**
+     * All backgrounds for wave rotation.
+     * Populated by load() — probes bg/background.png, bg/background2.png …
+     * up to MAX_BG_PROBE. Cycles endlessly via backgroundForWave().
+     */
     val backgroundList = mutableListOf<BmpSlice>()
 
     fun backgroundForWave(waveNumber: Int): BmpSlice {
-        if (backgroundList.isEmpty()) return if (::bgSlice.isInitialized) bgSlice else fallbackSlice
+        if (backgroundList.isEmpty()) return bgSlice
         val index = (waveNumber - 1).coerceAtLeast(0) % backgroundList.size
         return backgroundList[index]
     }
 
-    // ── HUD bars ────────────────────────────────────────────────────────────
+    // ── HUD bars ──────────────────────────────────────────────────────────────
     lateinit var hpBarGreenSlice:  BmpSlice
     lateinit var hpBarYellowSlice: BmpSlice
     lateinit var hpBarRedSlice:    BmpSlice
     lateinit var manaBarSlice:     BmpSlice
 
-    // ── HUD icons ───────────────────────────────────────────────────────────
+    // ── HUD icons ─────────────────────────────────────────────────────────────
     lateinit var healthIconSlice: BmpSlice
     lateinit var manaIconSlice:   BmpSlice
 
-    // ── Font ─────────────────────────────────────────────────────────────────
+    // ── Font ──────────────────────────────────────────────────────────────────
     lateinit var customFont: Font
 
-    // ── Character animation frames ───────────────────────────────────────────
+    // ── Character animation frames ─────────────────────────────────────────────
     lateinit var idleFrames:   List<BmpSlice>
     lateinit var runFrames:    List<BmpSlice>
     lateinit var jumpFrames:   List<BmpSlice>
     lateinit var attackFrames: List<BmpSlice>
     lateinit var skillFrames:  List<BmpSlice>
 
-    // ── UI button slices ─────────────────────────────────────────────────────
-    lateinit var leftSlice:          BmpSlice
-    lateinit var rightSlice:         BmpSlice
-    lateinit var jumpSlice:          BmpSlice
-    lateinit var attackSlice:        BmpSlice
-    lateinit var skill1Slice:        BmpSlice
-    lateinit var skill2Slice:        BmpSlice
-    lateinit var skill3Slice:        BmpSlice
-    lateinit var skill4Slice:        BmpSlice
-    lateinit var healingRamenSlice:  BmpSlice
-    lateinit var healingBentoSlice:  BmpSlice
-    lateinit var maxHealthSlice:     BmpSlice
-    lateinit var pauseSlice:         BmpSlice
-    lateinit var playSlice:          BmpSlice
-    lateinit var buttonBgSlice:      BmpSlice
-    lateinit var upgradeSlice:       BmpSlice
+    // ── Skill / attack frames (previously loaded inline inside GameScene) ──────
+    // GameScene now reads these from here instead of calling loadFrames() itself.
+    // This prevents the UninitializedPropertyAccessException that caused the
+    // "background and ground only" crash on Android.
+    lateinit var basicAtkFrames: List<BmpSlice>
+    lateinit var skill1Frames:   List<BmpSlice>
+    lateinit var skill2Frames:   List<BmpSlice>
+    lateinit var skill3Frames:   List<BmpSlice>
+    lateinit var skill4Frames:   List<BmpSlice>
 
-    // ── Pause menu image buttons ─────────────────────────────────────────────
+    // ── UI button slices ───────────────────────────────────────────────────────
+    lateinit var leftSlice:         BmpSlice
+    lateinit var rightSlice:        BmpSlice
+    lateinit var jumpSlice:         BmpSlice
+    lateinit var attackSlice:       BmpSlice
+    lateinit var skill1Slice:       BmpSlice
+    lateinit var skill2Slice:       BmpSlice
+    lateinit var skill3Slice:       BmpSlice
+    lateinit var skill4Slice:       BmpSlice
+    lateinit var healingRamenSlice: BmpSlice
+    lateinit var healingBentoSlice: BmpSlice
+    lateinit var maxHealthSlice:    BmpSlice
+    lateinit var pauseSlice:        BmpSlice
+    lateinit var playSlice:         BmpSlice
+    lateinit var buttonBgSlice:     BmpSlice
+    lateinit var upgradeSlice:      BmpSlice
+
+    // ── Pause menu image buttons ───────────────────────────────────────────────
+    // Swap the placeholder paths below for your actual asset filenames.
     lateinit var pauseResumeSlice:  BmpSlice
     lateinit var pauseRestartSlice: BmpSlice
     lateinit var pauseQuitSlice:    BmpSlice
@@ -77,88 +88,80 @@ object GameAssets {
     suspend fun load() {
         if (loaded) return
 
-        suspend fun safeLoad(path: String, fallback: BmpSlice = fallbackSlice): BmpSlice {
-            return try {
-                resourcesVfs[path].readBitmapSlice()
-            } catch (e: Exception) {
-                println("[GameAssets] FAILED to load: $path. Error: ${e.message}")
-                fallback
-            }
-        }
+        // ── Named background shortcuts ─────────────────────────────────────────
+        bgSlice  = resourcesVfs["bg/background.png"].readBitmapSlice()
+        bg2Slice = resourcesVfs["bg/background2.png"].readBitmapSlice()
+        bg3Slice = resourcesVfs["bg/background3.png"].readBitmapSlice()
+        bg4Slice = resourcesVfs["bg/background4.png"].readBitmapSlice()
 
-        // ── Named background shortcuts ──────────────────────────────────────
-        bgSlice  = safeLoad("bg/background.png")
-        bg2Slice = safeLoad("bg/background2.png")
-        bg3Slice = safeLoad("bg/background3.png")
-        bg4Slice = safeLoad("bg/background4.png")
-
-        // ── Dynamic background list ─────────────────────────────────────────
-        backgroundList.clear()
-        backgroundList.add(bgSlice)
-
+        // ── Dynamic background list for wave rotation ──────────────────────────
         val MAX_BG_PROBE = 20
+        backgroundList.clear()
+        try { backgroundList.add(resourcesVfs["bg/background.png"].readBitmapSlice()) } catch (_: Exception) {}
         var consecutiveMisses = 0
         for (i in 2..MAX_BG_PROBE) {
             try {
-                val slice = resourcesVfs["bg/background$i.png"].readBitmapSlice()
-                backgroundList.add(slice)
+                backgroundList.add(resourcesVfs["bg/background$i.png"].readBitmapSlice())
                 consecutiveMisses = 0
             } catch (_: Exception) {
-                consecutiveMisses++
-                if (consecutiveMisses >= 3) break
+                if (++consecutiveMisses >= 3) break
             }
         }
+        if (backgroundList.isEmpty()) backgroundList.add(bgSlice)
+        println("[GameAssets] ${backgroundList.size} background(s) loaded for wave rotation.")
 
-        // ── HUD bars ────────────────────────────────────────────────────────
-        hpBarGreenSlice  = safeLoad("ui/bar/green_health_bar.jpg")
-        hpBarYellowSlice = safeLoad("ui/bar/yellow_health_bar.jpg")
-        hpBarRedSlice    = safeLoad("ui/bar/red_health_bar.jpg")
-        manaBarSlice     = safeLoad("ui/bar/mana_bar.jpg")
+        // ── HUD bars ───────────────────────────────────────────────────────────
+        hpBarGreenSlice  = resourcesVfs["ui/bar/green_health_bar.jpg"].readBitmapSlice()
+        hpBarYellowSlice = resourcesVfs["ui/bar/yellow_health_bar.jpg"].readBitmapSlice()
+        hpBarRedSlice    = resourcesVfs["ui/bar/red_health_bar.jpg"].readBitmapSlice()
+        manaBarSlice     = resourcesVfs["ui/bar/mana_bar.jpg"].readBitmapSlice()
 
-        // ── HUD icons ───────────────────────────────────────────────────────
-        // Trying 'heart (1).png' as primary if heart.PNG fails or is too large
-        healthIconSlice = try {
-            resourcesVfs["ui/icons/heart (1).png"].readBitmapSlice()
-        } catch (_: Exception) {
-            safeLoad("ui/icons/heart.PNG")
-        }
-        manaIconSlice   = safeLoad("ui/icons/potion.png")
+        // ── HUD icons ──────────────────────────────────────────────────────────
+        healthIconSlice = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
+        manaIconSlice   = resourcesVfs["ui/icons/potion.png"].readBitmapSlice()
 
-        // ── Font ─────────────────────────────────────────────────────────────
-        customFont = try {
-            resourcesVfs["ui/font/slkscr.ttf"].readFont()
-        } catch (e: Exception) {
-            println("[GameAssets] Font load failed: ${e.message}")
-            korlibs.image.font.DefaultTtfFont
-        }
+        // ── Font ───────────────────────────────────────────────────────────────
+        customFont = resourcesVfs["ui/font/slkscr.ttf"].readFont()
 
-        // ── Character frames ─────────────────────────────────────────────────
+        // ── Character animation frames ──────────────────────────────────────────
         idleFrames   = loadFrames(FrameConfig("fireWizard/idle_pngs",     "image_0-",  startIndex = 0, count = 7))
         runFrames    = loadFrames(FrameConfig("fireWizard/run_pngs",      "Run_",      startIndex = 0, count = 8))
         jumpFrames   = loadFrames(FrameConfig("fireWizard/jump_pngs",     "Jump_",     startIndex = 0, count = 6))
         attackFrames = loadFrames(FrameConfig("fireWizard/slash_pngs",    "Attack_1_", startIndex = 0, count = 10))
         skillFrames  = loadFrames(FrameConfig("fireWizard/fireball_pngs", "image_0-",  startIndex = 0, count = 8))
 
-        // ── UI buttons ───────────────────────────────────────────────────────
-        leftSlice         = safeLoad("ui/buttons/btn_left.png")
-        rightSlice        = safeLoad("ui/buttons/btn_right.png")
-        jumpSlice         = safeLoad("ui/buttons/btn_jump.png")
-        attackSlice       = safeLoad("ui/buttons/btn_attack.png")
-        skill1Slice       = safeLoad("skill_icons/fire_wizard/1.png")
-        skill2Slice       = safeLoad("skill_icons/fire_wizard/2.png")
-        skill3Slice       = safeLoad("skill_icons/fire_wizard/3.png")
-        skill4Slice       = safeLoad("skill_icons/fire_wizard/4.png")
-        healingRamenSlice = safeLoad("ui/icons/ramen.png")
-        healingBentoSlice = safeLoad("ui/icons/bento.png")
-        maxHealthSlice    = healthIconSlice
-        pauseSlice        = safeLoad("ui/buttons/btn_menu.png")
-        playSlice         = safeLoad("ui/buttons/btn_play.png")
-        buttonBgSlice     = safeLoad("ui/buttons/button_bg.png")
-        upgradeSlice      = safeLoad("ui/buttons/btn_upgrade.png")
+        // ── Skill / attack frames ───────────────────────────────────────────────
+        basicAtkFrames = loadFrames(FrameConfig(
+            folder = "fireWizard/skills/slash",
+            sheet  = SpriteSheetConfig(fileName = "playerSlash", columns = 5, rows = 1),
+            count  = 5
+        ))
+        skill1Frames = loadFrames(FrameConfig("fireWizard/skills/skill_1", "tile",  startIndex = 0, count = 12, zeroPad = 3))
+        skill2Frames = loadFrames(FrameConfig("fireWizard/skills/skill_2", "",      startIndex = 0, count = 53, zeroPad = 2))
+        skill3Frames = loadFrames(FrameConfig("fireWizard/skills/skill_3", "png_",  startIndex = 0, count = 34, zeroPad = 2))
+        skill4Frames = loadFrames(FrameConfig("fireWizard/skills/skill_4", "",      startIndex = 0, count = 28, zeroPad = 2))
 
-        pauseResumeSlice  = buttonBgSlice
-        pauseRestartSlice = buttonBgSlice
-        pauseQuitSlice    = buttonBgSlice
+        // ── UI buttons ─────────────────────────────────────────────────────────
+        leftSlice         = resourcesVfs["ui/buttons/btn_left.png"].readBitmapSlice()
+        rightSlice        = resourcesVfs["ui/buttons/btn_right.png"].readBitmapSlice()
+        jumpSlice         = resourcesVfs["ui/buttons/btn_jump.png"].readBitmapSlice()
+        attackSlice       = resourcesVfs["ui/buttons/btn_attack.png"].readBitmapSlice()
+        skill1Slice       = resourcesVfs["skill_icons/fire_wizard/1.png"].readBitmapSlice()
+        skill2Slice       = resourcesVfs["skill_icons/fire_wizard/2.png"].readBitmapSlice()
+        skill3Slice       = resourcesVfs["skill_icons/fire_wizard/3.png"].readBitmapSlice()
+        skill4Slice       = resourcesVfs["skill_icons/fire_wizard/4.png"].readBitmapSlice()
+        healingRamenSlice = resourcesVfs["ui/icons/ramen.png"].readBitmapSlice()
+        healingBentoSlice = resourcesVfs["ui/icons/bento.png"].readBitmapSlice()
+        maxHealthSlice    = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
+        pauseSlice        = resourcesVfs["ui/buttons/btn_menu.png"].readBitmapSlice()
+        playSlice         = resourcesVfs["ui/buttons/btn_play.png"].readBitmapSlice()
+        buttonBgSlice     = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
+        upgradeSlice      = resourcesVfs["ui/buttons/btn_upgrade.png"].readBitmapSlice()
+
+        // ── Pause menu image buttons ────────────────────────────────────────────
+        pauseResumeSlice  = resourcesVfs["ui/buttons/btn_resume.png"].readBitmapSlice()
+        pauseRestartSlice = resourcesVfs["ui/buttons/btn_restart.png"].readBitmapSlice()
+        pauseQuitSlice    = resourcesVfs["ui/buttons/btn_quit.png"].readBitmapSlice()
 
         loaded = true
     }
@@ -166,28 +169,23 @@ object GameAssets {
     suspend fun loadFrames(cfg: FrameConfig): List<BmpSlice> {
         val key = buildKey(cfg)
         return frameCache.getOrPut(key) {
-            try {
-                if (cfg.sheet != null) {
-                    val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
-                    val sheet = resourcesVfs[sheetPath].readBitmapSlice()
-                    val frames = mutableListOf<BmpSlice>()
-                    val frameWidth  = sheet.width  / cfg.sheet.columns
-                    val frameHeight = sheet.height / cfg.sheet.rows
-                    for (row in 0 until cfg.sheet.rows) {
-                        for (col in 0 until cfg.sheet.columns) {
-                            frames += sheet.sliceWithSize(col * frameWidth, row * frameHeight, frameWidth, frameHeight)
-                        }
-                    }
-                    frames.take(cfg.count)
-                } else {
-                    (cfg.startIndex until cfg.startIndex + cfg.count).map { i ->
-                        val index = if (cfg.zeroPad > 0) i.toString().padStart(cfg.zeroPad, '0') else i.toString()
-                        resourcesVfs["${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"].readBitmapSlice()
+            if (cfg.sheet != null) {
+                val sheetPath = "${cfg.folder}/${cfg.sheet.fileName}.${cfg.extension}"
+                val sheet = resourcesVfs[sheetPath].readBitmapSlice()
+                val frames = mutableListOf<BmpSlice>()
+                val frameWidth  = sheet.width  / cfg.sheet.columns
+                val frameHeight = sheet.height / cfg.sheet.rows
+                for (row in 0 until cfg.sheet.rows) {
+                    for (col in 0 until cfg.sheet.columns) {
+                        frames += sheet.sliceWithSize(col * frameWidth, row * frameHeight, frameWidth, frameHeight)
                     }
                 }
-            } catch (e: Exception) {
-                println("[GameAssets] loadFrames FAILED for ${cfg.folder}: ${e.message}")
-                List(cfg.count) { fallbackSlice }
+                frames.take(cfg.count)
+            } else {
+                (cfg.startIndex until cfg.startIndex + cfg.count).map { i ->
+                    val index = if (cfg.zeroPad > 0) i.toString().padStart(cfg.zeroPad, '0') else i.toString()
+                    resourcesVfs["${cfg.folder}/${cfg.prefix}$index.${cfg.extension}"].readBitmapSlice()
+                }
             }
         }
     }

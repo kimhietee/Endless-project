@@ -47,15 +47,11 @@ class GameScene : Scene() {
         val attackFrames = GameAssets.attackFrames
         val skillFrames  = GameAssets.skillFrames
 
-        val basicAtkFrames = GameAssets.loadFrames(FrameConfig(
-            folder = "fireWizard/skills/slash",
-            sheet  = SpriteSheetConfig(fileName = "playerSlash", columns = 5, rows = 1),
-            count  = 5
-        ))
-        val skill1Frames = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_1", "tile",  startIndex = 0, count = 12, zeroPad = 3))
-        val skill2Frames = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_2", "",      startIndex = 0, count = 53, zeroPad = 2))
-        val skill3Frames = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_3", "png_",  startIndex = 0, count = 34, zeroPad = 2))
-        val skill4Frames = GameAssets.loadFrames(FrameConfig("fireWizard/skills/skill_4", "",      startIndex = 0, count = 28, zeroPad = 2))
+        val basicAtkFrames = GameAssets.basicAtkFrames
+        val skill1Frames   = GameAssets.skill1Frames
+        val skill2Frames   = GameAssets.skill2Frames
+        val skill3Frames   = GameAssets.skill3Frames
+        val skill4Frames   = GameAssets.skill4Frames
 
         // -------------------------------------------------------
         // PLAYER
