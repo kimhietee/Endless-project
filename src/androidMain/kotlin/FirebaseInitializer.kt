@@ -12,10 +12,16 @@ actual fun configureFirebase(): String? {
         val context = Class.forName("android.app.ActivityThread")
             .getMethod("currentApplication")
             .invoke(null) as? Context
-        
+
         if (context != null) {
             println("[Firebase] Android - initializing Firebase manually with reflection context")
-            Firebase.initialize(context)
+            val options = dev.gitlive.firebase.FirebaseOptions(
+                applicationId = "1:711423141960:android:2e83dfcf77a1868fa1107d",
+                apiKey = "AIzaSyBtqOeftI3FUqWBEgYYb_t9zoLAqg8lgkc",
+                projectId = "fighting-kimhie---endless",
+                storageBucket = "fighting-kimhie---endless.firebasestorage.app"
+            )
+            Firebase.initialize(context, options)
             println("[Firebase] Android - Firebase initialized successfully")
             null
         } else {
@@ -29,3 +35,5 @@ actual fun configureFirebase(): String? {
         error
     }
 }
+
+
