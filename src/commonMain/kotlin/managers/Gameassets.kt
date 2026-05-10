@@ -15,9 +15,16 @@ object GameAssets {
 
     // ── Individual named backgrounds ─────────────────────────────────────────
     lateinit var bgSlice:  BmpSlice
+    lateinit var bg1Slice: BmpSlice
     lateinit var bg2Slice: BmpSlice
     lateinit var bg3Slice: BmpSlice
     lateinit var bg4Slice: BmpSlice
+    lateinit var bg5Slice: BmpSlice
+    lateinit var bg6Slice: BmpSlice
+    lateinit var bg7Slice: BmpSlice
+    lateinit var bg8Slice: BmpSlice
+    lateinit var bg9Slice: BmpSlice
+    lateinit var bg10Slice: BmpSlice
 
     /**
      * All backgrounds for wave rotation.
@@ -107,24 +114,25 @@ object GameAssets {
 
         // ── Named background shortcuts ─────────────────────────────────────────
         bgSlice  = resourcesVfs["bg/background.png"].readBitmapSlice()
-        bg2Slice = resourcesVfs["bg/background2.png"].readBitmapSlice()
-        bg3Slice = resourcesVfs["bg/background3.png"].readBitmapSlice()
-        bg4Slice = resourcesVfs["bg/background4.png"].readBitmapSlice()
+        
+        // Load placeholders background1 through background10, falling back to background.png if missing
+        bg1Slice = try { resourcesVfs["bg/background1.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg2Slice = try { resourcesVfs["bg/background2.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg3Slice = try { resourcesVfs["bg/background3.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg4Slice = try { resourcesVfs["bg/background4.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg5Slice = try { resourcesVfs["bg/background5.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg6Slice = try { resourcesVfs["bg/background6.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg7Slice = try { resourcesVfs["bg/background7.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg8Slice = try { resourcesVfs["bg/background8.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg9Slice = try { resourcesVfs["bg/background9.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
+        bg10Slice = try { resourcesVfs["bg/background10.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
 
         // ── Dynamic background list for wave rotation ──────────────────────────
-        val MAX_BG_PROBE = 20
         backgroundList.clear()
-        try { backgroundList.add(resourcesVfs["bg/background.png"].readBitmapSlice()) } catch (_: Exception) {}
-        var consecutiveMisses = 0
-        for (i in 2..MAX_BG_PROBE) {
-            try {
-                backgroundList.add(resourcesVfs["bg/background$i.png"].readBitmapSlice())
-                consecutiveMisses = 0
-            } catch (_: Exception) {
-                if (++consecutiveMisses >= 3) break
-            }
-        }
-        if (backgroundList.isEmpty()) backgroundList.add(bgSlice)
+        backgroundList.addAll(listOf(
+            bg1Slice, bg2Slice, bg3Slice, bg4Slice, bg5Slice,
+            bg6Slice, bg7Slice, bg8Slice, bg9Slice, bg10Slice
+        ))
 
         // ── HUD bars ───────────────────────────────────────────────────────────
         hpBarGreenSlice  = resourcesVfs["ui/bar/green_health_bar.jpg"].readBitmapSlice()
@@ -190,20 +198,20 @@ object GameAssets {
                 sheet = SpriteSheetConfig(fileName = file, columns = cols, rows = rows)))
 
         try {
-            wmIdleFrames = sheet("wandererMagician", "idle", "png", 8, 1, 8)
-            wmAttackFrames = sheet("wandererMagician", "attack", "png", 7, 1, 7)
-            wmRunFrames = sheet("wandererMagician", "run", "png", 8, 1, 8)
-            wmJumpFrames = sheet("wandererMagician", "jump", "png", 8, 1, 8)
-            wmBasicProjectileFrames = sheet("wandererMagician/skills", "projectile_basic", "png", 6, 1, 6)
-            wmSkill1Frames = sheet("wandererMagician/skills", "skill1", "png", 9, 1, 9)
-            wmSkill2AuraFrames = sheet("wandererMagician/skills", "513", "PNG", 5, 10, 50)
-            wmSkill3CastFrames = sheet("wandererMagician/skills", "334", "PNG", 5, 7, 35)
-            wmSkill3ExplodeFrames = sheet("wandererMagician/skills", "explode", "png", 9, 1, 9)
-            wmSkill4ChargeFrames = sheet("wandererMagician/skills", "charge", "png", 16, 1, 16)
+            wmIdleFrames = sheet("wandererMagician/idle_pngs", "Idle", "png", 8, 1, 8)
+            wmAttackFrames = sheet("wandererMagician/attack_pngs", "Attack_1", "png", 7, 1, 7)
+            wmRunFrames = sheet("wandererMagician/run_pngs", "Run", "png", 8, 1, 8)
+            wmJumpFrames = sheet("wandererMagician/jump_pngs", "Jump", "png", 8, 1, 8)
+            wmBasicProjectileFrames = sheet("wandererMagician/skills/projectile", "Charge_2", "png", 6, 1, 6)
+            wmSkill1Frames = sheet("wandererMagician/skills/skill_1", "Charge_1", "png", 9, 1, 9)
+            wmSkill2AuraFrames = sheet("wandererMagician/skills/skill_2", "513", "PNG", 5, 10, 50)
+            wmSkill3CastFrames = sheet("wandererMagician/skills/skill_3", "334", "PNG", 5, 7, 35)
+            wmSkill3ExplodeFrames = sheet("wandererMagician/explode_pngs", "Attack_2", "png", 9, 1, 9)
+            wmSkill4ChargeFrames = sheet("wandererMagician/charging_pngs", "Magic_sphere", "png", 16, 1, 16)
             wmSkill4BallFrames = listOf(
-                resourcesVfs["wandererMagician/skills/vv1.png"].readBitmapSlice(),
-                resourcesVfs["wandererMagician/skills/vv2.png"].readBitmapSlice(),
-                resourcesVfs["wandererMagician/skills/vv3.png"].readBitmapSlice()
+                resourcesVfs["wandererMagician/skills/skill_4/vv1.png"].readBitmapSlice(),
+                resourcesVfs["wandererMagician/skills/skill_4/vv2.png"].readBitmapSlice(),
+                resourcesVfs["wandererMagician/skills/skill_4/vv3.png"].readBitmapSlice()
             )
         } catch (e: Exception) {
             println("Wanderer Magician asset load failed, using Fire Wizard frames: ${e.message}")
