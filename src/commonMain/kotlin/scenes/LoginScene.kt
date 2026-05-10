@@ -30,9 +30,6 @@ class LoginScene : Scene() {
             alpha = 0.50
         }
 
-        // REDESIGN: All content moved to the TOP half of the screen (above 360px)
-        // to avoid being covered by the Android soft keyboard.
-
         text("Login / Signup", textSize = 40.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = 20.0
@@ -48,32 +45,10 @@ class LoginScene : Scene() {
             y = 75.0
         }
 
-        // Email: dark background for the styled display text
-        solidRect(inputW, inputH, korlibs.image.color.RGBA(40, 40, 40, 200)) {
-            x = cx - inputW / 2.0
-            y = 105.0
-        }
-
-        // Email: styled display text (mirrors what the user types)
-        val emailDisplay = text("", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            x = cx - inputW / 2.0 + 10.0
-            y = 105.0 + (inputH - 24.0) / 2.0
-        }
-
-        // Email: invisible real input for keyboard capture
+        // Email: normal visible uiTextInput — user can click and type
         val emailInput = uiTextInput("", Size(inputW, inputH)) {
             centerXOn(this@sceneMain)
             y = 105.0
-            alpha = 0.0
-        }
-
-        // Mirror email keystrokes to the styled display
-        var lastEmail = ""
-        emailInput.addUpdater {
-            if (emailInput.text != lastEmail) {
-                lastEmail = emailInput.text
-                emailDisplay.text = lastEmail
-            }
         }
 
         // ── Password section ─────────────────────────────────────
@@ -82,37 +57,39 @@ class LoginScene : Scene() {
             y = 175.0
         }
 
-        // Track real password string and visibility toggle
+        // Password: visible uiTextInput that the user clicks and types into.
+        // We intercept text changes to mask characters as '*' while
+        // tracking the real password separately.
         var realPassword      = ""
         var isPasswordVisible = false
+        var isUpdatingPass    = false   // guard against re-entrant updates
+        var lastPassLen       = 0
 
-        // Password: dark background
-        solidRect(inputW, inputH, korlibs.image.color.RGBA(40, 40, 40, 200)) {
-            x = cx - inputW / 2.0
-            y = 205.0
-        }
-
-        // Password: styled display text (shows masked or plain text)
-        val passDisplay = text("", textSize = 24.0, color = Colors.WHITE, font = GameAssets.customFont) {
-            x = cx - inputW / 2.0 + 10.0
-            y = 205.0 + (inputH - 24.0) / 2.0
-        }
-
-        // Password: invisible real input for keyboard capture
         val passInput = uiTextInput("", Size(inputW, inputH)) {
             centerXOn(this@sceneMain)
             y = 205.0
-            alpha = 0.0
         }
 
-        // Mirror password keystrokes to the styled display
-        var lastPass = ""
+        // Every frame, detect if the user added or removed characters.
+        // New characters appear as plain text appended after the '*' chars,
+        // so we can extract them and add to realPassword.
         passInput.addUpdater {
-            if (passInput.text != lastPass) {
-                lastPass = passInput.text
-                realPassword = lastPass
-                passDisplay.text = if (isPasswordVisible) realPassword
-                                   else "*".repeat(realPassword.length)
+            if (isUpdatingPass) return@addUpdater
+            val currentText = passInput.text
+            if (currentText.length != lastPassLen) {
+                isUpdatingPass = true
+                if (currentText.length > lastPassLen) {
+                    // New chars were typed at the end (after the mask chars)
+                    val newChars = currentText.substring(lastPassLen)
+                    realPassword += newChars
+                } else {
+                    // Chars were deleted — trim realPassword to match
+                    realPassword = realPassword.take(currentText.length)
+                }
+                lastPassLen = realPassword.length
+                passInput.text = if (isPasswordVisible) realPassword
+                                 else "*".repeat(realPassword.length)
+                isUpdatingPass = false
             }
         }
 
@@ -126,13 +103,16 @@ class LoginScene : Scene() {
         }
         eyeIcon.onClick {
             isPasswordVisible = !isPasswordVisible
-            passDisplay.text  = if (isPasswordVisible) realPassword
-                                else "*".repeat(realPassword.length)
-            eyeIcon.alpha     = if (isPasswordVisible) 1.0 else 0.5
+            isUpdatingPass = true
+            passInput.text = if (isPasswordVisible) realPassword
+                             else "*".repeat(realPassword.length)
+            lastPassLen = realPassword.length
+            isUpdatingPass = false
+            eyeIcon.alpha = if (isPasswordVisible) 1.0 else 0.5
         }
         eyeIcon.alpha = 0.5
 
-        // ── Error / status text ───────────────────────────────────
+        // ── Error / status text ──────────────────────────────────
         val errorText = text("", textSize = 20.0, color = Colors.RED, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
             y = 275.0
@@ -214,11 +194,6 @@ class LoginScene : Scene() {
         addChild(loginBtn)
         addChild(signupBtn)
         addChild(guestBtn)
-
-        // Bring the display texts and eye icon in front of buttons
-        addChild(emailDisplay)
-        addChild(passDisplay)
-        addChild(eyeIcon)
 
         text("Progress only saved when logged in", textSize = 16.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
