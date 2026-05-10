@@ -81,7 +81,7 @@ object GameAssets {
 
     // ── Pause menu image buttons ─────────────────────────────────────────────
     // Replace the placeholder paths below with your actual asset paths.
-    // e.g. "ui/buttons/btn_resume.png", "ui/buttons/btn_restart.png", "ui/buttons/btn_quit.png"
+    // e.g. "ui/buttons/button_bg.png" (Using button_bg.png as placeholder for missing btn_resume/restart/quit)
     lateinit var pauseResumeSlice:  BmpSlice
     lateinit var pauseRestartSlice: BmpSlice
     lateinit var pauseQuitSlice:    BmpSlice
@@ -174,9 +174,9 @@ object GameAssets {
 
         // ── Pause menu image buttons ─────────────────────────────────────────
         // TODO: replace placeholder paths with your actual pause-menu button images.
-        pauseResumeSlice  = resourcesVfs["ui/buttons/btn_resume.png"].readBitmapSlice()
-        pauseRestartSlice = resourcesVfs["ui/buttons/btn_restart.png"].readBitmapSlice()
-        pauseQuitSlice    = resourcesVfs["ui/buttons/btn_quit.png"].readBitmapSlice()
+        pauseResumeSlice  = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
+        pauseRestartSlice = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
+        pauseQuitSlice    = resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice()
 
         loaded = true
     }

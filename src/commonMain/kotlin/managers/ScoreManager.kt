@@ -178,7 +178,7 @@ object ScoreManager {
         try {
             // Fetch all user docs and map to UserHighScore; then sort descending by score
             val querySnapshot = firestore!!.collection("users").get()
-            val list = querySnapshot.mapNotNull { doc ->
+            val list = querySnapshot.documents.mapNotNull { doc ->
                 try {
                     doc.data<UserHighScore>()
                 } catch (_: Exception) {

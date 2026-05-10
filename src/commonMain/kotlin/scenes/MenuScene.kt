@@ -16,6 +16,7 @@ class MenuScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
         val scene = this@MenuScene
+        GameAssets.load()
 
         // -------------------------------------------------------
         // BACKGROUND (placeholder — swap menu_bg.png when ready)

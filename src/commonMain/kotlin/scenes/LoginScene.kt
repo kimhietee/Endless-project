@@ -192,7 +192,10 @@ class LoginScene : Scene() {
         // ── Row 2: PLAY AS GUEST (full width, centred) ───────────
         guestBtn = TextButton(btnW * 2 + 28.0, btnH, "PLAY AS GUEST") {
             if (isLoading) return@TextButton
-            launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } }
+            launchImmediately {
+                AuthManager.logout() // Ensure any previous session is cleared
+                scene.sceneContainer.changeTo { MainMenuScene() }
+            }
         }.apply {
             x = cx - (btnW * 2 + 28.0) / 2.0
             y = row2BtnY

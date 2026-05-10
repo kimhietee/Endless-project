@@ -11,14 +11,13 @@ plugins {
 
 korge {
     id = "com.kimhietee.endless"
+    name = "Endless"
     androidMinSdk = 23
     androidTargetSdk = 34
     androidCompileSdk = 34
     targetJvm()
     targetJs()
     targetWasmJs()
-    targetDesktop()
-    targetIos()
     targetAndroid()
     serializationJson()
     orientation = Orientation.LANDSCAPE

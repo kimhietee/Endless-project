@@ -4,6 +4,7 @@ import korlibs.image.color.Colors
 import utils.Constants
 import scenes.MainMenuScene
 import scenes.LoginScene
+import scenes.LoadingScene
 import managers.configureFirebase
 
 suspend fun main() = Korge(
@@ -12,12 +13,12 @@ suspend fun main() = Korge(
     virtualWidth = Constants.SCREEN_WIDTH,
     virtualHeight = Constants.SCREEN_HEIGHT,
     bgcolor = Colors["#000000"],
-    title = "Fighting Kimhie"
+    title = "Endless"
 ) {
     val initError = configureFirebase()
     if (initError != null) {
         println("Firebase initialization warning: $initError")
     }
     val scenes = sceneContainer()
-    scenes.changeTo { LoginScene() }
+    scenes.changeTo { LoadingScene() }
 }

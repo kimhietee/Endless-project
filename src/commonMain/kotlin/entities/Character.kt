@@ -44,8 +44,8 @@ class Character(
     // -------------------------------------------------------
     var maxHealth = 200.0; private set
     val maxMana   = 100.0
-    var health    = maxHealth; private set
-    var mana      = maxMana;   private set
+    var health    = 200.0; private set
+    var mana      = 100.0; private set
     private val manaRegen   = 5.0
     private val healthRegen = 0.5
 

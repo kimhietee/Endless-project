@@ -2,6 +2,7 @@ package scenes
 
 import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
+import korlibs.korge.view.align.centerOn
 import korlibs.korge.input.*
 import korlibs.image.color.Colors
 import korlibs.image.bitmap.BmpSlice
@@ -20,6 +21,8 @@ class GameScene : Scene() {
     private var gameTime = 0.0
 
     override suspend fun SContainer.sceneMain() {
+        // Ensure assets are loaded before anything else
+        GameAssets.load()
 
         // -------------------------------------------------------
         // BACKGROUND — starts on wave 1's background and updates
@@ -87,7 +90,7 @@ class GameScene : Scene() {
             y = 30.0
         }
 
-        GameAssets.load()
+        // GameAssets.load() // Already called at the top
         WaveSystem.apply(spawner)
 
         // -------------------------------------------------------
@@ -239,9 +242,9 @@ class GameScene : Scene() {
         // Each button is an image that dims on hover for feedback.
         //
         // Asset paths (set in GameAssets):
-        //   pauseResumeSlice  → "ui/buttons/btn_resume.png"
-        //   pauseRestartSlice → "ui/buttons/btn_restart.png"
-        //   pauseQuitSlice    → "ui/buttons/btn_quit.png"
+        //   pauseResumeSlice  → "ui/buttons/button_bg.png"
+        //   pauseRestartSlice → "ui/buttons/button_bg.png"
+        //   pauseQuitSlice    → "ui/buttons/button_bg.png"
         //
         // Replace those files with your actual art — sizing/layout will adapt
         // automatically based on menuBtnW / menuBtnH below.
@@ -268,47 +271,62 @@ class GameScene : Scene() {
                 val menuGap   = 110.0
 
                 // ── Resume ──────────────────────────────────────────────
-                image(GameAssets.pauseResumeSlice) {
-                    width  = menuBtnW
-                    height = menuBtnH
-                    x      = menuCx - menuBtnW / 2.0
-                    y      = menuStartY
-                    onOver  { alpha = 0.75 }
-                    onOut   { alpha = 1.00 }
-                    onClick {
-                        isPaused = false
-                        pauseMenuContainer?.removeFromParent()
-                        pauseMenuContainer = null
+                container {
+                    x = menuCx - menuBtnW / 2.0
+                    y = menuStartY
+                    image(GameAssets.pauseResumeSlice) {
+                        width  = menuBtnW
+                        height = menuBtnH
+                        onOver  { alpha = 0.75 }
+                        onOut   { alpha = 1.00 }
+                        onClick {
+                            isPaused = false
+                            pauseMenuContainer?.removeFromParent()
+                            pauseMenuContainer = null
+                        }
+                    }
+                    text("RESUME", textSize = 30.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                        centerOn(this.parent!!)
                     }
                 }
 
                 // ── Restart ─────────────────────────────────────────────
-                image(GameAssets.pauseRestartSlice) {
-                    width  = menuBtnW
-                    height = menuBtnH
-                    x      = menuCx - menuBtnW / 2.0
-                    y      = menuStartY + menuGap
-                    onOver  { alpha = 0.75 }
-                    onOut   { alpha = 1.00 }
-                    onClick {
-                        isPaused = false
-                        AttackDisplay.clearAll()
-                        launchImmediately { sceneContainer.changeTo { GameScene() } }
+                container {
+                    x = menuCx - menuBtnW / 2.0
+                    y = menuStartY + menuGap
+                    image(GameAssets.pauseRestartSlice) {
+                        width  = menuBtnW
+                        height = menuBtnH
+                        onOver  { alpha = 0.75 }
+                        onOut   { alpha = 1.00 }
+                        onClick {
+                            isPaused = false
+                            AttackDisplay.clearAll()
+                            launchImmediately { sceneContainer.changeTo { GameScene() } }
+                        }
+                    }
+                    text("RESTART", textSize = 30.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                        centerOn(this.parent!!)
                     }
                 }
 
                 // ── Quit ────────────────────────────────────────────────
-                image(GameAssets.pauseQuitSlice) {
-                    width  = menuBtnW
-                    height = menuBtnH
-                    x      = menuCx - menuBtnW / 2.0
-                    y      = menuStartY + menuGap * 2
-                    onOver  { alpha = 0.75 }
-                    onOut   { alpha = 1.00 }
-                    onClick {
-                        isPaused = false
-                        AttackDisplay.clearAll()
-                        launchImmediately { sceneContainer.changeTo { MenuScene() } }
+                container {
+                    x = menuCx - menuBtnW / 2.0
+                    y = menuStartY + menuGap * 2
+                    image(GameAssets.pauseQuitSlice) {
+                        width  = menuBtnW
+                        height = menuBtnH
+                        onOver  { alpha = 0.75 }
+                        onOut   { alpha = 1.00 }
+                        onClick {
+                            isPaused = false
+                            AttackDisplay.clearAll()
+                            launchImmediately { sceneContainer.changeTo { MenuScene() } }
+                        }
+                    }
+                    text("QUIT", textSize = 30.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                        centerOn(this.parent!!)
                     }
                 }
             }

@@ -1,7 +1,6 @@
 package scenes
 
 import managers.ScoreManager.getHighScore
-
 import korlibs.image.color.Colors
 import korlibs.io.async.launchImmediately
 import korlibs.korge.scene.Scene
@@ -17,17 +16,18 @@ class MainMenuScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
         val scene = this@MainMenuScene
+        val sw = Constants.SCREEN_WIDTH.toDouble()
+        val sh = Constants.SCREEN_HEIGHT.toDouble()
 
         GameAssets.load()
 
         // ── Background ───────────────────────────────────────────
-        val bgSlice = GameAssets.bg2Slice
-        image(bgSlice).apply {
-            width     = Constants.SCREEN_WIDTH.toDouble()
-            height    = Constants.SCREEN_HEIGHT.toDouble()
+        image(GameAssets.bg2Slice).apply {
+            width = sw
+            height = sh
             smoothing = true
         }
-        solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK).apply {
+        solidRect(sw, sh, Colors.BLACK).apply {
             alpha = 0.50
         }
 
@@ -37,63 +37,61 @@ class MainMenuScene : Scene() {
             y = 100.0
         }
 
-        val cx      = Constants.SCREEN_WIDTH / 2.0
-        val btnW    = 300.0
-        val btnH    = 80.0
-        val spacing = 100.0
-        var currentY = 280.0
-
-        // ── PLAY button (always visible) ─────────────────────────
-        val playSlice = GameAssets.playSlice
-        image(playSlice).apply {
-            width  = btnW
+        // ── PLAY button (Centered in Scene) ──────────────────────
+        val btnW = 300.0
+        val btnH = 80.0
+        image(GameAssets.playSlice).apply {
+            width = btnW
             height = btnH
-            x = cx - btnW / 2.0
-            y = currentY
-            onOver  { alpha = 0.75 }
-            onOut   { alpha = 1.00 }
+            // Center horizontally and vertically
+            x = (sw / 2.0) - (btnW / 2.0)
+            y = (sh / 2.0) - (btnH / 2.0)
+            
+            onOver { alpha = 0.75 }
+            onOut { alpha = 1.00 }
             onClick { launchImmediately { scene.sceneContainer.changeTo { MenuScene() } } }
         }
-        currentY += spacing
+
+        // ── User Info (Bottom Aligned) ───────────────────────────
+        val bottomPadding = 60.0
+        val textSpacing = 35.0
 
         if (AuthManager.isLoggedIn()) {
-            // ── Logged-in branch ──────────────────────────────────
-            // Show welcome + high score; NO logout button here —
-            // logout lives only in SettingsScene.
-            val label = AuthManager.userLabel()
-            text("Welcome, $label", textSize = 32.0, color = Colors.WHITE, font = GameAssets.customFont) {
-                centerXOn(this@sceneMain)
-                y = currentY
-            }
+            val rawLabel = AuthManager.userLabel()
+            val cleanName = if (rawLabel.contains('@')) rawLabel.substringBefore('@') else rawLabel
 
             launchImmediately {
                 val stats = ScoreManager.getHighScore()
-                text("High Score: ${stats.score.toInt()}", textSize = 28.0, color = Colors.YELLOW, font = GameAssets.customFont) {
+                
+                // Welcome Text (Placed at the very bottom)
+                val welcomeTxt = text("Welcome, $cleanName", textSize = 32.0, color = Colors.WHITE, font = GameAssets.customFont) {
                     centerXOn(this@sceneMain)
-                    y = currentY + 40.0
+                    y = sh - bottomPadding
+                }
+
+                // High Score (Placed above Welcome)
+                if (stats.score > 0) {
+                    text("High Score: ${stats.score.toInt()}", textSize = 28.0, color = Colors.YELLOW, font = GameAssets.customFont) {
+                        centerXOn(this@sceneMain)
+                        y = welcomeTxt.y - textSpacing
+                    }
                 }
             }
 
         } else {
-            // ── Guest branch ──────────────────────────────────────
-            // Show guest labels and a LOG IN button.
-            // No logout button — guests are not logged in.
-            text("Playing as Guest", textSize = 28.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
+            // Guest branch
+            val welcomeTxt = text("Welcome, Guest", textSize = 32.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
                 centerXOn(this@sceneMain)
-                y = currentY
-            }
-            text("Log in to save progress", textSize = 18.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
-                centerXOn(this@sceneMain)
-                y = currentY + 36.0
+                y = sh - bottomPadding
             }
 
-            val loginBtn = ui.TextButton(btnW, btnH, "LOG IN") {
-                launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
-            }.apply {
+            text("Log in to save progress", textSize = 18.0, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
                 centerXOn(this@sceneMain)
-                y = currentY + 80.0
+                y = welcomeTxt.y - textSpacing
             }
-            addChild(loginBtn)
+
+            // Optional: Move Login Button relative to bottom if needed
+            // Currently omitted to keep UI clean, but you can add it here.
         }
     }
 }

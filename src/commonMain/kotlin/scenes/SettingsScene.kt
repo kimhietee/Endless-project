@@ -143,28 +143,28 @@ class SettingsScene : Scene() {
         }
 
         // ── Bottom buttons ───────────────────────────────────────────────────
-        // Back button is always shown.
-        // Log Out button is ONLY shown when the user is actually logged in —
-        // a guest user has nothing to log out from.
+        // Navigation:
+        // - Logged in: [ BACK ] [ LOG OUT ]
+        // - Guest:     [ BACK ] [ LOG IN ]
         val backBtnW = 220.0
         val backBtnH = 70.0
+        val gap      = 20.0
+        val totalW   = backBtnW * 2 + gap
+        val startX   = cx - totalW / 2.0
 
         val isUserLoggedIn = AuthManager.isLoggedIn()
 
-        // If logged in, centre both buttons side by side; otherwise just centre Back.
+        // 1. BACK Button (Always present)
+        val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
+            launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
+        }.apply {
+            x = startX
+            y = 560.0
+        }
+        addChild(backBtn)
+
+        // 2. Action Button (LOG OUT if logged in, LOG IN if guest)
         if (isUserLoggedIn) {
-            val gap = 20.0
-            val totalW = backBtnW * 2 + gap
-            val startX = cx - totalW / 2.0
-
-            val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
-                launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
-            }.apply {
-                x = startX
-                y = 560.0
-            }
-            addChild(backBtn)
-
             val logoutBtn = ui.TextButton(backBtnW, backBtnH, "LOG OUT") {
                 launchImmediately {
                     AuthManager.logout()
@@ -175,16 +175,14 @@ class SettingsScene : Scene() {
                 y = 560.0
             }
             addChild(logoutBtn)
-
         } else {
-            // Guest: only the Back button, centred
-            val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
-                launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
+            val loginBtn = ui.TextButton(backBtnW, backBtnH, "LOG IN") {
+                launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
             }.apply {
-                x = cx - backBtnW / 2.0
+                x = startX + backBtnW + gap
                 y = 560.0
             }
-            addChild(backBtn)
+            addChild(loginBtn)
         }
     }
 }
