@@ -20,5 +20,5 @@ suspend fun main() = Korge(
         println("Firebase initialization warning: $initError")
     }
     val scenes = sceneContainer()
-    scenes.changeTo { LoadingScene() }
+    scenes.changeTo { LoginScene() }
 }

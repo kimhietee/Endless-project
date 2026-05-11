@@ -11,6 +11,8 @@ import korlibs.event.Key
 import korlibs.math.geom.Point
 import korlibs.time.seconds
 import entities.*
+import entities.heroes.HeroRegistry
+import entities.heroes.WandererMagicianHero
 import ui.*
 import managers.*
 import utils.*
@@ -34,31 +36,38 @@ class GameScene : Scene() {
             scaledWidth  = Constants.SCREEN_WIDTH.toDouble()
             scaledHeight = Constants.SCREEN_HEIGHT.toDouble()
             smoothing    = true
-            //y         = Constants.GROUND - Constants.SCREEN_HEIGHT
+            y         = Constants.GROUND - Constants.SCREEN_HEIGHT
 
         }
         addChild(bg)
 
         // -------------------------------------------------------
-        // CHARACTER ASSETS
+        // CHARACTER ASSETS (per selected hero)
         // -------------------------------------------------------
-        val idleFrames   = GameAssets.idleFrames
-        val runFrames    = GameAssets.runFrames
-        val jumpFrames   = GameAssets.jumpFrames
-        val attackFrames = GameAssets.attackFrames
-        val skillFrames  = GameAssets.skillFrames
+        val heroConfig = HeroRegistry.configForCurrentSession()
+        val isWandererMagician = heroConfig.id == WandererMagicianHero.ID
 
-        val basicAtkFrames = GameAssets.basicAtkFrames
-        val skill1Frames   = GameAssets.skill1Frames
-        val skill2Frames   = GameAssets.skill2Frames
-        val skill3Frames   = GameAssets.skill3Frames
-        val skill4Frames   = GameAssets.skill4Frames
+        val idleFrames   = if (isWandererMagician) GameAssets.wmIdleFrames else GameAssets.idleFrames
+        val runFrames    = if (isWandererMagician) GameAssets.wmRunFrames else GameAssets.runFrames
+        val jumpFrames   = if (isWandererMagician) GameAssets.wmJumpFrames else GameAssets.jumpFrames
+        val attackFrames = if (isWandererMagician) GameAssets.wmAttackFrames else GameAssets.attackFrames
+        val skillFrames  = if (isWandererMagician) attackFrames else GameAssets.skillFrames
+
+        val basicAtkFrames = if (isWandererMagician) GameAssets.wmBasicProjectileFrames else GameAssets.basicAtkFrames
+        val skill1Frames   = if (isWandererMagician) GameAssets.wmSkill1Frames else GameAssets.skill1Frames
+        val skill2Frames   = if (isWandererMagician) GameAssets.wmSkill2AuraFrames else GameAssets.skill2Frames
+        val skill3Frames   = if (isWandererMagician) GameAssets.wmSkill3ExplodeFrames else GameAssets.skill3Frames
+        val skill4Frames   = if (isWandererMagician) GameAssets.wmSkill4BallFrames else GameAssets.skill4Frames
+
+        val skill3CastBodyFrames = if (isWandererMagician) GameAssets.wmSkill3CastFrames else GameAssets.skillFrames
+        val skill4ChargeFrames = if (isWandererMagician) GameAssets.wmSkill4ChargeFrames else emptyList()
 
         // -------------------------------------------------------
         // PLAYER
         // -------------------------------------------------------
         val player = Character(
             isPlayer       = true,
+            heroConfig     = heroConfig,
             idleAnims      = idleFrames,
             runAnims       = runFrames,
             jumpAnims      = jumpFrames,
@@ -68,7 +77,9 @@ class GameScene : Scene() {
             skill1Frames   = skill1Frames,
             skill2Frames   = skill2Frames,
             skill3Frames   = skill3Frames,
-            skill4Frames   = skill4Frames
+            skill4Frames   = skill4Frames,
+            skill3CastBodyFrames = skill3CastBodyFrames,
+            skill4ChargeFrames   = skill4ChargeFrames
         )
 
         val progress = PlayerProgress()
@@ -97,10 +108,10 @@ class GameScene : Scene() {
         val rightSlice        = GameAssets.rightSlice
         val jumpSlice         = GameAssets.jumpSlice
         val attackSlice       = GameAssets.attackSlice
-        val skill1Slice       = GameAssets.skill1Slice
-        val skill2Slice       = GameAssets.skill2Slice
-        val skill3Slice       = GameAssets.skill3Slice
-        val skill4Slice       = GameAssets.skill4Slice
+        val skill1Slice       = if (isWandererMagician) GameAssets.wmSkill1Icon else GameAssets.skill1Slice
+        val skill2Slice       = if (isWandererMagician) GameAssets.wmSkill2Icon else GameAssets.skill2Slice
+        val skill3Slice       = if (isWandererMagician) GameAssets.wmSkill3Icon else GameAssets.skill3Slice
+        val skill4Slice       = if (isWandererMagician) GameAssets.wmSkill4Icon else GameAssets.skill4Slice
         val healingRamenSlice = GameAssets.healingRamenSlice
         val healingBentoSlice = GameAssets.healingBentoSlice
         val maxHealthSlice    = GameAssets.maxHealthSlice
@@ -491,7 +502,7 @@ class GameScene : Scene() {
                     bg.scaledHeight = Constants.SCREEN_HEIGHT.toDouble()
                     
                     // 3. Ensure it's positioned at the origin
-                    bg.xy(0, 0)
+//                    bg.xy(0, 0)
                 }
 
             }
@@ -568,6 +579,7 @@ class GameScene : Scene() {
             TouchInput.jump   = false; TouchInput.attack = false
             TouchInput.skill1 = false; TouchInput.skill2 = false
             TouchInput.skill3 = false; TouchInput.skill4 = false
+            TouchInput.heal   = false
 
             for (point in inputPoints) {
                 if (leftBtn.hitTest(point)   != null) TouchInput.left   = true
@@ -579,7 +591,7 @@ class GameScene : Scene() {
                 if (!skillBtn3.isUpgradeBtnHit(point) && skillBtn3.hitTest(point) != null) TouchInput.skill3 = true
                 if (!skillBtn4.isUpgradeBtnHit(point) && skillBtn4.hitTest(point) != null) TouchInput.skill4 = true
                 if (!skillBtnHealing.isUpgradeBtnHit(point) && skillBtnHealing.hitTest(point) != null) {
-                    player.castHealingSkill(progress.level)
+                    TouchInput.heal = true
                 }
             }
 

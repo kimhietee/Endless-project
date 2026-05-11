@@ -25,7 +25,8 @@ class AttackDisplay(
     startX:                 Double,
     startY:                 Double,
     private val getTargets: () -> List<Damageable>,   // ← lambda, evaluated every frame
-    private val movingRight: Boolean = true
+    private val movingRight: Boolean = true,
+    private val applySelfHeal: ((Double) -> Unit)? = null
 ) : Container() {
 
     companion object {
@@ -37,9 +38,10 @@ class AttackDisplay(
             startY:      Double,
             getTargets:  () -> List<Damageable>,      // ← lambda
             container:   Container,
-            movingRight: Boolean = true
+            movingRight: Boolean = true,
+            applySelfHeal: ((Double) -> Unit)? = null
         ): AttackDisplay {
-            val ad = AttackDisplay(config, startX, startY, getTargets, movingRight)
+            val ad = AttackDisplay(config, startX, startY, getTargets, movingRight, applySelfHeal)
             group.add(ad)
             container.addChild(ad)
             return ad
@@ -85,7 +87,7 @@ class AttackDisplay(
     // -------------------------------------------------------
     // DAMAGE STATE
     // -------------------------------------------------------
-    private val totalFrames    = config.frames.size * config.repeatAnimation
+    private val totalFrames    = (config.frames.size * config.repeatAnimation).coerceAtLeast(1)
     private val damagePerFrame = config.damage / totalFrames.toDouble()
     // For moving attacks: track which targets have already been hit (hit-once logic)
     private val hitTargets: MutableSet<Damageable> = mutableSetOf()
@@ -119,8 +121,12 @@ class AttackDisplay(
     // -------------------------------------------------------
     init {
         this.xy(startX, startY)
-        body.width  = config.frames[0].width.toDouble()  * config.displayScale
-        body.height = config.frames[0].height.toDouble() * config.displayScale
+        if (config.frames.isEmpty()) {
+            finished = true
+        } else {
+            body.width  = config.frames[0].width.toDouble()  * config.displayScale
+            body.height = config.frames[0].height.toDouble() * config.displayScale
+        }
     }
 
     // -------------------------------------------------------
@@ -129,8 +135,12 @@ class AttackDisplay(
     private fun updateSelf(dt: Double) {
         if (finished) return
 
-        // movement
-        if (config.moving) {
+        val follow = config.followParent
+        if (follow != null) {
+            val ox = if (movingRight) config.followOffsetX else -config.followOffsetX
+            this.x = follow.x + ox
+            this.y = follow.y + config.followOffsetY
+        } else if (config.moving) {
             this.x += config.speed * dt
             if (this.x < -200 || this.x > Constants.SCREEN_WIDTH + 200) {
                 finished = true
@@ -168,20 +178,20 @@ class AttackDisplay(
         // getTargets() is called fresh every frame — includes all
         // enemies alive right now, even ones spawned after skill cast.
         // -------------------------------------------------------
-        for (target in getTargets()) {
-            if (!target.isAlive()) continue
-            if (!hitbox.intersects(target.hitboxRect())) continue
-            if (config.moving) {
-                // Projectile: each target hit at most once EVER
-                if (target !in hitTargets) {
-                    target.takeDamage(config.damage)
-                    hitTargets.add(target)
-                }
-            } else {
-                // Stationary: damage once per animation frame while overlapping
-                if (target !in damagedThisFrame) {
-                    target.takeDamage(damagePerFrame)
-                    damagedThisFrame.add(target)
+        if (config.damageEnemies) {
+            for (target in getTargets()) {
+                if (!target.isAlive()) continue
+                if (!hitbox.intersects(target.hitboxRect())) continue
+                if (config.moving) {
+                    if (target !in hitTargets) {
+                        target.takeDamage(config.damage)
+                        hitTargets.add(target)
+                    }
+                } else {
+                    if (target !in damagedThisFrame) {
+                        target.takeDamage(damagePerFrame)
+                        damagedThisFrame.add(target)
+                    }
                 }
             }
         }
@@ -190,9 +200,11 @@ class AttackDisplay(
         frameTime += dt
         if (frameTime >= config.frameDuration) {
             frameTime = 0.0
-            currentFrame++
-            // Clear per-frame damage tracking at the start of each new animation frame
+            if (config.healSelfPerAnimationFrame > 0.0 && applySelfHeal != null) {
+                applySelfHeal(config.healSelfPerAnimationFrame)
+            }
             damagedThisFrame.clear()
+            currentFrame++
             if (currentFrame >= config.frames.size) {
                 currentFrame = 0
                 repeatsDone++
@@ -201,7 +213,9 @@ class AttackDisplay(
                     return
                 }
             }
-            body.bitmap = config.frames[currentFrame]
+            if (config.frames.isNotEmpty()) {
+                body.bitmap = config.frames[currentFrame.coerceIn(0, config.frames.lastIndex)]
+            }
         }
     }
 }

@@ -51,10 +51,10 @@ class MenuScene : Scene() {
         val cx   = Constants.SCREEN_WIDTH / 2.0
 
         // -------------------------------------------------------
-        // START BUTTON → LoadingScene → GameScene
+        // START BUTTON → HeroSelectionScene → LoadingScene → GameScene
         // -------------------------------------------------------
         val startBtn = ui.TextButton(btnW, btnH, "START") {
-            launchImmediately { scene.sceneContainer.changeTo { LoadingScene() } }
+            launchImmediately { scene.sceneContainer.changeTo { HeroSelectionScene() } }
         }.apply {
             x = cx - btnW / 2
             y = 350.0

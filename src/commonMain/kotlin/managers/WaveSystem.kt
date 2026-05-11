@@ -864,11 +864,11 @@ object WaveSystem {
             difficultyGainPerSec = 0.004,
             baseInterval         = 10.0,
             intervalDecayRate    = 0.0015,
-            minInterval          = 4.5,
+            minInterval          = 3.0,
             groupScaleRate       = 0.002,
             breathingWindowEvery = 90.0,
             breathingWindowLength = 10.0,
-            durationToGenerate   = 1200.0
+            durationToGenerate   = 3000.0
         ).generate()
 
         spawner.scheduleList(autoEvents)

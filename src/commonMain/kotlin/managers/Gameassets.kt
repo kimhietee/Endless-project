@@ -85,6 +85,23 @@ object GameAssets {
     lateinit var pauseRestartSlice: BmpSlice
     lateinit var pauseQuitSlice:    BmpSlice
 
+    // ── Wanderer Magician (optional sheets under wandererMagician/) ────────────
+    lateinit var wmIdleFrames:          List<BmpSlice>
+    lateinit var wmRunFrames:         List<BmpSlice>
+    lateinit var wmJumpFrames:        List<BmpSlice>
+    lateinit var wmAttackFrames:      List<BmpSlice>
+    lateinit var wmBasicProjectileFrames: List<BmpSlice>
+    lateinit var wmSkill1Frames:      List<BmpSlice>
+    lateinit var wmSkill2AuraFrames:  List<BmpSlice>
+    lateinit var wmSkill3CastFrames:  List<BmpSlice>
+    lateinit var wmSkill3ExplodeFrames: List<BmpSlice>
+    lateinit var wmSkill4ChargeFrames: List<BmpSlice>
+    lateinit var wmSkill4BallFrames:  List<BmpSlice>
+    lateinit var wmSkill1Icon:        BmpSlice
+    lateinit var wmSkill2Icon:        BmpSlice
+    lateinit var wmSkill3Icon:        BmpSlice
+    lateinit var wmSkill4Icon:        BmpSlice
+
     suspend fun load() {
         if (loaded) return
 
@@ -162,7 +179,50 @@ object GameAssets {
         pauseRestartSlice = try { resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice() } catch(e: Exception) { buttonBgSlice }
         pauseQuitSlice    = try { resourcesVfs["ui/buttons/button_bg.png"].readBitmapSlice() } catch(e: Exception) { buttonBgSlice }
 
+        loadWandererMagicianAssets()
+
         loaded = true
+    }
+
+    private suspend fun loadWandererMagicianAssets() {
+        suspend fun sheet(folder: String, file: String, ext: String, cols: Int, rows: Int, count: Int) =
+            loadFrames(FrameConfig(folder = folder, prefix = "", extension = ext, startIndex = 0, count = count,
+                sheet = SpriteSheetConfig(fileName = file, columns = cols, rows = rows)))
+
+        try {
+            wmIdleFrames = sheet("wandererMagician", "idle", "png", 8, 1, 8)
+            wmAttackFrames = sheet("wandererMagician", "attack", "png", 7, 1, 7)
+            wmRunFrames = sheet("wandererMagician", "run", "png", 8, 1, 8)
+            wmJumpFrames = sheet("wandererMagician", "jump", "png", 8, 1, 8)
+            wmBasicProjectileFrames = sheet("wandererMagician/skills", "projectile_basic", "png", 6, 1, 6)
+            wmSkill1Frames = sheet("wandererMagician/skills", "skill1", "png", 9, 1, 9)
+            wmSkill2AuraFrames = sheet("wandererMagician/skills", "513", "PNG", 5, 10, 50)
+            wmSkill3CastFrames = sheet("wandererMagician/skills", "334", "PNG", 5, 7, 35)
+            wmSkill3ExplodeFrames = sheet("wandererMagician/skills", "explode", "png", 9, 1, 9)
+            wmSkill4ChargeFrames = sheet("wandererMagician/skills", "charge", "png", 16, 1, 16)
+            wmSkill4BallFrames = listOf(
+                resourcesVfs["wandererMagician/skills/vv1.png"].readBitmapSlice(),
+                resourcesVfs["wandererMagician/skills/vv2.png"].readBitmapSlice(),
+                resourcesVfs["wandererMagician/skills/vv3.png"].readBitmapSlice()
+            )
+        } catch (e: Exception) {
+            println("Wanderer Magician asset load failed, using Fire Wizard frames: ${e.message}")
+            wmIdleFrames = idleFrames
+            wmAttackFrames = attackFrames
+            wmRunFrames = runFrames
+            wmJumpFrames = jumpFrames
+            wmBasicProjectileFrames = basicAtkFrames
+            wmSkill1Frames = skill1Frames
+            wmSkill2AuraFrames = skill2Frames
+            wmSkill3CastFrames = skill3Frames
+            wmSkill3ExplodeFrames = skill3Frames
+            wmSkill4ChargeFrames = skillFrames
+            wmSkill4BallFrames = skill4Frames
+        }
+        wmSkill1Icon = wmSkill1Frames.firstOrNull() ?: skill1Slice
+        wmSkill2Icon = wmSkill2AuraFrames.firstOrNull() ?: skill2Slice
+        wmSkill3Icon = wmSkill3ExplodeFrames.firstOrNull() ?: skill3Slice
+        wmSkill4Icon = wmSkill4BallFrames.firstOrNull() ?: skill4Slice
     }
 
     suspend fun loadFrames(cfg: FrameConfig): List<BmpSlice> {

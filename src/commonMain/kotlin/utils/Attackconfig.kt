@@ -1,6 +1,7 @@
 package utils
 
 import korlibs.image.bitmap.BmpSlice
+import korlibs.korge.view.View
 
 /**
  * All tunable parameters for one AttackDisplay instance.
@@ -14,6 +15,9 @@ import korlibs.image.bitmap.BmpSlice
  * @param hitboxScaleX    hitbox width  as fraction of sprite width  (default 0.5)
  * @param hitboxScaleY    hitbox height as fraction of sprite height (default 0.5)
  * @param repeatAnimation how many times the animation loops before the attack is removed
+ * @param followParent    when set, each frame this display snaps to parent position + offsets
+ * @param healSelfPerAnimationFrame applied once each time the animation advances to a new frame
+ * @param damageEnemies   when false, no damage is applied to targets
  */
 data class AttackConfig(
     val frames:          List<BmpSlice>,
@@ -24,7 +28,12 @@ data class AttackConfig(
     val hitboxScaleX:    Double  = 0.5,
     val hitboxScaleY:    Double  = 0.5,
     val repeatAnimation: Int     = 1,
-    val displayScale:    Double  = 1.0,   // ← NEW: 0.8 = 20% smaller, 1.5 = 50% larger
+    val displayScale:    Double  = 1.0,
     val offsetX:         Double  = 0.0,
-    val offsetY:         Double  = 0.0
+    val offsetY:         Double  = 0.0,
+    val followParent:     View?   = null,
+    val followOffsetX:   Double  = 0.0,
+    val followOffsetY:   Double  = 0.0,
+    val healSelfPerAnimationFrame: Double = 0.0,
+    val damageEnemies:   Boolean = true
 )
