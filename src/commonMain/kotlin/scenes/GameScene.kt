@@ -497,7 +497,9 @@ class GameScene : Scene() {
                     lastRenderedWave = currentWave
                     
                     // 1. Swap the bitmap
-                    bg.bitmap = GameAssets.backgroundForWave(currentWave)
+                    launchImmediately {
+                        bg.bitmap = GameAssets.backgroundForWave(currentWave)
+                    }
                     
                     // 2. Use scaledWidth/Height (These are verified KorGE properties)
                     bg.scaledWidth = Constants.SCREEN_WIDTH.toDouble()

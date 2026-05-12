@@ -10,6 +10,7 @@ import korlibs.korge.input.*
 import managers.GameAssets
 import managers.AuthManager
 import managers.ScoreManager
+import ui.TextButton
 import utils.Constants
 
 class MainMenuScene : Scene() {
@@ -40,16 +41,41 @@ class MainMenuScene : Scene() {
         // ── PLAY button (Centered in Scene) ──────────────────────
         val btnW = 300.0
         val btnH = 80.0
+        val playY = (sh / 2.0) - (btnH / 2.0)
         image(GameAssets.playSlice).apply {
             width = btnW
             height = btnH
-            // Center horizontally and vertically
             x = (sw / 2.0) - (btnW / 2.0)
-            y = (sh / 2.0) - (btnH / 2.0)
-            
+            y = playY
+
             onOver { alpha = 0.75 }
             onOut { alpha = 1.00 }
             onClick { launchImmediately { scene.sceneContainer.changeTo { MenuScene() } } }
+        }
+
+        val authBtnW = 280.0
+        val authBtnH = 70.0
+        val authBtnY = playY + btnH + 24.0
+        val authBtnX = (sw - authBtnW) / 2.0
+        if (AuthManager.isLoggedIn()) {
+            val authBtn = TextButton(authBtnW, authBtnH, "LOG OUT") {
+                launchImmediately {
+                    AuthManager.logout()
+                    scene.sceneContainer.changeTo { LoginScene() }
+                }
+            }.apply {
+                x = authBtnX
+                y = authBtnY
+            }
+            addChild(authBtn)
+        } else {
+            val authBtn = TextButton(authBtnW, authBtnH, "LOG IN") {
+                launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
+            }.apply {
+                x = authBtnX
+                y = authBtnY
+            }
+            addChild(authBtn)
         }
 
         // ── User Info (Bottom Aligned) ───────────────────────────

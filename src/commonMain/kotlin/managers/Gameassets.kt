@@ -18,6 +18,7 @@ object GameAssets {
 
     // ── Individual named backgrounds ─────────────────────────────────────────
     lateinit var bgSlice:  BmpSlice
+    lateinit var bg2Slice: BmpSlice
     lateinit var bg3Slice: BmpSlice
 
 
@@ -101,6 +102,7 @@ object GameAssets {
         // ── Named background shortcuts ─────────────────────────────────────────
         // We only load bgSlice and bg3Slice initially as they are used in menus
         bgSlice  = resourcesVfs["bg/background.png"].readBitmapSlice()
+        bg2Slice = try { resourcesVfs["bg/background2.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
         bg3Slice = try { resourcesVfs["bg/background3.png"].readBitmapSlice() } catch(e: Exception) { bgSlice }
 
         // ── HUD bars ───────────────────────────────────────────────────────────

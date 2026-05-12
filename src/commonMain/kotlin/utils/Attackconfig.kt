@@ -18,6 +18,7 @@ import korlibs.korge.view.View
  * @param followParent    when set, each frame this display snaps to parent position + offsets
  * @param healSelfPerAnimationFrame applied once each time the animation advances to a new frame
  * @param damageEnemies   when false, no damage is applied to targets
+ * @param removeAfterFirstHit when true (moving projectiles only), despawns right after the first enemy is damaged
  */
 data class AttackConfig(
     val frames:          List<BmpSlice>,
@@ -35,5 +36,6 @@ data class AttackConfig(
     val followOffsetX:   Double  = 0.0,
     val followOffsetY:   Double  = 0.0,
     val healSelfPerAnimationFrame: Double = 0.0,
-    val damageEnemies:   Boolean = true
+    val damageEnemies:   Boolean = true,
+    val removeAfterFirstHit: Boolean = false
 )

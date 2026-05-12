@@ -21,19 +21,19 @@ object WandererMagicianHero {
             name = "Arcane Bolt",
             cooldownMax = 0.0,
             manaCost = 0,
-            damage = 6.0,
+            damage = 3.0,
             unlockLevel = 1,
             requiresPointUnlock = false,
-            damagePerUpgrade = 1.2,
+            damagePerUpgrade = 0.7,
             maxUpgrades = 10
         )
         val skill1Config = SkillConfig(
             name = "Comet Shard",
-            cooldownMax = 4.0,
-            manaCost = 20,
-            damage = 12.0,
-            unlockLevel = 4,
-            damagePerUpgrade = 3.0,
+            cooldownMax = 2.0,
+            manaCost = 8,
+            damage = 7.0,
+            unlockLevel = 3,
+            damagePerUpgrade = 1.0,
             cooldownReductionPerUpgrade = 0.3,
             maxUpgrades = 5
         )

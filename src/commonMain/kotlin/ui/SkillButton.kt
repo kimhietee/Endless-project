@@ -14,7 +14,7 @@ import managers.GameAssets
  * A skill-slot button that shows:
  *  • the skill icon (always fully visible)
  *  • a single dark overlay when unavailable (cooldown OR low mana OR locked)
- *  • lock text at center ("LV2", …) when player level is below the gate
+ *  • lock text at center ("Unlocked in" / "Lvl4", …) when player level is below the gate
  *  • "UNLOCK" at center when level gate is met but a skill point has not been spent yet
  *  • a centered cooldown timer in light-red (whole seconds, ceil) when on cooldown
  *  • damage text at top-left — red, larger, dark badge (uniform with other corner labels)
@@ -64,8 +64,11 @@ class SkillButton(
         visible = false
     }
 
-    /** Shown when player level is below [SkillConfig.unlockLevel]. */
-    private val lockText = text("", textSize = 18.0, color = RGBA(220, 220, 80, 255), font = GameAssets.customFont).apply {
+    /** Shown when player level is below [SkillConfig.unlockLevel] — two lines, centered. */
+    private val lockLine1 = text("", textSize = 11.0, color = RGBA(220, 220, 80, 255), font = GameAssets.customFont).apply {
+        visible = false
+    }
+    private val lockLine2 = text("", textSize = 13.0, color = RGBA(240, 230, 100, 255), font = GameAssets.customFont).apply {
         visible = false
     }
 
@@ -133,7 +136,8 @@ class SkillButton(
         addChild(skillLvlBg);  addChild(skillLvlText)
         addChild(manaBg);      addChild(manaText)
         addChild(cooldownText)
-        addChild(lockText)
+        addChild(lockLine1)
+        addChild(lockLine2)
         addChild(unlockHintText)
         addChild(upgradeBtn)
 
@@ -237,14 +241,20 @@ class SkillButton(
         // --- center text: level lock → unlock hint → cooldown (mutually exclusive) ---
         when {
             levelLocked -> {
-                lockText.text    = "LV${skillConfig.unlockLevel}"
-                lockText.visible = true
-                lockText.xy(
-                    (btnWidth  - lockText.textBounds.width)  / 2.0,
-                    (btnHeight - lockText.textBounds.height) / 2.0
-                )
+                lockLine1.text = "Unlocked in"
+                lockLine2.text = "Lvl${skillConfig.unlockLevel}"
+                lockLine1.visible = true
+                lockLine2.visible = true
+                val lineGap = 1.0
+                val h1 = lockLine1.textBounds.height
+                val h2 = lockLine2.textBounds.height
+                val totalH = h1 + lineGap + h2
+                var y0 = (btnHeight - totalH) / 2.0
+                lockLine1.xy((btnWidth - lockLine1.textBounds.width) / 2.0, y0)
+                y0 += h1 + lineGap
+                lockLine2.xy((btnWidth - lockLine2.textBounds.width) / 2.0, y0)
                 unlockHintText.visible = false
-                cooldownText.visible   = false
+                cooldownText.visible = false
             }
             awaitingPaidUnlock -> {
                 unlockHintText.visible = true
@@ -252,23 +262,26 @@ class SkillButton(
                     (btnWidth  - unlockHintText.textBounds.width)  / 2.0,
                     (btnHeight - unlockHintText.textBounds.height) / 2.0
                 )
-                lockText.visible       = false
-                cooldownText.visible   = false
+                lockLine1.visible = false
+                lockLine2.visible = false
+                cooldownText.visible = false
             }
             castable && onCooldown -> {
                 val secs = ceil(skillConfig.cooldownRemaining).toInt()
-                cooldownText.text    = secs.toString()
+                cooldownText.text = secs.toString()
                 cooldownText.visible = true
                 cooldownText.xy(
                     (btnWidth  - cooldownText.textBounds.width)  / 2.0,
                     (btnHeight - cooldownText.textBounds.height) / 2.0
                 )
-                lockText.visible       = false
+                lockLine1.visible = false
+                lockLine2.visible = false
                 unlockHintText.visible = false
             }
             else -> {
-                cooldownText.visible   = false
-                lockText.visible       = false
+                cooldownText.visible = false
+                lockLine1.visible = false
+                lockLine2.visible = false
                 unlockHintText.visible = false
             }
         }

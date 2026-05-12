@@ -11,6 +11,7 @@ import korlibs.korge.view.SolidRect
 import utils.*
 import managers.*
 import entities.heroes.HeroConfig
+import entities.heroes.WandererMagicianHero
 
 enum class CharacterState { IDLE, RUNNING, JUMPING, ATTACKING, SKILL }
 
@@ -103,18 +104,20 @@ class Character(
 
     private fun buildBasicAtkConfig(): AttackConfig {
         val t = heroConfig.basicAttackTuning
+        val spd = if (facingRight) t.speed else -t.speed
         return AttackConfig(
             frames          = basicAtkFrames,
             frameDuration   = t.frameDuration,
             damage          = basicAttackSkill.damage,
             moving          = t.moving,
-            speed           = t.speed,
+            speed           = spd,
             hitboxScaleX    = t.hitboxScaleX,
             hitboxScaleY    = t.hitboxScaleY,
             repeatAnimation = t.repeatAnimation,
             displayScale    = t.displayScale,
             offsetX         = t.offsetX,
-            offsetY         = t.offsetY
+            offsetY         = t.offsetY,
+            removeAfterFirstHit = heroConfig.id == WandererMagicianHero.ID && t.moving && spd != 0.0
         )
     }
 

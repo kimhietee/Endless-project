@@ -12,11 +12,11 @@ import managers.GameAssets
 import ui.TextButton
 import utils.Constants
 
-class LoginScene : Scene() {
+class SignUpScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
         GameAssets.load()
-        val scene = this@LoginScene
+        val scene = this@SignUpScene
         val sw = Constants.SCREEN_WIDTH.toDouble()
         val sh = Constants.SCREEN_HEIGHT.toDouble()
 
@@ -32,11 +32,11 @@ class LoginScene : Scene() {
         val cx = sw / 2.0
         val margin = 60.0
         val inputW = minOf(580.0, sw - margin * 2)
-        val inputH = 72.0
-        val labelSize = 32.0
-        val titleSize = 40.0
+        val inputH = 68.0
+        val labelSize = 28.0
+        val titleSize = 38.0
         val subtitleSize = 26.0
-        val errorSize = 24.0
+        val errorSize = 22.0
         val noteSize = 18.0
 
         val btnW = minOf(260.0, (sw - margin * 2 - 28) / 2)
@@ -44,22 +44,24 @@ class LoginScene : Scene() {
         val cornerBtnW = minOf(220.0, sw - margin * 2)
 
         val bottomRowY = sh - btnH - margin
-        val mainBtnY = bottomRowY - 88.0
-        val errorY = mainBtnY - 38.0
-        val passInputY = errorY - 14.0 - inputH
-        val passLabelY = passInputY - 36.0
-        val emailInputY = passLabelY - 28.0 - inputH
-        val emailLabelY = emailInputY - 36.0
+        val mainBtnY = bottomRowY - 84.0
+        val errorY = mainBtnY - 32.0
+        val confirmInputY = errorY - 12.0 - inputH
+        val confirmLabelY = confirmInputY - 32.0
+        val passInputY = confirmLabelY - 26.0 - inputH
+        val passLabelY = passInputY - 32.0
+        val emailInputY = passLabelY - 26.0 - inputH
+        val emailLabelY = emailInputY - 32.0
 
-        val titleY = 36.0
+        val titleY = 32.0
         val headerGap = 6.0
         val noteGap = 10.0
 
-        text("Login", textSize = titleSize, color = Colors.WHITE, font = GameAssets.customFont) {
+        text("Sign up", textSize = titleSize, color = Colors.WHITE, font = GameAssets.customFont) {
             y = titleY
             centerXOn(this@sceneMain)
         }
-//        text("Sign up", textSize = subtitleSize, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
+//        text("Log in", textSize = subtitleSize, color = Colors.LIGHTGRAY, font = GameAssets.customFont) {
 //            y = titleY + titleSize + headerGap
 //            centerXOn(this@sceneMain)
 //        }
@@ -86,11 +88,23 @@ class LoginScene : Scene() {
             centerXOn(this@sceneMain)
             y = passLabelY
         }
-
         val (_, passMasked) = addMaskedPasswordRow(
             sceneRoot = this@sceneMain,
             cx = cx,
             passInputY = passInputY,
+            inputW = inputW,
+            inputH = inputH,
+            eyeSlice = GameAssets.manaIconSlice
+        )
+
+        text("Re-type password", textSize = labelSize, color = Colors.WHITE, font = GameAssets.customFont) {
+            centerXOn(this@sceneMain)
+            y = confirmLabelY
+        }
+        val (_, confirmMasked) = addMaskedPasswordRow(
+            sceneRoot = this@sceneMain,
+            cx = cx,
+            passInputY = confirmInputY,
             inputW = inputW,
             inputH = inputH,
             eyeSlice = GameAssets.manaIconSlice
@@ -102,15 +116,15 @@ class LoginScene : Scene() {
         }
 
         var isLoading = false
-        lateinit var loginBtn: TextButton
+        lateinit var signUpBtn: TextButton
         lateinit var guestBtn: TextButton
-        lateinit var signUpNav: TextButton
+        lateinit var loginNav: TextButton
 
         fun setLoading(loading: Boolean) {
             isLoading = loading
-            loginBtn.isEnabled = !loading
+            signUpBtn.isEnabled = !loading
             guestBtn.isEnabled = !loading
-            signUpNav.isEnabled = !loading
+            loginNav.isEnabled = !loading
         }
 
         fun showError(msg: String, isInfo: Boolean = false) {
@@ -119,13 +133,17 @@ class LoginScene : Scene() {
             errorText.centerXOn(this@sceneMain)
         }
 
-        loginBtn = TextButton(btnW, btnH, "LOG IN") {
+        signUpBtn = TextButton(btnW, btnH, "SIGN UP") {
             if (isLoading) return@TextButton
+            if (passMasked.realPassword != confirmMasked.realPassword) {
+                showError("Passwords do not match. Please re-type them.")
+                return@TextButton
+            }
             setLoading(true)
-            showError("Signing in…", isInfo = true)
+            showError("Creating account…", isInfo = true)
 
             launchImmediately {
-                val error = AuthManager.signIn(emailInput.text.trim(), passMasked.realPassword)
+                val error = AuthManager.signUp(emailInput.text.trim(), passMasked.realPassword)
                 if (error == null) {
                     scene.sceneContainer.changeTo { MainMenuScene() }
                 } else {
@@ -150,34 +168,16 @@ class LoginScene : Scene() {
             y = bottomRowY
         }
 
-        signUpNav = TextButton(cornerBtnW, btnH, "SIGN UP") {
+        loginNav = TextButton(cornerBtnW, btnH, "LOG IN") {
             if (isLoading) return@TextButton
-            launchImmediately { scene.sceneContainer.changeTo { SignUpScene() } }
+            launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
         }.apply {
             x = margin
             y = bottomRowY
         }
 
-        addChild(loginBtn)
+        addChild(signUpBtn)
         addChild(guestBtn)
-        addChild(signUpNav)
+        addChild(loginNav)
     }
-}
-
-/** Rough word-wrap so status/error lines stay within the screen. */
-internal fun wrapToScreenWidth(msg: String, approxCharsPerLine: Int): String {
-    if (msg.length <= approxCharsPerLine) return msg
-    val words = msg.split(Regex("\\s+"))
-    val lines = mutableListOf<String>()
-    var line = ""
-    for (w in words) {
-        val tryLine = if (line.isEmpty()) w else "$line $w"
-        if (tryLine.length <= approxCharsPerLine) line = tryLine
-        else {
-            if (line.isNotEmpty()) lines.add(line)
-            line = w
-        }
-    }
-    if (line.isNotEmpty()) lines.add(line)
-    return lines.joinToString("\n")
 }

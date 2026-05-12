@@ -8,15 +8,13 @@ import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.centerXOn
 import managers.GameAssets
-import managers.AuthManager
 import utils.Constants
 import utils.GameSettings
 
 /**
  * SettingsScene — toggle Show Hitbox and Developer Mode.
  *
- * LOG OUT button is only shown when the user is actually logged in.
- * Guests do not see a logout button here.
+ * Log in / log out is on the main menu (below Play).
  *
  * Navigation: Back button → MenuScene.
  */
@@ -35,6 +33,8 @@ class SettingsScene : Scene() {
         solidRect(Constants.SCREEN_WIDTH.toDouble(), Constants.SCREEN_HEIGHT.toDouble(), Colors.BLACK) {
             alpha = 0.55
         }
+
+        addNoSaveProgressWarningIfNeeded()
 
         // ── Title ───────────────────────────────────────────────────────────
         text("SETTINGS", textSize = 70.0, color = Colors.WHITE, font = GameAssets.customFont) {
@@ -142,47 +142,15 @@ class SettingsScene : Scene() {
             y = startY + gapY * 2 + 52.0
         }
 
-        // ── Bottom buttons ───────────────────────────────────────────────────
-        // Navigation:
-        // - Logged in: [ BACK ] [ LOG OUT ]
-        // - Guest:     [ BACK ] [ LOG IN ]
+        // ── Bottom: Back ─────────────────────────────────────────────────────
         val backBtnW = 220.0
         val backBtnH = 70.0
-        val gap      = 20.0
-        val totalW   = backBtnW * 2 + gap
-        val startX   = cx - totalW / 2.0
-
-        val isUserLoggedIn = AuthManager.isLoggedIn()
-
-        // 1. BACK Button (Always present)
         val backBtn = ui.TextButton(backBtnW, backBtnH, "BACK") {
             launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
         }.apply {
-            x = startX
+            x = cx - backBtnW / 2.0
             y = 560.0
         }
         addChild(backBtn)
-
-        // 2. Action Button (LOG OUT if logged in, LOG IN if guest)
-        if (isUserLoggedIn) {
-            val logoutBtn = ui.TextButton(backBtnW, backBtnH, "LOG OUT") {
-                launchImmediately {
-                    AuthManager.logout()
-                    scene.sceneContainer.changeTo { LoginScene() }
-                }
-            }.apply {
-                x = startX + backBtnW + gap
-                y = 560.0
-            }
-            addChild(logoutBtn)
-        } else {
-            val loginBtn = ui.TextButton(backBtnW, backBtnH, "LOG IN") {
-                launchImmediately { scene.sceneContainer.changeTo { LoginScene() } }
-            }.apply {
-                x = startX + backBtnW + gap
-                y = 560.0
-            }
-            addChild(loginBtn)
-        }
     }
 }

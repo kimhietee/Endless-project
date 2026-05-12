@@ -114,7 +114,8 @@ class HUD(
     private val xpSquareBg   = solidRect(SQ_TOTAL, SQ_TOTAL, RGBA(10, 10, 10, 200))
     private val xpYellowFill = solidRect(SQ_TOTAL, 0.0,      RGBA(220, 170, 0, 255))
     private val xpInnerBlack = solidRect(SQ_INNER, SQ_INNER, Colors.BLACK)
-    private val xpLevelText  = text("1", textSize = 22.0, color = RGBA(215, 215, 215, 255), font = GameAssets.customFont)
+    private val xpLevelLabel = text("Level", textSize = 11.0, color = RGBA(190, 190, 190, 255), font = GameAssets.customFont)
+    private val xpLevelText  = text("1", textSize = 20.0, color = RGBA(215, 215, 215, 255), font = GameAssets.customFont)
 
     // ─────────────────────────────────────────────
     // XP BAR — fill uses the yellow health bar image (per spec)
@@ -177,6 +178,7 @@ class HUD(
         addChild(xpSquareBg)
         addChild(xpYellowFill)
         addChild(xpInnerBlack)
+        addChild(xpLevelLabel)
         addChild(xpLevelText)
 
         // XP bar
@@ -241,11 +243,21 @@ class HUD(
         xpYellowFill.height = fillH
         xpYellowFill.y      = XP_Y + SQ_TOTAL - fillH
 
-        // Level text centred on the inner black square
+        // "Level" label + number (or MAX) stacked and centred in the inner square
         xpLevelText.text = if (progress.isMaxLevel()) "MAX" else progress.level.toString()
+        val lineGap = 2.0
+        val lh = xpLevelLabel.textBounds.height
+        val nh = xpLevelText.textBounds.height
+        val stackH = lh + lineGap + nh
+        val baseY = XP_Y + SQ_BORDER + (SQ_INNER - stackH) / 2.0
+        val innerLeft = XP_LEFT_X + SQ_BORDER
+        xpLevelLabel.xy(
+            innerLeft + (SQ_INNER - xpLevelLabel.textBounds.width) / 2.0,
+            baseY
+        )
         xpLevelText.xy(
-            XP_LEFT_X + SQ_BORDER + (SQ_INNER - xpLevelText.textBounds.width)  / 2.0,
-            XP_Y      + SQ_BORDER + (SQ_INNER - xpLevelText.textBounds.height) / 2.0
+            innerLeft + (SQ_INNER - xpLevelText.textBounds.width) / 2.0,
+            baseY + lh + lineGap
         )
 
         // XP bar — mask the unfilled right portion

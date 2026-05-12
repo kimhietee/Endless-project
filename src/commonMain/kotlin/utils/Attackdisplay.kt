@@ -186,6 +186,10 @@ class AttackDisplay(
                     if (target !in hitTargets) {
                         target.takeDamage(config.damage)
                         hitTargets.add(target)
+                        if (config.removeAfterFirstHit) {
+                            finished = true
+                            return
+                        }
                     }
                 } else {
                     if (target !in damagedThisFrame) {

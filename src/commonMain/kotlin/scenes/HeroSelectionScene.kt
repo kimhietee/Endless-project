@@ -2,6 +2,7 @@ package scenes
 
 import korlibs.image.bitmap.BmpSlice
 import korlibs.image.color.Colors
+import korlibs.image.color.RGBA
 import korlibs.io.async.launchImmediately
 import korlibs.korge.input.onClick
 import korlibs.korge.input.onOut
@@ -15,11 +16,14 @@ import korlibs.korge.view.solidRect
 import korlibs.korge.view.text
 import korlibs.korge.view.align.centerXOn
 import entities.heroes.FireWizardHero
+import entities.heroes.HeroRegistry
 import entities.heroes.WandererMagicianHero
 import managers.GameAssets
 import managers.GameSession
 import ui.TextButton
 import utils.Constants
+import utils.SkillConfig
+import kotlin.math.max
 
 private data class HeroPickerEntry(
     val id: String,
@@ -31,6 +35,19 @@ private data class HeroPickerEntry(
  * Add entries here as new playable heroes and portraits are available.
  * [portrait] is resolved after [GameAssets.load].
  */
+private fun skillIconsForHero(heroId: String): List<BmpSlice> {
+    val wm = heroId == WandererMagicianHero.ID
+    return listOf(
+        GameAssets.attackSlice,
+        if (wm) GameAssets.wmSkill1Icon else GameAssets.skill1Slice,
+        if (wm) GameAssets.wmSkill2Icon else GameAssets.skill2Slice,
+        if (wm) GameAssets.wmSkill3Icon else GameAssets.skill3Slice,
+        if (wm) GameAssets.wmSkill4Icon else GameAssets.skill4Slice,
+        GameAssets.healingRamenSlice,
+        GameAssets.maxHealthSlice
+    )
+}
+
 private fun heroPickerEntries(): List<HeroPickerEntry> = listOf(
     HeroPickerEntry(
         id = FireWizardHero.ID,
@@ -43,6 +60,25 @@ private fun heroPickerEntries(): List<HeroPickerEntry> = listOf(
         portrait = GameAssets.wmIdleFrames.firstOrNull() ?: GameAssets.idleFrames.firstOrNull() ?: GameAssets.skill1Slice
     )
 )
+
+/** Short line for the hero picker (mana, cooldown, damage, or passive note). */
+private fun SkillConfig.selectScreenDescription(): String {
+    if (name.equals("Max Health", ignoreCase = true)) {
+        return "Raises max HP when unlocked and upgraded."
+    }
+    val parts = mutableListOf<String>()
+    if (manaCost > 0) parts.add("$manaCost MP")
+    if (cooldownMax > 0.0) {
+        val cd = if (kotlin.math.abs(cooldownMax - cooldownMax.toInt()) < 1e-6) {
+            "${cooldownMax.toInt()}s CD"
+        } else {
+            "%.1fs CD".format(cooldownMax)
+        }
+        parts.add(cd)
+    }
+    if (damage > 0.0) parts.add("${damage.toInt()} dmg")
+    return parts.joinToString(" · ").ifEmpty { "Passive / no cost." }
+}
 
 class HeroSelectionScene : Scene() {
 
@@ -67,15 +103,59 @@ class HeroSelectionScene : Scene() {
 
         text("SELECT HERO", textSize = 56.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
-            y = 120.0
+            y = 96.0
         }
 
         val heroes = heroPickerEntries()
-        val portraitSize = 140.0
-        val gap = 140.0 // Increased from 28.0 to prevent names from overlapping
-        val totalW = heroes.size * portraitSize + (heroes.size - 1).coerceAtLeast(0) * gap
-        val rowX0 = sw / 2.0 - totalW / 2.0
-        val rowY = 240.0
+        val portraitSize = 102.0
+        val portraitGap = 96.0
+        val totalPortraitW = heroes.size * portraitSize + (heroes.size - 1).coerceAtLeast(0) * portraitGap
+        val portraitRowX0 = sw / 2.0 - totalPortraitW / 2.0
+        /** Below skill list so rows do not overlap portraits. */
+        val portraitRowY = 458.0
+
+        val iconSize = 38.0
+        val textPadX = iconSize + 10.0
+        val rowInnerW = 278.0
+        val skillsTopY = 108.0
+
+        heroes.forEachIndexed { col, hero ->
+            val portraitCenterX = portraitRowX0 + col * (portraitSize + portraitGap) + portraitSize / 2.0
+            val cfg = HeroRegistry.configForSessionSelection(hero.id)
+            val icons = skillIconsForHero(hero.id)
+            var y = skillsTopY
+
+            cfg.allSkills.forEachIndexed { i, skill ->
+                val slice = icons.getOrElse(i) { GameAssets.skill1Slice }
+                val descText = skill.selectScreenDescription()
+                val wrappedName = wrapToScreenWidth(skill.name, approxCharsPerLine = 20)
+                val wrappedDesc = wrapToScreenWidth(descText, approxCharsPerLine = 32)
+
+                var rowH = 0.0
+                val row = Container().apply {
+                    x = portraitCenterX - rowInnerW / 2.0
+                    this.y = y
+                    image(slice) {
+                        smoothing = true
+                        width = iconSize
+                        height = iconSize
+                        x = 0.0
+                        y = 4.0
+                    }
+                    val nameLbl = text(wrappedName, textSize = 12.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                        x = textPadX
+                        y = 0.0
+                    }
+                    val descLbl = text(wrappedDesc, textSize = 9.0, color = RGBA(200, 200, 200, 235), font = GameAssets.customFont) {
+                        x = textPadX
+                        y = nameLbl.textBounds.height + 3.0
+                    }
+                    rowH = max(iconSize + 6.0, nameLbl.textBounds.height + 3.0 + descLbl.textBounds.height + 4.0)
+                }
+                addChild(row)
+                y += rowH + 5.0
+            }
+        }
 
         val btnW = 260.0
         val btnH = 80.0
@@ -86,7 +166,7 @@ class HeroSelectionScene : Scene() {
             launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } }
         }.apply {
             x = cx - totalBtnW / 2.0
-            y = 520.0
+            y = 632.0
         }
         addChild(backBtn)
 
@@ -95,7 +175,7 @@ class HeroSelectionScene : Scene() {
             launchImmediately { scene.sceneContainer.changeTo { LoadingScene() } }
         }.apply {
             x = cx - totalBtnW / 2.0 + btnW + btnGap
-            y = 520.0
+            y = 632.0
             visible = false
         }
         addChild(startGameBtn)
@@ -112,8 +192,8 @@ class HeroSelectionScene : Scene() {
             selectionRings += ring
 
             val cell = Container().apply {
-                x = rowX0 + index * (portraitSize + gap)
-                y = rowY
+                x = portraitRowX0 + index * (portraitSize + portraitGap)
+                y = portraitRowY
             }
             cell.addChild(ring)
 
@@ -132,7 +212,7 @@ class HeroSelectionScene : Scene() {
             }
             cell.addChild(portraitBtn)
 
-            text(hero.displayName, textSize = 22.0, color = Colors.WHITE, font = GameAssets.customFont) {
+            text(hero.displayName, textSize = 20.0, color = Colors.WHITE, font = GameAssets.customFont) {
                 centerXOn(portraitBtn)
                 y = portraitSize + 10.0
             }.also { cell.addChild(it) }
