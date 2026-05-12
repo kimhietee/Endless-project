@@ -32,10 +32,6 @@ private data class HeroPickerEntry(
     val portrait: BmpSlice
 )
 
-/**
- * Add entries here as new playable heroes and portraits are available.
- * [portrait] is resolved after [GameAssets.load].
- */
 private fun skillIconsForHero(heroId: String): List<BmpSlice> {
     val wm = heroId == WandererMagicianHero.ID
     return listOf(
@@ -62,7 +58,6 @@ private fun heroPickerEntries(): List<HeroPickerEntry> = listOf(
     )
 )
 
-/** Short line for the hero picker (mana, cooldown, damage, or passive note). */
 private fun SkillConfig.selectScreenDescription(): String {
     if (name.equals("Max Health", ignoreCase = true)) {
         return "Raises max HP when unlocked and upgraded."
@@ -77,7 +72,7 @@ private fun SkillConfig.selectScreenDescription(): String {
         }
         parts.add(cd)
     }
-    if (damage > 0.0) parts.add("${damage.toInt()} dmg")
+    if (damage > 0.0) parts.add("${damage.toInt()} Damage")
     return parts.joinToString(" · ").ifEmpty { "Passive / no cost." }
 }
 
@@ -119,7 +114,6 @@ class HeroSelectionScene : Scene() {
         val edgePad = 20.0
         val portraitTextGap = 12.0
 
-        /** [rowX], [rowInnerW] for single-column skill rows: Fire Wizard left strip; Wanderer centered in right gap. */
         fun skillRowLayout(heroIndex: Int): Pair<Double, Double> {
             return if (heroIndex == 0) {
                 val innerW = (portraitLeft(0) - edgePad - portraitTextGap).coerceAtLeast(120.0)
@@ -132,9 +126,12 @@ class HeroSelectionScene : Scene() {
             }
         }
 
-        val iconSize = 44.0
-        val textPadX = iconSize + 12.0
-        val skillsTopY = 108.0
+        val iconSize = 36.0
+        val iconTextGap = 10.0
+        val textPadX = iconSize + iconTextGap
+        val skillsTopY = 150.0
+        val nameLineH = 18.0
+        val descLineH = 14.0
 
         val skillPanel = Container()
 
@@ -146,41 +143,69 @@ class HeroSelectionScene : Scene() {
             clearSkillPanel()
             val (rowX, rowInnerW) = skillRowLayout(heroIndex)
             val textAreaW = rowInnerW - textPadX
-            val nameChars = ((textAreaW) / 6.0).toInt().coerceIn(10, 36)
-            val descChars = ((textAreaW) / 4.2).toInt().coerceIn(14, 48)
+            val nameChars = ((textAreaW) / 6.8).toInt().coerceIn(8, 32)
+            val descChars = ((textAreaW) / 5.0).toInt().coerceIn(12, 44)
             val cfg = HeroRegistry.configForSessionSelection(heroId)
             val icons = skillIconsForHero(heroId)
-            var y = skillsTopY
 
-            cfg.allSkills.forEachIndexed { i, skill ->
+            val attackSkill = SkillConfig(
+                name = "Basic Attack",
+                manaCost = 0,
+                cooldownMax = 0.0,
+                damage = 5.0
+            )   
+            // val allSkillsWithAttack = listOf(attackSkill) + cfg.allSkills
+            val allSkillsWithAttack =
+                (listOf(attackSkill) + cfg.allSkills)
+                    .distinctBy { it.name.lowercase() }
+
+            allSkillsWithAttack.forEachIndexed { i, skill ->
                 val slice = icons.getOrElse(i) { GameAssets.skill1Slice }
                 val descText = skill.selectScreenDescription()
                 val wrappedName = wrapToScreenWidth(skill.name, approxCharsPerLine = nameChars)
                 val wrappedDesc = wrapToScreenWidth(descText, approxCharsPerLine = descChars)
 
-                var rowH = 0.0
+                // Count lines to size the row correctly
+                val nameLines = wrappedName.count { it == '\n' } + 1
+                val descLines = wrappedDesc.count { it == '\n' } + 1
+
+                val nameFontSize = 13.0
+                val descFontSize = 10.0
+                val nameLinePixels = nameFontSize + 4.0   // actual pixel height per name line
+                val descLinePixels = descFontSize + 3.0   // actual pixel height per desc line
+                val nameBlockH = nameLines * nameLinePixels
+                val descBlockH = descLines * descLinePixels
+                val contentH = nameBlockH + 10.0 + descBlockH  // 10px gap between name and desc
+                val rowH = max(iconSize + 8.0, contentH + 16.0) // 8px top+bottom padding
+
+                val nameY = (rowH - contentH) / 2.0 + nameFontSize  // baseline offset
+                val descY = nameY + nameBlockH + 8.0                // desc baseline below name
+
                 val row = Container().apply {
                     x = rowX
-                    this.y = y
+                    this.y = skillsTopY + i * (70.0 + 6.0)  // fixed 70px slot per row
+                    solidRect(300.0, rowH, Colors.BLACK) {
+                        alpha = 0.45
+                        x = 0.0
+                        y = 0.0
+                    }
                     image(slice) {
                         smoothing = true
                         width = iconSize
                         height = iconSize
                         x = 0.0
-                        y = 4.0
+                        y = (rowH - iconSize) / 2.0
                     }
-                    val nameLbl = text(wrappedName, textSize = 12.0, color = Colors.WHITE, font = GameAssets.customFont) {
+                    text(wrappedName, textSize = nameFontSize, color = Colors.WHITE, font = GameAssets.customFont) {
                         x = textPadX
-                        y = 0.0
+                        y = nameY
                     }
-                    val descLbl = text(wrappedDesc, textSize = 9.0, color = RGBA(200, 200, 200, 235), font = GameAssets.customFont) {
+                    text(wrappedDesc, textSize = descFontSize, color = RGBA(200, 200, 200, 235), font = GameAssets.customFont) {
                         x = textPadX
-                        y = nameLbl.textBounds.height + 3.0
+                        y = descY
                     }
-                    rowH = max(iconSize + 6.0, nameLbl.textBounds.height + 3.0 + descLbl.textBounds.height + 4.0)
                 }
                 skillPanel.addChild(row)
-                y += rowH + 5.0
             }
         }
 
@@ -190,7 +215,7 @@ class HeroSelectionScene : Scene() {
         val totalBtnW = btnW * 2 + btnGap
 
         val backBtn = TextButton(btnW, btnH, "BACK") {
-            launchImmediately { scene.sceneContainer.changeTo { MainMenuScene() } }
+            launchImmediately { scene.sceneContainer.changeTo { MenuScene() } }
         }.apply {
             x = cx - totalBtnW / 2.0
             y = 632.0
@@ -249,5 +274,5 @@ class HeroSelectionScene : Scene() {
         }
 
         addChild(skillPanel)
-    }
-}
+    }  // <-- end of sceneMain
+}  // <-- end of HeroSelectionScene

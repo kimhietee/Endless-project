@@ -9,6 +9,8 @@ import korlibs.korge.scene.Scene
 import korlibs.korge.view.*
 import korlibs.korge.view.align.*
 import managers.GameAssets
+import managers.AuthManager
+import korlibs.image.color.RGBA
 import utils.Constants
 import utils.AttackDisplay
 
@@ -84,5 +86,14 @@ class MenuScene : Scene() {
         addChild(backBtn)
 
         addNoSaveProgressWarningIfNeeded()
+    }
+
+    private fun SContainer.addNoSaveProgressWarningIfNeeded() {
+        if (!AuthManager.isLoggedIn()) {
+            text("Log in to save progress", textSize = 16.0, color = RGBA(220, 220, 230, 245), font = GameAssets.customFont) {
+                centerXOn(this@addNoSaveProgressWarningIfNeeded)
+                y = Constants.SCREEN_HEIGHT.toDouble() - 34.0
+            }
+        }
     }
 }

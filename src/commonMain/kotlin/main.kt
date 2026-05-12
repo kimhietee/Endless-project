@@ -6,6 +6,7 @@ import scenes.MainMenuScene
 import scenes.LoginScene
 import scenes.LoadingScene
 import managers.configureFirebase
+import managers.GameAssets
 
 suspend fun main() = Korge(
     windowWidth = Constants.SCREEN_WIDTH,
@@ -19,6 +20,8 @@ suspend fun main() = Korge(
     if (initError != null) {
         println("Firebase initialization warning: $initError")
     }
+    // Load global assets before loading the game
+    GameAssets.loadGlobal()
     val scenes = sceneContainer()
     scenes.changeTo { LoginScene() }
 }

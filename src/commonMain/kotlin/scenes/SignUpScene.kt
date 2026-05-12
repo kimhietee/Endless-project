@@ -94,7 +94,7 @@ class SignUpScene : Scene() {
             passInputY = passInputY,
             inputW = inputW,
             inputH = inputH,
-            eyeSlice = GameAssets.manaIconSlice
+            eyeSlice = GameAssets.eyeIconSlice
         )
 
         text("Re-type password", textSize = labelSize, color = Colors.WHITE, font = GameAssets.customFont) {
@@ -107,7 +107,7 @@ class SignUpScene : Scene() {
             passInputY = confirmInputY,
             inputW = inputW,
             inputH = inputH,
-            eyeSlice = GameAssets.manaIconSlice
+            eyeSlice = GameAssets.eyeIconSlice
         )
 
         val errorText = text("", textSize = errorSize, color = Colors.RED, font = GameAssets.customFont) {

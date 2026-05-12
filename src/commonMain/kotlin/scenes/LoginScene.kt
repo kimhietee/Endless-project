@@ -93,7 +93,7 @@ class LoginScene : Scene() {
             passInputY = passInputY,
             inputW = inputW,
             inputH = inputH,
-            eyeSlice = GameAssets.manaIconSlice
+            eyeSlice = GameAssets.eyeIconSlice
         )
 
         val errorText = text("", textSize = errorSize, color = Colors.RED, font = GameAssets.customFont) {

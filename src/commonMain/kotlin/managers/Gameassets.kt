@@ -31,6 +31,7 @@ object GameAssets {
     // ── HUD icons ─────────────────────────────────────────────────────────────
     lateinit var healthIconSlice: BmpSlice
     lateinit var manaIconSlice:   BmpSlice
+    lateinit var eyeIconSlice:   BmpSlice
 
     // ── Font ──────────────────────────────────────────────────────────────────
     lateinit var customFont: Font
@@ -114,6 +115,8 @@ object GameAssets {
         // ── HUD icons ──────────────────────────────────────────────────────────
         healthIconSlice = resourcesVfs["ui/icons/heart.PNG"].readBitmapSlice()
         manaIconSlice   = resourcesVfs["ui/icons/potion.png"].readBitmapSlice()
+        eyeIconSlice   = resourcesVfs["ui/icons/hidden.png"].readBitmapSlice()
+
 
         // ── Font ───────────────────────────────────────────────────────────────
         customFont = resourcesVfs["ui/font/slkscr.ttf"].readFont()
@@ -121,7 +124,7 @@ object GameAssets {
         // ── UI buttons ─────────────────────────────────────────────────────────
         leftSlice         = resourcesVfs["ui/buttons/btn_left.png"].readBitmapSlice()
         rightSlice        = resourcesVfs["ui/buttons/btn_right.png"].readBitmapSlice()
-        jumpSlice         = resourcesVfs["ui/buttons/btn_jump.png"].readBitmapSlice()
+        jumpSlice         = resourcesVfs["ui/buttons/new_jump_icon.png"].readBitmapSlice()
         attackSlice       = resourcesVfs["ui/buttons/btn_attack.png"].readBitmapSlice()
         skill1Slice       = resourcesVfs["skill_icons/fire_wizard/1.png"].readBitmapSlice()
         skill2Slice       = resourcesVfs["skill_icons/fire_wizard/2.png"].readBitmapSlice()
