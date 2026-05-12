@@ -24,6 +24,7 @@ import ui.TextButton
 import utils.Constants
 import utils.SkillConfig
 import kotlin.math.max
+import kotlin.math.min
 
 private data class HeroPickerEntry(
     val id: String,
@@ -111,29 +112,55 @@ class HeroSelectionScene : Scene() {
         val portraitGap = 96.0
         val totalPortraitW = heroes.size * portraitSize + (heroes.size - 1).coerceAtLeast(0) * portraitGap
         val portraitRowX0 = sw / 2.0 - totalPortraitW / 2.0
-        /** Below skill list so rows do not overlap portraits. */
         val portraitRowY = 458.0
 
-        val iconSize = 38.0
-        val textPadX = iconSize + 10.0
-        val rowInnerW = 278.0
+        fun portraitLeft(index: Int) = portraitRowX0 + index * (portraitSize + portraitGap)
+
+        val edgePad = 20.0
+        val portraitTextGap = 12.0
+
+        /** [rowX], [rowInnerW] for single-column skill rows: Fire Wizard left strip; Wanderer centered in right gap. */
+        fun skillRowLayout(heroIndex: Int): Pair<Double, Double> {
+            return if (heroIndex == 0) {
+                val innerW = (portraitLeft(0) - edgePad - portraitTextGap).coerceAtLeast(120.0)
+                Pair(edgePad, innerW)
+            } else {
+                val anchorCx = (portraitLeft(1) + sw) / 2.0
+                val maxInner = sw - portraitLeft(1) - edgePad
+                val innerW = min(292.0, maxInner).coerceAtLeast(120.0)
+                Pair(anchorCx - innerW / 2.0, innerW)
+            }
+        }
+
+        val iconSize = 44.0
+        val textPadX = iconSize + 12.0
         val skillsTopY = 108.0
 
-        heroes.forEachIndexed { col, hero ->
-            val portraitCenterX = portraitRowX0 + col * (portraitSize + portraitGap) + portraitSize / 2.0
-            val cfg = HeroRegistry.configForSessionSelection(hero.id)
-            val icons = skillIconsForHero(hero.id)
+        val skillPanel = Container()
+
+        fun clearSkillPanel() {
+            skillPanel.children.toList().forEach { it.removeFromParent() }
+        }
+
+        fun populateSkillPanel(heroId: String, heroIndex: Int) {
+            clearSkillPanel()
+            val (rowX, rowInnerW) = skillRowLayout(heroIndex)
+            val textAreaW = rowInnerW - textPadX
+            val nameChars = ((textAreaW) / 6.0).toInt().coerceIn(10, 36)
+            val descChars = ((textAreaW) / 4.2).toInt().coerceIn(14, 48)
+            val cfg = HeroRegistry.configForSessionSelection(heroId)
+            val icons = skillIconsForHero(heroId)
             var y = skillsTopY
 
             cfg.allSkills.forEachIndexed { i, skill ->
                 val slice = icons.getOrElse(i) { GameAssets.skill1Slice }
                 val descText = skill.selectScreenDescription()
-                val wrappedName = wrapToScreenWidth(skill.name, approxCharsPerLine = 20)
-                val wrappedDesc = wrapToScreenWidth(descText, approxCharsPerLine = 32)
+                val wrappedName = wrapToScreenWidth(skill.name, approxCharsPerLine = nameChars)
+                val wrappedDesc = wrapToScreenWidth(descText, approxCharsPerLine = descChars)
 
                 var rowH = 0.0
                 val row = Container().apply {
-                    x = portraitCenterX - rowInnerW / 2.0
+                    x = rowX
                     this.y = y
                     image(slice) {
                         smoothing = true
@@ -152,7 +179,7 @@ class HeroSelectionScene : Scene() {
                     }
                     rowH = max(iconSize + 6.0, nameLbl.textBounds.height + 3.0 + descLbl.textBounds.height + 4.0)
                 }
-                addChild(row)
+                skillPanel.addChild(row)
                 y += rowH + 5.0
             }
         }
@@ -207,6 +234,7 @@ class HeroSelectionScene : Scene() {
                     GameSession.setSelectedHero(hero.id)
                     selectionRings.forEach { it.visible = false }
                     selectionRings[index].visible = true
+                    populateSkillPanel(hero.id, index)
                     startGameBtn.visible = true
                 }
             }
@@ -219,5 +247,7 @@ class HeroSelectionScene : Scene() {
 
             addChild(cell)
         }
+
+        addChild(skillPanel)
     }
 }

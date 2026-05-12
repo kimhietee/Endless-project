@@ -18,8 +18,6 @@ class MenuScene : Scene() {
         val scene = this@MenuScene
         GameAssets.load()
 
-        addNoSaveProgressWarningIfNeeded()
-
         // -------------------------------------------------------
         // BACKGROUND (placeholder — swap menu_bg.png when ready)
         // -------------------------------------------------------
@@ -84,5 +82,7 @@ class MenuScene : Scene() {
             y = 590.0
         }
         addChild(backBtn)
+
+        addNoSaveProgressWarningIfNeeded()
     }
 }

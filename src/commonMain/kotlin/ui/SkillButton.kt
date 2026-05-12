@@ -17,7 +17,7 @@ import managers.GameAssets
  *  • lock text at center ("Unlocked in" / "Lvl4", …) when player level is below the gate
  *  • "UNLOCK" at center when level gate is met but a skill point has not been spent yet
  *  • a centered cooldown timer in light-red (whole seconds, ceil) when on cooldown
- *  • damage text at top-left — red, larger, dark badge (uniform with other corner labels)
+ *  • damage or special heal hint at top-left — red for damage, green for heal values
  *  • skill level (upgrade rank) at top-right — blue badge
  *  • mana-cost at bottom-right — cyan, larger, dark badge
  *  • larger "+" above the icon for spend-point unlock or upgrade (sits higher so it stays in the UI band)
@@ -30,6 +30,16 @@ class SkillButton(
     slice: BmpSlice,
     upgradeSlice: BmpSlice, // ✅ ADD THIS
     val skillConfig: SkillConfig,
+    /**
+     * When true, the top-left numeric badge uses heal green ([healCornerRgb]) — for skills where
+     * [SkillConfig.damage] is actually a heal amount (e.g. ramen / bento healing).
+     */
+    private val cornerNumberIsHealAmount: Boolean = false,
+    /**
+     * When [SkillConfig.damage] is 0 but this is positive, show this value in the top-left in green
+     * (e.g. Wanderer Magician skill 2 aura total heal).
+     */
+    private val cornerHealTotalWhenDamageZero: Double? = null,
 ) : Container() {
 
     // -------------------------------------------------------
@@ -87,6 +97,9 @@ class SkillButton(
 
     private val dmgBg   = solidRect(1.0, 1.0, RGBA(0, 0, 0, labelBgAlpha))
     private val dmgText = text("", textSize = labelTextSize, color = RGBA(255, 72, 72, 255), font = GameAssets.customFont)
+
+    private val damageCornerRgb = RGBA(255, 72, 72, 255)
+    private val healCornerRgb   = RGBA(72, 220, 120, 255)
 
     private val skillLvlBg   = solidRect(1.0, 1.0, RGBA(0, 0, 0, labelBgAlpha))
     private val skillLvlText = text("", textSize = labelTextSize, color = RGBA(100, 170, 255, 255), font = GameAssets.customFont)
@@ -170,9 +183,18 @@ class SkillButton(
     fun updateLabels() {
         val pad = labelPad
 
-        // Damage (top-left, red) — only show if damage > 0
-        if (skillConfig.damage > 0.0) {
-            dmgText.text = skillConfig.damage.toInt().toString()
+        // Top-left value: damage (red), heal-from-[damage] (green), or aura total when damage is 0 (green)
+        val healZeroDamage = cornerHealTotalWhenDamageZero
+        val cornerValue = when {
+            skillConfig.damage > 0.0 -> skillConfig.damage
+            healZeroDamage != null && healZeroDamage > 0.0 -> healZeroDamage
+            else -> 0.0
+        }
+        if (cornerValue > 0.0) {
+            dmgText.text = cornerValue.toInt().toString()
+            val useHealGreen = cornerNumberIsHealAmount ||
+                (skillConfig.damage <= 0.0 && healZeroDamage != null && healZeroDamage > 0.0)
+            dmgText.color = if (useHealGreen) healCornerRgb else damageCornerRgb
             dmgText.xy(pad, pad)
             val dw = dmgText.textBounds.width  + pad * 2
             val dh = dmgText.textBounds.height + pad

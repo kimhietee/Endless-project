@@ -34,8 +34,6 @@ class SettingsScene : Scene() {
             alpha = 0.55
         }
 
-        addNoSaveProgressWarningIfNeeded()
-
         // ── Title ───────────────────────────────────────────────────────────
         text("SETTINGS", textSize = 70.0, color = Colors.WHITE, font = GameAssets.customFont) {
             centerXOn(this@sceneMain)
@@ -152,5 +150,7 @@ class SettingsScene : Scene() {
             y = 560.0
         }
         addChild(backBtn)
+
+        addNoSaveProgressWarningIfNeeded()
     }
 }

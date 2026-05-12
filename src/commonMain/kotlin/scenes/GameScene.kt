@@ -136,11 +136,17 @@ class GameScene : Scene() {
         val rightBtn  = TouchButton(btnSize, btnSize, rightSlice).xy(20.0 + btnSize + gap, rowY)
         val skillsX   = 20.0 + (btnSize + gap) * 2
         val skillBtn1 = SkillButton(btnSize, btnSize, skill1Slice, upgradeSlice, player.skill1Config      ).xy(skillsX + (btnSize + gap) * 0, rowY)
-        val skillBtn2 = SkillButton(btnSize, btnSize, skill2Slice, upgradeSlice, player.skill2Config      ).xy(skillsX + (btnSize + gap) * 1, rowY)
+        val skillBtn2 = SkillButton(
+            btnSize, btnSize, skill2Slice, upgradeSlice, player.skill2Config,
+            cornerHealTotalWhenDamageZero = if (isWandererMagician) heroConfig.skill2AuraTotalHeal else null
+        ).xy(skillsX + (btnSize + gap) * 1, rowY)
         val skillBtn3 = SkillButton(btnSize, btnSize, skill3Slice, upgradeSlice, player.skill3Config      ).xy(skillsX + (btnSize + gap) * 2, rowY)
         val skillBtn4 = SkillButton(btnSize, btnSize, skill4Slice, upgradeSlice, player.skill4Config      ).xy(skillsX + (btnSize + gap) * 3, rowY)
         val attackBtn        = SkillButton(btnSize, btnSize, attackSlice,       upgradeSlice, player.basicAttackSkill   ).xy(attackX, rowY)
-        val skillBtnHealing  = SkillButton(btnSize, btnSize, healingRamenSlice, upgradeSlice, player.healingSkillConfig ).xy(healingX, rowY)
+        val skillBtnHealing  = SkillButton(
+            btnSize, btnSize, healingRamenSlice, upgradeSlice, player.healingSkillConfig,
+            cornerNumberIsHealAmount = true
+        ).xy(healingX, rowY)
         val skillBtnMaxHealth= SkillButton(btnSize, btnSize, maxHealthSlice,    upgradeSlice, player.maxHealthSkillConfig).xy(maxHealthX, rowY)
         val jumpBtn  = TouchButton(btnSize, btnSize, jumpSlice).xy(jumpX, rowY)
 
