@@ -23,8 +23,10 @@ class GameScene : Scene() {
     private var gameTime = 0.0
 
     override suspend fun SContainer.sceneMain() {
+        val heroId = managers.GameSession.selectedHeroId ?: entities.heroes.FireWizardHero.ID
         // Ensure assets are loaded before anything else
-        GameAssets.load()
+        GameAssets.loadGlobal()
+        GameAssets.loadHeroAssets(heroId)
 
         // -------------------------------------------------------
         // BACKGROUND — starts on wave 1's background and updates

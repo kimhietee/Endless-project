@@ -30,12 +30,14 @@ class LoadingScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
         val scene = this@LoadingScene
+        val heroId = managers.GameSession.selectedHeroId ?: entities.heroes.FireWizardHero.ID
 
-        // Preload all game assets first!
-        GameAssets.load()
+        // Preload global and hero-specific game assets
+        GameAssets.loadGlobal()
+        GameAssets.loadHeroAssets(heroId)
 
         // Now we can safely use GameAssets properties
-        val bgSlice = GameAssets.bg4Slice
+        val bgSlice = GameAssets.backgroundForWave(4)
         val bg = image(bgSlice).apply {
             width     = Constants.SCREEN_WIDTH.toDouble()
             height    = Constants.SCREEN_HEIGHT.toDouble()
@@ -62,12 +64,6 @@ class LoadingScene : Scene() {
         addUpdater { dt ->
             spinner.rotation += (dt.seconds * 360.0).degrees  // rotate 360 degrees per second
         }
-
-        // Preload all game assets (already called above, but kept for safety or if logic changes)
-        if (!GameAssets.loaded) GameAssets.load()
-
-        // Wait a bit to ensure everything is ready
-        delay(0.5.seconds)
 
         // Once loaded, transition to GameScene
         launchImmediately {

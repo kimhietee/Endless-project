@@ -48,7 +48,8 @@ class HeroSelectionScene : Scene() {
 
     override suspend fun SContainer.sceneMain() {
         val scene = this@HeroSelectionScene
-        GameAssets.load()
+        GameAssets.loadGlobal()
+        GameAssets.loadHeroPortraits()
         GameSession.clearSelectedHero()
 
         val sw = Constants.SCREEN_WIDTH.toDouble()
