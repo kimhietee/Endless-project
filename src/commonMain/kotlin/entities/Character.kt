@@ -12,6 +12,7 @@ import utils.*
 import managers.*
 import entities.heroes.HeroConfig
 import entities.heroes.WandererMagicianHero
+import korlibs.time.*
 
 enum class CharacterState { IDLE, RUNNING, JUMPING, ATTACKING, SKILL }
 
@@ -78,6 +79,17 @@ class Character(
         heal(amount)
     }
 
+    fun showFloatingText(txt: String, color: korlibs.image.color.RGBA) {
+        val p = this.parent ?: return
+        val ft = p.text(txt, textSize = 32.0, color = color, font = GameAssets.customFont)
+        ft.xy(this.x, this.y - characterHeight - 30.0)
+        ft.addUpdater { dt ->
+            ft.y -= 120.0 * dt.seconds
+            ft.alpha -= 1.1 * dt.seconds
+            if (ft.alpha <= 0) ft.removeFromParent()
+        }
+    }
+
     override fun isAlive() = health > 0.0
     override fun hitboxRect(): Rectangle {
         val w = characterWidth  * 0.6
@@ -141,9 +153,9 @@ class Character(
 
     private fun buildSkill2Config(): AttackConfig {
         val t = heroConfig.skill2Tuning
-        if (heroConfig.skill2AuraTotalHeal > 0.0) {
+        if (skill2Config.heal > 0.0) {
             val ticks = (skill2Frames.size * t.repeatAnimation).coerceAtLeast(1)
-            val healPer = heroConfig.skill2AuraTotalHeal / ticks.toDouble()
+            val healPer = skill2Config.heal / ticks.toDouble()
             return AttackConfig(
                 frames          = skill2Frames,
                 frameDuration   = t.frameDuration,
@@ -432,6 +444,7 @@ class Character(
         spendMana(healingSkillConfig.manaCost)
         healingSkillConfig.startCooldown()
         heal(healingSkillConfig.damage)
+        showFloatingText("+${healingSkillConfig.damage.toInt()}", Colors.GREEN)
         return true
     }
 
@@ -530,6 +543,7 @@ class Character(
                     skill2Config.startCooldown()
                     // Don't set actionPlaying = true, so the player is not frozen!
                     spawnAttack(buildSkill2Config(), getEnemies, container)
+                    showFloatingText("+${skill2Config.heal.toInt()}", Colors.GREEN)
                 }
 
                 isOnGround() && input.skill3 && skill3Config.isUnlockedForUse(playerProgress.level) && skill3Config.isUsable(mana) -> {

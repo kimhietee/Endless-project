@@ -64,7 +64,9 @@ data class SkillConfig(
     val maxUpgrades: Int = 5,
 
     /** Runtime counter — how many upgrades have been applied. */
-    var upgradeCount: Int = 0
+    var upgradeCount: Int = 0,
+
+    var heal:Double = 0.0
 
 ) {
     // -------------------------------------------------------
@@ -120,6 +122,8 @@ data class SkillConfig(
         upgradeCount++
         damage      += damagePerUpgrade
         cooldownMax  = (cooldownMax - cooldownReductionPerUpgrade).coerceAtLeast(minCooldown)
+        heal += damagePerUpgrade
+
     }
 
     /** Reset runtime state (e.g. on scene restart). */

@@ -59,7 +59,7 @@ internal fun createFireWizardPlaceholderStats(
     val skill4Config = SkillConfig(
         name = "Skill 4",
         cooldownMax = 20.0,
-        manaCost = 100,
+        manaCost = 80,
         damage = 50.0,
         unlockLevel = 18,
         damagePerUpgrade = 5.0,

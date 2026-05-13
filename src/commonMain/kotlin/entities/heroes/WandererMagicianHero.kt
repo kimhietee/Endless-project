@@ -29,9 +29,9 @@ object WandererMagicianHero {
         )
         val skill1Config = SkillConfig(
             name = "Comet Shard",
-            cooldownMax = 3.0,
+            cooldownMax = 2.0,
             manaCost = 15,
-            damage = 8.0,
+            damage = 5.0,
             unlockLevel = 3,
             damagePerUpgrade = 1.0,
             cooldownReductionPerUpgrade = 0.3,
@@ -39,31 +39,32 @@ object WandererMagicianHero {
         )
         val skill2Config = SkillConfig(
             name = "Sanctuary Veil",
-            cooldownMax = 12.0,
-            manaCost = 35,
+            cooldownMax = 15.0,
+            manaCost = 50,
             damage = 0.0,
-            unlockLevel = 6,
-            damagePerUpgrade = 0.0,
+            unlockLevel = 8,
+            damagePerUpgrade = 2.0,
             cooldownReductionPerUpgrade = 0.4,
-            maxUpgrades = 5
+            maxUpgrades = 5,
+            heal = 20.0
         )
         val skill3Config = SkillConfig(
             name = "Starfall Rupture",
             cooldownMax = 12.0,
-            manaCost = 50,
+            manaCost = 65,
             damage = 32.0,
             unlockLevel = 12,
-            damagePerUpgrade = 4.0,
-            cooldownReductionPerUpgrade = 0.5,
+            damagePerUpgrade = 3.0,
+            cooldownReductionPerUpgrade = 0.4,
             maxUpgrades = 5
         )
         val skill4Config = SkillConfig(
             name = "Void Orb",
             cooldownMax = 22.0,
-            manaCost = 90,
+            manaCost = 120,
             damage = 50.0,
             unlockLevel = 18,
-            damagePerUpgrade = 6.0,
+            damagePerUpgrade = 5.0,
             cooldownReductionPerUpgrade = 1.0,
             maxUpgrades = 5
         )
@@ -98,10 +99,10 @@ object WandererMagicianHero {
         return HeroConfig(
             id = ID,
             displayName = "Wanderer Magician",
-            maxHealth = 200.0,
-            maxMana = 110.0,
+            maxHealth = 180.0,
+            maxMana = 120.0,
             manaRegen = 5.5,
-            healthRegen = 0.45,
+            healthRegen = 0.40,
             runningSpeed = 205.0,
             charSpeed = 1.0,
             animFrameDuration = 0.11,
@@ -116,25 +117,25 @@ object WandererMagicianHero {
             healingSkillConfig = healingSkillConfig,
             maxHealthSkillConfig = maxHealthSkillConfig,
             basicAttackTuning = BasicAttackTuning(
-                frameDuration = 0.07,
+                frameDuration = 0.1,
                 moving = true,
-                speed = 420.0,
+                speed = 480.0,
                 hitboxScaleX = 0.75,
                 hitboxScaleY = 0.75,
                 repeatAnimation = 1,
                 displayScale = 2.2,
-                offsetX = -40.0,
+                offsetX = -120.0,
                 offsetY = 20.0
             ),
             skill1Tuning = SkillAttackTuning(
-                frameDuration = 0.07,
+                frameDuration = 0.08,
                 moving = true,
-                projectileSpeed = 400.0,
+                projectileSpeed = 450.0,
                 hitboxScaleX = 0.8,
                 hitboxScaleY = 0.8,
                 repeatAnimation = 1,
                 displayScale = 2.8,
-                offsetX = -130.0,
+                offsetX = -110.0,
                 offsetY = 22.0
             ),
             skill2Tuning = SkillAttackTuning(
@@ -144,20 +145,20 @@ object WandererMagicianHero {
                 hitboxScaleX = 1.25,
                 hitboxScaleY = 1.1,
                 repeatAnimation = 1,
-                displayScale = 0.55,
+                displayScale = 0.8,
                 offsetX = 0.0,
                 offsetY = -65.0
             ),
             skill3Tuning = SkillAttackTuning(
-                frameDuration = 0.065,
+                frameDuration = 0.09,
                 moving = false,
                 projectileSpeed = 0.0,
                 hitboxScaleX = 0.55,
                 hitboxScaleY = 0.55,
                 repeatAnimation = 1,
-                displayScale = 0.35,
-                offsetX = -18.0,
-                offsetY = 12.0
+                displayScale = 1.4,
+                offsetX = 100.0,
+                offsetY = -65.0
             ),
             skill4Tuning = SkillAttackTuning(
                 frameDuration = 0.08,
@@ -168,7 +169,7 @@ object WandererMagicianHero {
                 repeatAnimation = 50,
                 displayScale = 1.15,
                 offsetX = 35.0,
-                offsetY = -55.0
+                offsetY = 5.0
             ),
             bodyAnimRules = HeroBodyAnimRules(
                 skill1UsesAttackAnimForBody = true,

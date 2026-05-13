@@ -184,16 +184,16 @@ class SkillButton(
         val pad = labelPad
 
         // Top-left value: damage (red), heal-from-[damage] (green), or aura total when damage is 0 (green)
-        val healZeroDamage = cornerHealTotalWhenDamageZero
         val cornerValue = when {
+            skillConfig.heal > 0.0 -> skillConfig.heal
             skillConfig.damage > 0.0 -> skillConfig.damage
-            healZeroDamage != null && healZeroDamage > 0.0 -> healZeroDamage
+            cornerHealTotalWhenDamageZero != null && cornerHealTotalWhenDamageZero > 0.0 -> cornerHealTotalWhenDamageZero
             else -> 0.0
         }
         if (cornerValue > 0.0) {
             dmgText.text = cornerValue.toInt().toString()
-            val useHealGreen = cornerNumberIsHealAmount ||
-                (skillConfig.damage <= 0.0 && healZeroDamage != null && healZeroDamage > 0.0)
+            val useHealGreen = cornerNumberIsHealAmount || skillConfig.heal > 0.0 ||
+                (skillConfig.damage <= 0.0 && cornerHealTotalWhenDamageZero != null && cornerHealTotalWhenDamageZero > 0.0)
             dmgText.color = if (useHealGreen) healCornerRgb else damageCornerRgb
             dmgText.xy(pad, pad)
             val dw = dmgText.textBounds.width  + pad * 2
