@@ -138,7 +138,8 @@ class GameScene : Scene() {
         val skillBtn1 = SkillButton(btnSize, btnSize, skill1Slice, upgradeSlice, player.skill1Config      ).xy(skillsX + (btnSize + gap) * 0, rowY)
         val skillBtn2 = SkillButton(
             btnSize, btnSize, skill2Slice, upgradeSlice, player.skill2Config,
-            cornerHealTotalWhenDamageZero = if (isWandererMagician) player.skill2Config.heal else null
+            cornerNumberIsHealAmount = isWandererMagician,
+            cornerHealTotalWhenDamageZero = if (isWandererMagician) heroConfig.skill2AuraTotalHeal else null
         ).xy(skillsX + (btnSize + gap) * 1, rowY)
         val skillBtn3 = SkillButton(btnSize, btnSize, skill3Slice, upgradeSlice, player.skill3Config      ).xy(skillsX + (btnSize + gap) * 2, rowY)
         val skillBtn4 = SkillButton(btnSize, btnSize, skill4Slice, upgradeSlice, player.skill4Config      ).xy(skillsX + (btnSize + gap) * 3, rowY)

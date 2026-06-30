@@ -47,7 +47,7 @@ class PlayerProgress {
 
     )
 
-    val maxLevel =  1 + xpTable.size + 10
+    val maxLevel =  1 + xpTable.size + 30
 
     val defaultXpRequirement = 200.0
 

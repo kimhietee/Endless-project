@@ -30,10 +30,10 @@ object WandererMagicianHero {
         val skill1Config = SkillConfig(
             name = "Comet Shard",
             cooldownMax = 2.0,
-            manaCost = 15,
+            manaCost = 10,
             damage = 5.0,
-            unlockLevel = 3,
-            damagePerUpgrade = 1.0,
+            unlockLevel = 2,
+            damagePerUpgrade = 2.0,
             cooldownReductionPerUpgrade = 0.3,
             maxUpgrades = 5
         )
@@ -41,27 +41,27 @@ object WandererMagicianHero {
             name = "Sanctuary Veil",
             cooldownMax = 15.0,
             manaCost = 50,
-            damage = 0.0,
+            damage = 30.0,
             unlockLevel = 8,
             damagePerUpgrade = 2.0,
             cooldownReductionPerUpgrade = 0.4,
             maxUpgrades = 5,
-            heal = 20.0
+            heal = 30.0
         )
         val skill3Config = SkillConfig(
             name = "Starfall Rupture",
             cooldownMax = 12.0,
-            manaCost = 65,
-            damage = 32.0,
+            manaCost = 40,
+            damage = 30.0,
             unlockLevel = 12,
-            damagePerUpgrade = 3.0,
+            damagePerUpgrade = 4.0,
             cooldownReductionPerUpgrade = 0.4,
             maxUpgrades = 5
         )
         val skill4Config = SkillConfig(
             name = "Void Orb",
-            cooldownMax = 22.0,
-            manaCost = 120,
+            cooldownMax = 24.0,
+            manaCost = 110,
             damage = 50.0,
             unlockLevel = 18,
             damagePerUpgrade = 5.0,
@@ -153,12 +153,12 @@ object WandererMagicianHero {
                 frameDuration = 0.09,
                 moving = false,
                 projectileSpeed = 0.0,
-                hitboxScaleX = 0.55,
-                hitboxScaleY = 0.55,
+                hitboxScaleX = 1.6,
+                hitboxScaleY = 1.6,
                 repeatAnimation = 1,
-                displayScale = 1.4,
-                offsetX = 100.0,
-                offsetY = -65.0
+                displayScale = 1.75,
+                offsetX = 110.0,
+                offsetY = -85.0
             ),
             skill4Tuning = SkillAttackTuning(
                 frameDuration = 0.08,
@@ -177,7 +177,7 @@ object WandererMagicianHero {
                 skill3BodyUsesCastSheet = true,
                 skill4ChargeBeforeBall = true
             ),
-            skill2AuraTotalHeal = 20.0,
+            skill2AuraTotalHeal = 30.0,
             skill2AuraDurationSeconds = skill2AuraDuration,
             skill4ChargeFrameDuration = 0.06,
             skill4BallMaxDurationSeconds = 14.0
